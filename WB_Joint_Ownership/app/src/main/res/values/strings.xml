@@ -1,0 +1,34 @@
+<resources>
+    <string name="app_name">WhiteBoard_test</string>
+    <string name="title_activity_video_chat">ホワイトボード</string>
+    <string name="can_not_conect_titol">現在接続できません</string>
+    <string name="can_not_conect_msg1">サーバからあなたの接続IDを得られません\n少し待って再接続して下さい。</string>
+    <string name="can_not_conect_msg2">接続できるお相手がログインしていません。\n接続先にログインして頂ける様、ご連絡ください。</string>
+	<string name="can_not_conect_msg3">少し時間を置いて再起動してください。</string>
+	<string name="conectlist_titol">接続先を選択して下さい。</string>
+	<string name="my_id_titol">この端末のID</string>
+    <string name="non_conect_now">現在、接続していません</string>
+    <string name="conect_now">接続しました</string>
+
+    <string name="camera_switch_caption">サブ/メイン切替</string>
+    <string name="camera_switch_caption2main">メインカメラへ</string>
+    <string name="camera_switch_caption2sub">サブカメラへ</string>
+    <string name="call_bt_caption2conect">接続</string>
+    <string name="call_bt_caption2disconect">切断</string>
+    <string name="partner_titol">接続先</string>
+    <string name="conect_situation_titol">接続状況</string>
+    <string name="select_dlog_msg">Backキーでキャンセル</string>
+	<string
+		name="title_activity_bottom_bar">
+		bottom_bar
+	</string>
+	<string name="menu_setting">設定</string>
+	<string name="service_id_titol">サービスID</string>
+	<string name="skyway_setting_titol">SkyWay接続状況</string>
+	<string name="peer_id_titol">PeerID</string>
+	<string name="partner_id_titol">接続先ID</string>
+	<string name="skyway_secret_key_titol">シークレットキー</string>
+	<string name="skyway_api_key_titol">APIキー</string>
+	<string name="available_domain_titol">利用可能ドメイン</string>
+	<string name="now_conection_meg">サーバに接続中です</string>
+</resources>

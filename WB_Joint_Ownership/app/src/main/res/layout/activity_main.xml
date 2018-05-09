@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:orientation="vertical"
+	android:padding="5dp"
+	tools:context="com.hijiyama_koubou.wb_joint_ownership.MainActivity">
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="horizontal">
+
+		<TextView
+			android:id="@+id/textView4"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginRight="5dp"
+			android:text="@string/partner_titol"
+			android:textAlignment="textEnd"/>
+
+		<TextView
+			android:id="@+id/tvPartnerId"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:text="@string/non_conect_now"/>
+
+		<Button
+			android:id="@+id/connect_bt"
+			android:layout_width="wrap_content"
+			android:layout_height="36dp"
+			android:text="@string/call_bt_caption2conect"
+			app:layout_constraintRight_toRightOf="parent"
+			app:layout_constraintTop_toTopOf="parent"/>
+	</LinearLayout>
+
+	<!--受信映像-->
+	<view
+		android:id="@+id/svRemoteView"
+		class="io.skyway.Peer.Browser.Canvas"
+		android:layout_width="match_parent"
+		android:layout_height="325dp"
+		android:layout_margin="2dp"
+		android:layout_weight="1"
+		tools:layout_editor_absoluteX="32dp"
+		tools:layout_editor_absoluteY="72dp"/>
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_gravity="bottom"
+		android:layout_weight="1"
+		android:orientation="horizontal">
+
+		<!--送信映像-->
+		<view
+			android:id="@+id/svLocalView"
+			class="io.skyway.Peer.Browser.Canvas"
+			android:layout_width="192dp"
+			android:layout_height="108dp"
+			android:layout_margin="5dp"
+			app:layout_constraintBottom_toBottomOf="parent"
+			app:layout_constraintRight_toRightOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/svRemoteView"/>
+
+		<LinearLayout
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_margin="5dp"
+			android:orientation="vertical">
+
+			<TextView
+				android:id="@+id/textView2"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:text="@string/my_id_titol"
+				android:textAlignment="center"/>
+
+			<TextView
+				android:id="@+id/tvOwnId"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:text="@string/non_conect_now"
+				android:textAlignment="center"
+				app:layout_constraintBottom_toTopOf="@+id/svRemoteView"
+				app:layout_constraintLeft_toLeftOf="parent"
+				app:layout_constraintRight_toLeftOf="@+id/btnAction"
+				app:layout_constraintTop_toTopOf="parent"/>
+
+			<Button
+				android:id="@+id/switchCameraAction"
+				android:layout_width="match_parent"
+				android:layout_height="36dp"
+				android:layout_weight="1"
+				android:text="@string/camera_switch_caption2main"
+				app:layout_constraintBottom_toBottomOf="parent"
+				app:layout_constraintLeft_toLeftOf="parent"
+				app:layout_constraintRight_toLeftOf="@+id/svLocalView"
+				app:layout_constraintTop_toBottomOf="@+id/svRemoteView"/>
+		</LinearLayout>
+
+	</LinearLayout>
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_gravity="bottom"
+		android:layout_marginBottom="0dp"
+		android:layout_weight="1"
+		android:orientation="horizontal">
+
+		<TextView
+			android:id="@+id/textView5"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginRight="5dp"
+			android:text="@string/conect_situation_titol"
+			android:textAlignment="textEnd"/>
+
+		<TextView
+			android:id="@+id/conect_situation_tv"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/non_conect_now"/>
+
+	</LinearLayout>
+
+	<include
+		layout="@layout/activity_bottom_bar"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_gravity="bottom"
+		android:layout_weight="1"/>
+</LinearLayout>
+
+
+<!--</android.support.constraint.ConstraintLayout>-->
