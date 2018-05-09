@@ -11,75 +11,34 @@
 	tools:context="com.hijiyama_koubou.wb_joint_ownership.MainActivity">
 
 
-	<ImageButton
-		android:id="@+id/main_memu_bt"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_weight="1"
-		android:src="@android:drawable/ic_dialog_dialer"/>
 
-	<ImageButton
-		android:id="@+id/main_setting_bt"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_weight="1"
-		android:src="@android:drawable/ic_menu_manage"/>
+	<!--<ImageButton-->
+		<!--android:id="@+id/test_bt3"-->
+		<!--android:layout_width="wrap_content"-->
+		<!--android:layout_height="wrap_content"-->
+		<!--android:layout_weight="1"-->
+		<!--android:src="@android:drawable/ic_menu_crop"/>-->
 
-	<ImageButton
-		android:id="@+id/main_edit_bt"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_weight="1"
-		android:src="@android:drawable/ic_menu_edit"/>
+	<!--<ImageButton-->
+		<!--android:id="@+id/test_bt5"-->
+		<!--android:layout_width="wrap_content"-->
+		<!--android:layout_height="wrap_content"-->
+		<!--android:layout_weight="1"-->
+		<!--android:src="@android:drawable/ic_lock_silent_mode_off"/>-->
 
-	<ImageButton
-		android:id="@+id/test_bt1"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_weight="1"
-		android:src="@android:drawable/ic_input_get"/>
+	<!--<ImageButton-->
+		<!--android:id="@+id/test_bt6"-->
+		<!--android:layout_width="wrap_content"-->
+		<!--android:layout_height="wrap_content"-->
+		<!--android:layout_weight="1"-->
+		<!--android:src="@android:drawable/ic_menu_revert"/>-->
 
-	<ImageButton
-		android:id="@+id/main_all_clear_bt"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_weight="1"
-		android:src="@android:drawable/ic_menu_delete"/>
+	<!--<ImageButton-->
+		<!--android:id="@+id/test_bt8"-->
+		<!--android:layout_width="wrap_content"-->
+		<!--android:layout_height="wrap_content"-->
+		<!--android:layout_weight="1"-->
+		<!--android:src="@android:drawable/ic_menu_help"/>-->
 
-	<ImageButton
-		android:id="@+id/test_bt3"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_weight="1"
-		android:src="@android:drawable/ic_menu_crop"/>
-
-	<ImageButton
-		android:id="@+id/test_bt5"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_weight="1"
-		android:src="@android:drawable/ic_lock_silent_mode_off"/>
-
-	<ImageButton
-		android:id="@+id/test_bt6"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_weight="1"
-		android:src="@android:drawable/ic_menu_revert"/>
-
-	<ImageButton
-		android:id="@+id/test_bt8"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_weight="1"
-		android:src="@android:drawable/ic_menu_help"/>
-
-	<ImageButton
-		android:id="@+id/main_quit_bt"
-		android:layout_width="wrap_content"
-		android:layout_height="match_parent"
-		android:layout_gravity="fill_vertical|fill_horizontal|center"
-		android:layout_weight="1"
-		android:src="@android:drawable/ic_lock_power_off"/>
 
 </LinearLayout>

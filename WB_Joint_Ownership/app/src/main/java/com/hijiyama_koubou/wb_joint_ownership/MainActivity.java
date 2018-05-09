@@ -23,6 +23,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -59,6 +60,8 @@ public class MainActivity extends Activity {
 	private TextView conect_situation_tv;                    //接続状況
 	private ImageButton main_setting_bt;                    //設定ボタン
 	private ImageButton main_quit_bt;                    //終了
+	private LinearLayout wh_paret;        //ホワイトボードツールボックス
+	private LinearLayout main_subview_ll;
 
 	private boolean isNowWhitebord = false;        //現在ホワイトボード
 	private CS_CanvasView main_whitebord;        //ホワイトボード
@@ -182,6 +185,10 @@ public class MainActivity extends Activity {
 			conect_situation_tv = ( TextView ) findViewById(R.id.conect_situation_tv);    //接続状況
 			main_setting_bt = ( ImageButton ) findViewById(R.id.main_setting_bt);                    //設定ボタン
 //			switchCameraAction = ( ImageButton ) findViewById(R.id.switchCameraAction);    //カメラ切替ボタン
+
+			main_subview_ll = ( LinearLayout ) findViewById(R.id.main_subview_ll);
+   			wh_paret = ( LinearLayout ) findViewById(R.id.wh_paret);		//ホワイトボードツールボックス
+			wh_paret.setVisibility(View.GONE);		//ホワイトボードツールボックス;非表示
 
 			main_whitebord = ( CS_CanvasView ) findViewById(R.id.main_whitebord);        //ホワイトボード
 			main_all_clear_bt = ( ImageButton ) findViewById(R.id.main_all_clear_bt);        //全消去
@@ -1145,10 +1152,18 @@ public class MainActivity extends Activity {
 				_localStream.setEnableVideoTrack(0,true);		//映像トラック再生
 				isVideoEnable = _localStream.getEnableVideoTrack(0);
 				dbMsg += ">>" + isVideoEnable;
+
+				wh_paret.setVisibility(View.GONE);		//ホワイトボードツールボックス;非表示
+				connect_bt.setVisibility(View.VISIBLE);                    //接続ボタン
+				main_quit_bt.setVisibility(View.VISIBLE);                    //終了
 				canvasMain.setScaleX(1.0f);
 				canvasMain.setScaleY(1.0f);
 				canvasSub.setScaleX(1.0f);
 				canvasSub.setScaleY(1.0f);
+				main_subview_ll.setScaleX(1.0f);
+				main_subview_ll.setScaleY(1.0f);
+				main_whitebord.setScaleX(1.0f);
+				main_whitebord.setScaleY(1.0f);
 			} else {
 				isNowWhitebord = true;
 
@@ -1156,17 +1171,27 @@ public class MainActivity extends Activity {
 				isVideoEnable = _localStream.getEnableVideoTrack(0);
 				dbMsg += ">>" + isVideoEnable;
 
+				connect_bt.setVisibility(View.GONE);                    //接続ボタン
+				main_quit_bt.setVisibility(View.GONE);                    //終了
+				wh_paret.setVisibility(View.VISIBLE);		//ホワイトボードツールボックス;表示
+
 				canvasMainX = canvasMain.getX();
 				canvasMainY = canvasMain.getY();
-				dbMsg += ",canvasMain("+canvasMainX  + ","+canvasMainY+")";
-				dbMsg += "["+ canvasMain.getWidth()  + ","+canvasMain.getHeight()+"]";
+				dbMsg += ",("+canvasMainX  + ","+canvasMainY+")";
+				dbMsg += "canvasMain["+ canvasMain.getWidth()  + ","+canvasMain.getHeight()+"]";
 
-//				canvasMain.setScaleX(0.2f);
-//				canvasMain.setScaleY(0.2f);
-////				canvasMain.setX(0);
-////				canvasMain.setY(0);
-//				canvasSub.setScaleX(3.0f);
-//				canvasSub.setScaleY(3.0f);
+				canvasMain.setScaleX(0.05f);
+				canvasMain.setScaleY(0.05f);
+				canvasMain.setX(canvasMainX);
+				canvasMain.setY(canvasMainY);
+				canvasSub.setScaleX(0.1f);
+				canvasSub.setScaleY(0.1f);
+				canvasSub.setX(canvasMainX);
+				main_subview_ll.setScaleX(3.0f);
+				main_subview_ll.setScaleY(3.0f);
+				main_whitebord.setScaleX(3.0f);
+				main_whitebord.setScaleY(3.0f);
+				main_whitebord.setX(canvasMainX);
 
 //							io.skyway.Peer.Browser.Canvas sendVeiw = ( io.skyway.Peer.Browser.Canvas ) v;
 //							dbMsg += "sendVeiw=" + sendVeiw.getId();

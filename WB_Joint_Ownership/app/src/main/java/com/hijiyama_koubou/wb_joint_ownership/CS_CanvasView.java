@@ -3,6 +3,7 @@ package com.hijiyama_koubou.wb_joint_ownership;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PorterDuff;
@@ -40,7 +41,7 @@ public class CS_CanvasView extends View {
 			paint.setStyle(Paint.Style.STROKE);
 			paint.setStrokeJoin(Paint.Join.ROUND);
 			paint.setStrokeCap(Paint.Cap.ROUND);
-			paint.setStrokeWidth(10);
+			paint.setStrokeWidth(1);
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
@@ -67,7 +68,8 @@ public class CS_CanvasView extends View {
 
 			switch ( REQUEST_CORD ) {
 				case REQUEST_CLEAR:                //全消去
-					canvas.drawColor(0 , PorterDuff.Mode.CLEAR);                // 描画クリア
+					canvas.drawColor(Color.WHITE , PorterDuff.Mode.CLEAR);                // 描画クリア
+					path.reset();
 					REQUEST_CORD = REQUEST_DROW_PATH;
 					break;
 				case REQUEST_DROW_PATH:                //フリーハンド
