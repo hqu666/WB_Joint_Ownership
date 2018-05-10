@@ -10,169 +10,191 @@
 	android:padding="5dp"
 	tools:context="com.hijiyama_koubou.wb_joint_ownership.MainActivity">
 
-	<LinearLayout
+
+	<ViewFlipper
+		android:id="@+id/flipper"
 		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:orientation="horizontal">
+		android:layout_height="match_parent"
+		android:layout_margin="0dp"
+		>
 
-		<ImageButton
-			android:id="@+id/main_memu_bt"
-			android:layout_width="40dp"
-			android:layout_height="40dp"
-			android:src="@android:drawable/ic_dialog_dialer"/>
-
-		<LinearLayout
-			android:id="@+id/wh_paret"
-			android:layout_width="wrap_content"
-			android:layout_height="match_parent"
-			android:orientation="horizontal">
-
-			<ImageButton
-				android:id="@+id/main_edit_bt"
-				android:layout_width="40dp"
-				android:layout_height="40dp"
-				android:src="@android:drawable/ic_menu_edit"/>
-
-			<ImageButton
-				android:id="@+id/main_all_clear_bt"
-				android:layout_width="40dp"
-				android:layout_height="40dp"
-				android:layout_weight="1"
-				android:src="@android:drawable/ic_menu_delete"/>
-
-			<ImageButton
-				android:id="@+id/test_bt1"
-				android:layout_width="40dp"
-				android:layout_height="40dp"
-				android:layout_weight="1"
-				android:src="@android:drawable/ic_input_get"/>
-
-		</LinearLayout>
-
-		<Button
-			android:id="@+id/connect_bt"
-			android:layout_width="wrap_content"
-			android:layout_height="40dp"
-			android:text="@string/call_bt_caption2conect"/>
-
-		<LinearLayout
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_weight="1"
-			android:orientation="vertical">
-
-			<TextView
-				android:id="@+id/conect_situation_tv"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_marginLeft="5dp"
-				android:text="@string/now_conection_meg"/>
-
-			<LinearLayout
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:orientation="horizontal">
-
-				<TextView
-					android:id="@+id/tvPartnerId"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:layout_weight="1"
-					android:text="@string/partner_id_titol"
-					/>
-
-				<TextView
-					android:id="@+id/tvOwnId"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:layout_marginRight="5dp"
-					android:layout_weight="1"
-					android:text="@string/my_id_titol"
-					android:textAlignment="viewEnd"
-					app:layout_constraintBottom_toTopOf="@+id/svRemoteView"
-					app:layout_constraintLeft_toLeftOf="parent"
-					app:layout_constraintRight_toLeftOf="@+id/btnAction"
-					app:layout_constraintTop_toTopOf="parent"/>
-			</LinearLayout>
-		</LinearLayout>
-
-		<!--<ImageButton-->
-		<!--android:id="@+id/switchCameraAction"-->
-		<!--android:layout_width="40dp"-->
-		<!--android:layout_height="40dp"-->
-		<!--android:src="@android:drawable/ic_menu_rotate"/>-->
-
-		<ImageButton
-			android:id="@+id/main_camera_bt"
-			android:layout_width="40dp"
-			android:layout_height="40dp"
-			android:src="@android:drawable/ic_menu_camera"/>
-
-
-		<ImageButton
-			android:id="@+id/main_setting_bt"
-			android:layout_width="40dp"
-			android:layout_height="40dp"
-			android:src="@android:drawable/ic_menu_manage"/>
-
-		<ImageButton
-			android:id="@+id/main_quit_bt"
-			android:layout_width="40dp"
-			android:layout_height="40dp"
-			android:layout_gravity="fill_vertical|fill_horizontal|center"
-			android:src="@android:drawable/ic_lock_power_off"/>
-	</LinearLayout>
-
-	<LinearLayout
-		android:layout_width="match_parent"
-		android:layout_height="240dp"
-		android:layout_weight="1"
-		android:orientation="horizontal">
-
-	<!--<android.support.constraint.ConstraintLayout-->
-		<!--android:layout_width="match_parent"-->
-		<!--android:layout_height="wrap_content">-->
-
-		<view
-			android:id="@+id/svRemoteView"
-			class="io.skyway.Peer.Browser.Canvas"
-			android:layout_width="386dp"
-			android:layout_height="match_parent"
-			android:layout_gravity="top|left"
-			android:gravity="top|left"/>
-		<!--app:layout_editor_absoluteX="0dp"-->
-		<!--tools:layout_editor_absoluteX="0dp"-->
-		<!--tools:layout_editor_absoluteY="3dp"-->
-
-		<LinearLayout
-			android:id="@+id/main_subview_ll"
+		<include
+			android:id="@+id/page1"
+			layout="@layout/vchat_tisement"
 			android:layout_width="match_parent"
-			android:layout_height="match_parent"
-			android:orientation="vertical">
+			android:layout_height="match_parent"/>
 
-			<view
-				android:id="@+id/svLocalView"
-				class="io.skyway.Peer.Browser.Canvas"
-				android:layout_width="192dp"
-				android:layout_height="108dp"
-				android:layout_gravity="top|right"
-				android:gravity="top|left"/>
-			<!--tools:layout_editor_absoluteX="390dp"-->
-			<!--tools:layout_editor_absoluteY="5dp"-->
-			<com.hijiyama_koubou.wb_joint_ownership.CS_CanvasView
-				android:id="@+id/main_whitebord"
-				android:layout_width="match_parent"
-				android:layout_height="match_parent"
-				android:layout_gravity="top|right"/>
-			<!--app:layout_constraintEnd_toEndOf="parent"-->
-			<!--tools:layout_editor_absoluteY="122dp"-->
-		</LinearLayout>
+		<include
+			android:id="@+id/page2"
+			layout="@layout/wb_tisement"/>
+	</ViewFlipper>
 
-		<!--</android.support.constraint.ConstraintLayout>-->
-
-	</LinearLayout>
 
 </LinearLayout>
+
+	<!--<LinearLayout-->
+		<!--android:layout_width="match_parent"-->
+		<!--android:layout_height="wrap_content"-->
+		<!--android:orientation="horizontal">-->
+
+		<!--<ImageButton-->
+			<!--android:id="@+id/main_memu_bt"-->
+			<!--android:layout_width="40dp"-->
+			<!--android:layout_height="40dp"-->
+			<!--android:src="@android:drawable/ic_dialog_dialer"/>-->
+
+		<!--<LinearLayout-->
+			<!--android:id="@+id/wh_paret"-->
+			<!--android:layout_width="wrap_content"-->
+			<!--android:layout_height="match_parent"-->
+			<!--android:orientation="horizontal">-->
+
+			<!--<ImageButton-->
+				<!--android:id="@+id/main_edit_bt"-->
+				<!--android:layout_width="40dp"-->
+				<!--android:layout_height="40dp"-->
+				<!--android:src="@android:drawable/ic_menu_edit"/>-->
+
+			<!--<ImageButton-->
+				<!--android:id="@+id/main_all_clear_bt"-->
+				<!--android:layout_width="40dp"-->
+				<!--android:layout_height="40dp"-->
+				<!--android:layout_weight="1"-->
+				<!--android:src="@android:drawable/ic_menu_delete"/>-->
+
+			<!--<ImageButton-->
+				<!--android:id="@+id/test_bt1"-->
+				<!--android:layout_width="40dp"-->
+				<!--android:layout_height="40dp"-->
+				<!--android:layout_weight="1"-->
+				<!--android:src="@android:drawable/ic_input_get"/>-->
+
+		<!--</LinearLayout>-->
+
+		<!--<Button-->
+			<!--android:id="@+id/connect_bt"-->
+			<!--android:layout_width="wrap_content"-->
+			<!--android:layout_height="40dp"-->
+			<!--android:text="@string/call_bt_caption2conect"/>-->
+
+		<!--<LinearLayout-->
+			<!--android:layout_width="wrap_content"-->
+			<!--android:layout_height="wrap_content"-->
+			<!--android:layout_weight="1"-->
+			<!--android:orientation="vertical">-->
+
+			<!--<TextView-->
+				<!--android:id="@+id/conect_situation_tv"-->
+				<!--android:layout_width="wrap_content"-->
+				<!--android:layout_height="wrap_content"-->
+				<!--android:layout_marginLeft="5dp"-->
+				<!--android:text="@string/now_conection_meg"/>-->
+
+			<!--<LinearLayout-->
+				<!--android:layout_width="match_parent"-->
+				<!--android:layout_height="wrap_content"-->
+				<!--android:orientation="horizontal">-->
+
+				<!--<TextView-->
+					<!--android:id="@+id/tvPartnerId"-->
+					<!--android:layout_width="wrap_content"-->
+					<!--android:layout_height="wrap_content"-->
+					<!--android:layout_weight="1"-->
+					<!--android:text="@string/partner_id_titol"-->
+					<!--/>-->
+
+				<!--<TextView-->
+					<!--android:id="@+id/tvOwnId"-->
+					<!--android:layout_width="wrap_content"-->
+					<!--android:layout_height="wrap_content"-->
+					<!--android:layout_marginRight="5dp"-->
+					<!--android:layout_weight="1"-->
+					<!--android:text="@string/my_id_titol"-->
+					<!--android:textAlignment="viewEnd"-->
+					<!--app:layout_constraintBottom_toTopOf="@+id/svRemoteView"-->
+					<!--app:layout_constraintLeft_toLeftOf="parent"-->
+					<!--app:layout_constraintRight_toLeftOf="@+id/btnAction"-->
+					<!--app:layout_constraintTop_toTopOf="parent"/>-->
+			<!--</LinearLayout>-->
+		<!--</LinearLayout>-->
+
+		<!--&lt;!&ndash;<ImageButton&ndash;&gt;-->
+		<!--&lt;!&ndash;android:id="@+id/switchCameraAction"&ndash;&gt;-->
+		<!--&lt;!&ndash;android:layout_width="40dp"&ndash;&gt;-->
+		<!--&lt;!&ndash;android:layout_height="40dp"&ndash;&gt;-->
+		<!--&lt;!&ndash;android:src="@android:drawable/ic_menu_rotate"/>&ndash;&gt;-->
+
+		<!--<ImageButton-->
+			<!--android:id="@+id/main_camera_bt"-->
+			<!--android:layout_width="40dp"-->
+			<!--android:layout_height="40dp"-->
+			<!--android:src="@android:drawable/ic_menu_camera"/>-->
+
+
+		<!--<ImageButton-->
+			<!--android:id="@+id/main_setting_bt"-->
+			<!--android:layout_width="40dp"-->
+			<!--android:layout_height="40dp"-->
+			<!--android:src="@android:drawable/ic_menu_manage"/>-->
+
+		<!--<ImageButton-->
+			<!--android:id="@+id/main_quit_bt"-->
+			<!--android:layout_width="40dp"-->
+			<!--android:layout_height="40dp"-->
+			<!--android:layout_gravity="fill_vertical|fill_horizontal|center"-->
+			<!--android:src="@android:drawable/ic_lock_power_off"/>-->
+	<!--</LinearLayout>-->
+
+	<!--<LinearLayout-->
+		<!--android:layout_width="match_parent"-->
+		<!--android:layout_height="240dp"-->
+		<!--android:layout_weight="1"-->
+		<!--android:orientation="horizontal">-->
+
+	<!--&lt;!&ndash;<android.support.constraint.ConstraintLayout&ndash;&gt;-->
+		<!--&lt;!&ndash;android:layout_width="match_parent"&ndash;&gt;-->
+		<!--&lt;!&ndash;android:layout_height="wrap_content">&ndash;&gt;-->
+
+		<!--<view-->
+			<!--android:id="@+id/svRemoteView"-->
+			<!--class="io.skyway.Peer.Browser.Canvas"-->
+			<!--android:layout_width="386dp"-->
+			<!--android:layout_height="match_parent"-->
+			<!--android:layout_gravity="top|left"-->
+			<!--android:gravity="top|left"/>-->
+		<!--&lt;!&ndash;app:layout_editor_absoluteX="0dp"&ndash;&gt;-->
+		<!--&lt;!&ndash;tools:layout_editor_absoluteX="0dp"&ndash;&gt;-->
+		<!--&lt;!&ndash;tools:layout_editor_absoluteY="3dp"&ndash;&gt;-->
+
+		<!--<LinearLayout-->
+			<!--android:id="@+id/main_subview_ll"-->
+			<!--android:layout_width="match_parent"-->
+			<!--android:layout_height="match_parent"-->
+			<!--android:orientation="vertical">-->
+
+			<!--<view-->
+				<!--android:id="@+id/svLocalView"-->
+				<!--class="io.skyway.Peer.Browser.Canvas"-->
+				<!--android:layout_width="192dp"-->
+				<!--android:layout_height="108dp"-->
+				<!--android:layout_gravity="top|right"-->
+				<!--android:gravity="top|left"/>-->
+			<!--&lt;!&ndash;tools:layout_editor_absoluteX="390dp"&ndash;&gt;-->
+			<!--&lt;!&ndash;tools:layout_editor_absoluteY="5dp"&ndash;&gt;-->
+			<!--<com.hijiyama_koubou.wb_joint_ownership.CS_CanvasView-->
+				<!--android:id="@+id/main_whitebord"-->
+				<!--android:layout_width="match_parent"-->
+				<!--android:layout_height="match_parent"-->
+				<!--android:layout_gravity="top|right"/>-->
+			<!--&lt;!&ndash;app:layout_constraintEnd_toEndOf="parent"&ndash;&gt;-->
+			<!--&lt;!&ndash;tools:layout_editor_absoluteY="122dp"&ndash;&gt;-->
+		<!--</LinearLayout>-->
+
+		<!--&lt;!&ndash;</android.support.constraint.ConstraintLayout>&ndash;&gt;-->
+
+	<!--</LinearLayout>-->
+
+<!--</LinearLayout>-->
 
 
 <!--</android.support.constraint.ConstraintLayout>-->

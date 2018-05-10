@@ -10,12 +10,28 @@ import android.graphics.PorterDuff;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.FrameLayout;
 
-public class CS_CanvasView extends View {
+import org.webrtc.EglBase;
+import org.webrtc.RendererCommon;
+import org.webrtc.SurfaceViewRenderer;
+import org.webrtc.VideoRenderer;
 
-	private Paint paint;
+import io.skyway.Peer.Browser.MediaStream;
+
+
+public class CS_CanvasView extends FrameLayout implements RendererCommon.RendererEvents {        //org; View	から　io.skyway.Peer.Browser.Canvas	に合わせる
+
+	private Paint paint;                        //ペン
+	private int penColor = 0xFF008800;        //蛍光グリーン
+	private float penWidth =2;
+
+
+	private Paint eraserPaint;                //消しゴム
+	private int eraserColor = Color.WHITE;        //背景色に揃える
+	private float eraserWidth = 50.0f;
+
 	private Path path;
-	public Canvas myCanvas;
 
 	float upX;
 	float upY;
@@ -34,14 +50,7 @@ public class CS_CanvasView extends View {
 		final String TAG = "CS_CanvasView[CView]";
 		String dbMsg = "";
 		try {
-			path = new Path();
-
-			paint = new Paint();
-			paint.setColor(0xFF008800);       					//0xFF008800 ; 蛍光グリーン
-			paint.setStyle(Paint.Style.STROKE);
-			paint.setStrokeJoin(Paint.Join.ROUND);
-			paint.setStrokeCap(Paint.Cap.ROUND);
-			paint.setStrokeWidth(1);
+			InitCanva();
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
@@ -53,23 +62,82 @@ public class CS_CanvasView extends View {
 		final String TAG = "CS_CanvasView[CView]";
 		String dbMsg = "";
 		try {
+			InitCanva();
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 		}
 	}
 
+	public void InitCanva() {
+		final String TAG = "InitCanva[CView]";
+		String dbMsg = "";
+		try {
+			path = new Path();
+
+			paint = new Paint();
+			paint.setColor(penColor);                        //
+			paint.setStyle(Paint.Style.STROKE);
+			paint.setStrokeJoin(Paint.Join.ROUND);
+			paint.setStrokeCap(Paint.Cap.ROUND);
+			paint.setStrokeWidth(penWidth);
+
+			eraserPaint = new Paint();                //消しゴム
+			eraserPaint.setColor(eraserColor);
+			paint.setStrokeWidth(eraserWidth);
+
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		}
+	}
+
+	/**
+	 * View の canvas操作
+	 */
 	@Override
 	protected void onDraw(Canvas canvas) {
 		final String TAG = "onDraw[CView]";
 		String dbMsg = "";
 		try {
 			dbMsg += "REQUEST_CORD=" + REQUEST_CORD;
+			canvasDraw(canvas);
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		}
+	}
 
+	/**
+	 * ViewGroup の canvas操作
+	 */
+	@Override
+	protected void dispatchDraw(Canvas canvas) {
+		super.dispatchDraw(canvas);
+		final String TAG = "dispatchDraw[CView]";
+		String dbMsg = "";
+		try {
+			canvasDraw(canvas);
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		}
+	}
+
+
+	public void canvasDraw(Canvas canvas) {
+		final String TAG = "canvasDraw[CView]";
+		String dbMsg = "";
+		try {
+			dbMsg += "REQUEST_CORD=" + REQUEST_CORD;
+			int caWidth = canvas.getWidth();
+			int caHeight = canvas.getHeight();
+			dbMsg += ".canvas[" + caWidth + "" + caHeight + "]";
 			switch ( REQUEST_CORD ) {
 				case REQUEST_CLEAR:                //全消去
-					canvas.drawColor(Color.WHITE , PorterDuff.Mode.CLEAR);                // 描画クリア
+					canvas.drawColor(eraserColor , PorterDuff.Mode.CLEAR);                // 描画クリア
 					path.reset();
+					canvas.drawRect(0 , 0 , caWidth , caHeight , eraserPaint);        //真っ黒になるので背景色に塗りなおす
 					REQUEST_CORD = REQUEST_DROW_PATH;
 					break;
 				case REQUEST_DROW_PATH:                //フリーハンド
@@ -79,13 +147,12 @@ public class CS_CanvasView extends View {
 					canvas.drawBitmap(aBmp , upX , upY , ( Paint ) null); // image, x座標, y座標, Paintイタンス
 					break;
 			}
-			myCanvas = canvas;
-			dbMsg += ",myCanvas[" + myCanvas.getWidth() + "×" + myCanvas.getHeight() + "]";
-	//			myLog(TAG , dbMsg);
+//			myLog(TAG , dbMsg);
 		} catch (Exception er) {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 		}
 	}
+
 
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
@@ -97,7 +164,7 @@ public class CS_CanvasView extends View {
 			dbMsg += "myCanvas[" + x + "×" + y + "]";
 			switch ( REQUEST_CORD ) {
 				case REQUEST_CLEAR:                        //全消去
-					path = new Path();
+//					path = new Path();
 					break;
 				case REQUEST_DROW_PATH:                        //フリーハンド
 					switch ( event.getAction() ) {
@@ -128,7 +195,7 @@ public class CS_CanvasView extends View {
 //					REQUEST_CORD = 0;
 					break;
 			}
-			//			myLog(TAG , dbMsg);
+//						myLog(TAG , dbMsg);
 		} catch (Exception er) {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 		}
@@ -173,6 +240,122 @@ public class CS_CanvasView extends View {
 		}
 	}
 
+	//skyway.Brouser.Canvasから ///////////////////////////////////////////////////////////////////////////////////////
+	private SurfaceViewRenderer viewRenderer;
+	private EglBase eglBase;
+	private VideoRenderer videoRenderer;
+	public boolean mirror;
+	public io.skyway.Peer.Browser.Canvas.ScalingEnum scaling;
+
+	private void initDefaults() {
+		this.mirror = false;
+		this.scaling = io.skyway.Peer.Browser.Canvas.ScalingEnum.ASPECT_FIT;
+	}
+
+	void init(org.webrtc.EglBase.Context eglContext) {
+		this.viewRenderer = new SurfaceViewRenderer(this.getContext());
+		this.eglBase = EglBase.create(eglContext);
+		this.viewRenderer.init(this.eglBase.getEglBaseContext() , this);
+		LayoutParams params = new LayoutParams(-1 , -1);
+		this.addView(this.viewRenderer , params);
+		this.viewRenderer.requestLayout();
+	}
+
+	void dispose() {
+		if ( null != this.viewRenderer ) {
+			this.removeView(this.viewRenderer);
+			this.viewRenderer.release();
+			this.viewRenderer = null;
+		}
+
+		if ( null != this.videoRenderer ) {
+			this.videoRenderer.dispose();
+			this.videoRenderer = null;
+		}
+
+		if ( null != this.eglBase ) {
+			this.eglBase.release();
+			this.eglBase = null;
+		}
+
+	}
+
+//	/** @deprecated */
+//	public void addSrc(MediaStream stream, int trackNo) {
+//		stream.addVideoRenderer(this, trackNo);
+//	}
+//
+//	/** @deprecated */
+//	public void removeSrc(MediaStream stream, int trackNo) {
+//		stream.removeVideoRenderer(this, trackNo);
+//	}
+
+	public void setZOrderMediaOverlay(boolean isMediaOverlay) {
+		if ( null != this.viewRenderer ) {
+			this.viewRenderer.setZOrderMediaOverlay(isMediaOverlay);
+		}
+	}
+
+	public void setZOrderOnTop(boolean onTop) {
+		if ( null != this.viewRenderer ) {
+			this.viewRenderer.setZOrderOnTop(onTop);
+		}
+	}
+
+	private RendererCommon.ScalingType getScalingType(io.skyway.Peer.Browser.Canvas.ScalingEnum scaling) {
+		switch ( scaling ) {
+			case ASPECT_FIT:
+				return RendererCommon.ScalingType.SCALE_ASPECT_FIT;
+			case ASPECT_FILL:
+				return RendererCommon.ScalingType.SCALE_ASPECT_FILL;
+			case FILL:
+				return RendererCommon.ScalingType.SCALE_ASPECT_BALANCED;
+			default:
+				return RendererCommon.ScalingType.SCALE_ASPECT_FIT;
+		}
+	}
+
+	VideoRenderer getVideoRenderer() {
+		return this.videoRenderer;
+	}
+
+	VideoRenderer startRendering() {
+		if ( null != this.videoRenderer ) {
+			this.videoRenderer.dispose();
+		}
+
+		this.videoRenderer = new VideoRenderer(this.viewRenderer);
+		this.viewRenderer.setScalingType(this.getScalingType(this.scaling));
+		this.viewRenderer.setMirror(this.mirror);
+		return this.videoRenderer;
+	}
+
+	void stopRendering() {
+		if ( null != this.videoRenderer ) {
+			this.videoRenderer.dispose();
+			this.videoRenderer = null;
+		}
+
+	}
+
+
+	public static enum ScalingEnum {
+		ASPECT_FIT, ASPECT_FILL, FILL;
+
+		private ScalingEnum() {
+		}
+	}
+
+	@Override
+	public void onFirstFrameRendered() {
+
+	}
+
+	@Override
+	public void onFrameResolutionChanged(int i , int i1 , int i2) {
+
+	}
+
 	///////////////////////////////////////////////////////////////////////////////////
 	public static void myLog(String TAG , String dbMsg) {
 		CS_Util UTIL = new CS_Util();
@@ -183,6 +366,11 @@ public class CS_CanvasView extends View {
 		CS_Util UTIL = new CS_Util();
 		UTIL.myErrorLog(TAG , dbMsg);
 	}
+
+
 }
 
 //		Canvas と Path による手書き View の簡単な実装		http://android.keicode.com/basics/ui-canvas-path.php
+
+
+//FrameLayout implements RendererCommon.RendererEvents では   onTouchEventは発生しても  onDrawが発生しない

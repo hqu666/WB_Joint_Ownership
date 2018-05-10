@@ -19,13 +19,17 @@ import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ViewFlipper;
 
 import org.json.JSONArray;
 import org.webrtc.PeerConnection;
@@ -52,8 +56,8 @@ import io.skyway.Peer.PeerOption;
 public class MainActivity extends Activity {
 
 	private Button connect_bt;                    //接続ボタン
-//	private ImageButton switchCameraAction;                        //カメラ切替ボタン
-	private Canvas  canvasMain ;         //受信モニター
+	//	private ImageButton switchCameraAction;                        //カメラ切替ボタン
+	private Canvas canvasMain;         //受信モニター
 	private Canvas canvasSub;                                //自己モニター
 	private TextView tvOwnId;                                //自己ID
 	private TextView tvPartnerId;                            //接続先ID
@@ -64,10 +68,19 @@ public class MainActivity extends Activity {
 	private LinearLayout main_subview_ll;
 
 	private boolean isNowWhitebord = false;        //現在ホワイトボード
-	private CS_CanvasView main_whitebord;        //ホワイトボード
+	private boolean isAddWB = false;                        //ホワイトボード追加済み
+	private Canvas main_whitebord;        //ホワイトボード        CS_CanvasView
 	private ImageButton main_all_clear_bt;        //全消去
 	private ImageButton main_edit_bt;                    //編修
-	private ImageButton main_camera_bt;                //カメラ
+//	private ImageButton main_camera_bt;                //カメラ
+
+	private ViewFlipper mFlipper;
+	private ImageButton nextButton;                 // ViewFlipperの次（右）画面
+	private ImageButton previousButton;         // ViewFlipperの前（左）画面
+	private Animation mAnimRightIn;
+	private Animation mAnimRightOut;
+	private Animation mAnimLeftIn;
+	private Animation mAnimLeftOut;
 
 	private boolean isFrontCam = true;                        //現在フロントカメラ
 	private MediaConstraints constraints;                                    //LocalStreamの状況
@@ -187,14 +200,17 @@ public class MainActivity extends Activity {
 //			switchCameraAction = ( ImageButton ) findViewById(R.id.switchCameraAction);    //カメラ切替ボタン
 
 			main_subview_ll = ( LinearLayout ) findViewById(R.id.main_subview_ll);
-   			wh_paret = ( LinearLayout ) findViewById(R.id.wh_paret);		//ホワイトボードツールボックス
-			wh_paret.setVisibility(View.GONE);		//ホワイトボードツールボックス;非表示
+			wh_paret = ( LinearLayout ) findViewById(R.id.wh_paret);        //ホワイトボードツールボックス
+//			wh_paret.setVisibility(View.GONE);        //ホワイトボードツールボックス;非表示
 
-			main_whitebord = ( CS_CanvasView ) findViewById(R.id.main_whitebord);        //ホワイトボード
+			main_whitebord = ( Canvas ) findViewById(R.id.main_whitebord);        //ホワイトボード             	Canvas	     CS_CanvasView
 			main_all_clear_bt = ( ImageButton ) findViewById(R.id.main_all_clear_bt);        //全消去
 			main_edit_bt = ( ImageButton ) findViewById(R.id.main_edit_bt);                    //編修
-			main_camera_bt = ( ImageButton ) findViewById(R.id.main_camera_bt);                //カメラ
+//			main_camera_bt = ( ImageButton ) findViewById(R.id.main_camera_bt);                //カメラ
 
+			mFlipper = ( ViewFlipper ) findViewById(R.id.flipper);
+			nextButton = ( ImageButton ) findViewById(R.id.vf_next_bt);                 // ViewFlipperの次（右）画面
+			previousButton = ( ImageButton ) findViewById(R.id.vf_previous_bt);         // ViewFlipperの前（左）画面
 
 			main_quit_bt = ( ImageButton ) findViewById(R.id.main_quit_bt);    //終了
 			_handler = new Handler(Looper.getMainLooper());
@@ -353,7 +369,6 @@ public class MainActivity extends Activity {
 		}
 	}
 
-
 	@Override
 	public boolean onKeyDown(int keyCode , KeyEvent event) {
 		final String TAG = "onKeyDown";
@@ -384,7 +399,6 @@ public class MainActivity extends Activity {
 			return false;
 		}
 	}
-
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	/**
@@ -395,7 +409,6 @@ public class MainActivity extends Activity {
 		final String TAG = "laterCreate[MA]";
 		String dbMsg = "";
 		try {
-
 			int orientation = getResources().getConfiguration().orientation;
 			dbMsg += "orientation=" + orientation;
 			if ( orientation == Configuration.ORIENTATION_LANDSCAPE ) {
@@ -513,14 +526,119 @@ public class MainActivity extends Activity {
 //			});
 
 
+//			main_camera_bt.setOnClickListener(new View.OnClickListener() {            //カメラ
+//				@Override
+//				public void onClick(View v) {
+//					final String TAG = "main_camera_bt[MA.onCr]";
+//					String dbMsg = "";
+//					try {
+//						sendVeiwChange();
+//						myLog(TAG , dbMsg);
+//					} catch (Exception er) {
+//						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+//					}
+//				}
+//			});
+
+			ImageButton test_bt1 = ( ImageButton ) findViewById(R.id.test_bt1);
+			test_bt1.setOnClickListener(new View.OnClickListener() {            //終了
+				@Override
+				public void onClick(View v) {
+					final String TAG = "test_bt1[MA.onCr]";
+					String dbMsg = "";
+					try {
+						ImageButton bt = ( ImageButton ) v;
+						Bitmap bmp = (( BitmapDrawable ) bt.getDrawable()).getBitmap();
+						dbMsg = "bmp[" + bmp.getWidth() + "×" + bmp.getHeight() + "]";
+						whiteBordDrow(bmp);
+						myLog(TAG , dbMsg);
+					} catch (Exception er) {
+						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+					}
+				}
+			});
+
+			//ViewFlipper /////http://android-dev-talk.blogspot.jp/2012/06/viewflipperview.html
+			// Load animation
+			mAnimRightIn = AnimationUtils.loadAnimation(this , R.anim.right_in);
+			mAnimRightOut = AnimationUtils.loadAnimation(this , R.anim.right_out);
+			mAnimLeftIn = AnimationUtils.loadAnimation(this , R.anim.left_in);
+			mAnimLeftOut = AnimationUtils.loadAnimation(this , R.anim.left_out);
+//			mFlipper.setAutoStart(true);     //自動でスライドショーを開始
+//			mFlipper.setFlipInterval(2000);  //更新間隔(ms単位)
+//
+//			int pages[] = {R.id.page1 , R.id.page2};
+//			for ( int page : pages ) {
+//				LinearLayout layout = ( LinearLayout ) findViewById(page);
+////				ImageView advertisement_l_IV = ( ImageView ) layout.findViewById(R.id.advertisement_l_IV);
+////				ImageView advertisement_r_IV = ( ImageView ) layout.findViewById(R.id.advertisement_r_IV);
+//				switch ( page ) {
+//					case R.id.page1:
+////						advertisement_l_IV.setImageResource(R.drawable.advertisement1);
+////						advertisement_r_IV.setImageResource(R.drawable.sub_advertisement2);
+//						break;
+//					case R.id.page2:
+//						int hbW = main_whitebord.getWidth();
+//						dbMsg += ",whitebord{" + hbW;
+//						int hbH = main_whitebord.getHeight();
+//						dbMsg += "×" + hbH + "]";
+//						break;
+//				}
+//			}
+			nextButton.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					final String TAG = "nextButton[MA.onCr]";
+					String dbMsg = "ホワイトボードへ";
+					try {
+						if ( !mFlipper.isFlipping() ) {
+							mFlipper.setInAnimation(mAnimRightIn);
+							mFlipper.setOutAnimation(mAnimLeftOut);
+							mFlipper.showNext();
+//						isFlipper =false;
+						} else {
+							mFlipper.stopFlipping();
+							toWhiteBorrb();
+						}
+						myLog(TAG , dbMsg);
+					} catch (Exception er) {
+						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+					}
+				}
+			});
+
+			previousButton.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					final String TAG = "previousButton[MA.onCr]";
+					String dbMsg = "ビデオチャットへ";
+					try {
+						if ( !mFlipper.isFlipping() ) {
+							mFlipper.setInAnimation(mAnimLeftIn);
+							mFlipper.setOutAnimation(mAnimRightOut);
+							mFlipper.showPrevious();
+//						isFlipper =false;
+						} else {
+							mFlipper.stopFlipping();
+							toVideoChat();
+						}
+						myLog(TAG , dbMsg);
+					} catch (Exception er) {
+						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+					}
+				}
+			});
+
 			main_all_clear_bt.setOnClickListener(new View.OnClickListener() {        //全消去
 				@Override
 				public void onClick(View v) {
 					final String TAG = "main_all_clear_bt[MA.onCr]";
 					String dbMsg = "";
 					try {
-						if(main_whitebord != null){
-							main_whitebord.clearAll();
+						if ( main_whitebord != null ) {
+//							main_whitebord.clearAll();
+//							CS_CanvasView CCV = new CS_CanvasView(MainActivity.this);
+//							CCV.clearAll();
 						}
 						myLog(TAG , dbMsg);
 					} catch (Exception er) {
@@ -535,41 +653,10 @@ public class MainActivity extends Activity {
 					final String TAG = "main_edit_bt[MA.onCr]";
 					String dbMsg = "";
 					try {
-						if(main_whitebord != null){
-							main_whitebord.startFreeHand();
+						if ( main_whitebord != null ) {
+//							CS_CanvasView CCV = new CS_CanvasView(MainActivity.this);
+//							CCV.startFreeHand();
 						}
-						myLog(TAG , dbMsg);
-					} catch (Exception er) {
-						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
-					}
-				}
-			});
-
-			main_camera_bt.setOnClickListener(new View.OnClickListener() {            //カメラ
-				@Override
-				public void onClick(View v) {
-					final String TAG = "main_camera_bt[MA.onCr]";
-					String dbMsg = "";
-					try {
-						sendVeiwChange();
-						myLog(TAG , dbMsg);
-					} catch (Exception er) {
-						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
-					}
-				}
-			});
-
-			ImageButton test_bt1 = ( ImageButton ) findViewById(R.id.test_bt1);
-			test_bt1.setOnClickListener(new View.OnClickListener() {            //終了
-				@Override
-				public void onClick(View v) {
-					final String TAG = "test_bt1[MA.onCr]";
-					String dbMsg = "";
-					try {
-						ImageButton bt = ( ImageButton ) v;
-						Bitmap bmp = (( BitmapDrawable ) bt.getDrawable()).getBitmap();
-						dbMsg = "bmp[" + bmp.getWidth() + "×" + bmp.getHeight() + "]";
-						whiteBordDrow(bmp);
 						myLog(TAG , dbMsg);
 					} catch (Exception er) {
 						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
@@ -665,7 +752,7 @@ public class MainActivity extends Activity {
 							boolean kakikomi = myEditor.commit();
 							dbMsg = dbMsg + ",書込み=" + kakikomi;//////////////////
 							conect_situation_tv.setText("SkyWayからPeerIDを取得しました。");
-						}else{
+						} else {
 							conect_situation_tv.setText("SkyWayに接続できませんでした。少し待ってアプリを再起動してください。");
 						}
 						if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ) {                        // Request permissions
@@ -743,7 +830,7 @@ public class MainActivity extends Activity {
 					myEditor = sharedPref.edit();
 					myEditor.putString("partner_id_key" , partner_id);
 					boolean kakikomi = myEditor.commit();
-					dbMsg +=  ",書込み=" + kakikomi;//////////////////
+					dbMsg += ",書込み=" + kakikomi;//////////////////
 
 					myLog(TAG , "[_peer.On/Disconnected]");
 				}
@@ -759,7 +846,7 @@ public class MainActivity extends Activity {
 					dbMsg += ",message=" + error.message;                    //    message="authToken" is invalid.,
 					dbMsg += ",exception=" + error.exception;                // exception=null
 					myErrorLog(TAG , error + ";" + dbMsg);
-					conect_situation_tv.setText(error.message+";"+getResources().getString(R.string.can_not_conect_msg3));
+					conect_situation_tv.setText(error.message + ";" + getResources().getString(R.string.can_not_conect_msg3));
 					//It doesn't look like you have permission to list peers IDs ｒ リストアップの許可が出ていない
 				}
 			});
@@ -768,6 +855,9 @@ public class MainActivity extends Activity {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 		}
 	}
+
+	private final int FP = ViewGroup.LayoutParams.MATCH_PARENT;
+	private final int WC = ViewGroup.LayoutParams.WRAP_CONTENT;
 
 	/**
 	 * この端末の LocalStreamをstart
@@ -783,20 +873,48 @@ public class MainActivity extends Activity {
 		try {
 			dbMsg = "_peer=" + _peer;
 			Navigator.initialize(_peer);
-			constraints = new MediaConstraints();           //LocalStreamの状況
+			constraints = new MediaConstraints();
 			constraints.maxWidth = 1920;       //org;960
 			constraints.maxHeight = 1080;       //org;540
 			constraints.cameraPosition = MediaConstraints.CameraPositionEnum.FRONT;
 			dbMsg += ",constraints;maxFrameRate=" + constraints.maxFrameRate;
 			_localStream = Navigator.getUserMedia(constraints);
-//			dbMsg += ",_localStream="+_localStream.getPeerId();
-//			dbMsg += ",Label="+_localStream.getLabel();
-//			dbMsg += ",VideoTracks="+_localStream.getVideoTracks();
-//			dbMsg += ",AudioTracks="+_localStream.getAudioTracks();
-			dbMsg += ",送信映像[" + canvasSub.getWidth() + "×" + canvasSub.getHeight() + "]";
-			_localStream.addVideoRenderer(canvasSub , 0);
-	//			_localStream.addVideoRenderer((Canvas ) main_whitebord , 1);
-
+			_localStream.addVideoRenderer(canvasSub , 0);         // addViewm前ならクラッシュしない
+			LinearLayout main_views_ll = ( LinearLayout ) findViewById(R.id.main_views_ll);
+			int hbW = main_views_ll.getWidth();
+			dbMsg += ",main_views_ll{" + hbW;
+			int hbH = main_views_ll.getHeight();
+			dbMsg += "×" + hbH + "]";
+			ViewGroup.LayoutParams VGLP = new ViewGroup.LayoutParams(hbW , hbH);
+			CS_CanvasView CSCV = new CS_CanvasView(this);
+//			 hbW = canvasSub.getWidth();
+//			dbMsg += ",whitebord{" + hbW;
+//			 hbH = canvasSub.getHeight();
+//			dbMsg += ",送信映像[" + hbW + "×" + hbH + "]";
+//			ViewGroup.LayoutParams VGLP = new ViewGroup.LayoutParams(hbW , hbH);
+//			CS_CanvasView CSCV = new CS_CanvasView(this);
+			canvasSub.addView(CSCV , 1 , VGLP);                            //上位階層にホワイトボードのviewを追加
+//			_localStream.addVideoRenderer(canvasSub , 0);           // addViewした後ではクラッシュ発生
+//			mFlipper.showNext();
+//			mFlipper.stopFlipping();
+			_localStream.addVideoRenderer(main_whitebord , 1);        //アクティブになっていないと追加できない？(io.skyway.Peer.Browser.Canvas)
+//			if ( !isAddWB ) {                        //ホワイトボード追加済み
+//			hbW = main_whitebord.getWidth();
+//			dbMsg += ",whitebord{" + hbW;
+//			hbH = main_whitebord.getHeight();
+//			dbMsg += "×" + hbH + "]";
+//			if ( hbW == 0 || hbH == 0 ) {
+//
+//			}
+//			VGLP = new ViewGroup.LayoutParams(hbW , hbH);
+//			CSCV = new CS_CanvasView(this);
+//			main_whitebord.addView(CSCV , 1 , VGLP);                            //上位階層にホワイトボードのviewを追加
+//				isAddWB = true;
+//			}
+//			mFlipper.showPrevious();
+//			mFlipper.stopFlipping();
+			int trackCount = _localStream.getVideoTracks();
+			dbMsg += ",映像トラック=" + trackCount + "トラック";
 			dbMsg += ">_localStream,id=" + _localStream.getPeerId();
 			dbMsg += ",Label=" + _localStream.getLabel();
 			tvPartnerId.setText(getResources().getString(R.string.conectlist_titol));        //接続先ID
@@ -824,8 +942,8 @@ public class MainActivity extends Activity {
 				String dbMsg = "";
 				try {
 					_remoteStream = ( MediaStream ) object;
-					Canvas canvas = ( Canvas ) findViewById(R.id.svRemoteView);                //相手からの映像
-					_remoteStream.addVideoRenderer(canvas , 0);
+//					Canvas canvas = ( Canvas ) findViewById(R.id.svRemoteView);                //相手からの映像
+					_remoteStream.addVideoRenderer(canvasMain , 0);
 					partner_id = _remoteStream.getPeerId();
 					dbMsg = ",partner_id=" + partner_id;
 					tvPartnerId.setText(partner_id);        //接続先ID
@@ -886,7 +1004,7 @@ public class MainActivity extends Activity {
 			@Override
 			public void onCallback(Object object) {
 				final String TAG = "MediaConnection.ERROR[MA]";
-				String dbMsg ;
+				String dbMsg;
 				PeerError error = ( PeerError ) object;
 				dbMsg = "error;" + error;
 				dbMsg += ",type=" + error.type;
@@ -982,8 +1100,8 @@ public class MainActivity extends Activity {
 		String dbMsg = "";
 		try {
 			if ( null != _remoteStream ) {
-				Canvas canvas = ( Canvas ) findViewById(R.id.svRemoteView);
-				_remoteStream.removeVideoRenderer(canvas , 0);
+//				Canvas canvas = ( Canvas ) findViewById(R.id.svRemoteView);
+				_remoteStream.removeVideoRenderer(canvasMain , 0);
 				_remoteStream.close();
 			}
 			myLog(TAG , dbMsg);
@@ -1001,16 +1119,15 @@ public class MainActivity extends Activity {
 		final String TAG = "onPeerSelected[MA]";
 		String dbMsg = "";
 		try {
-			dbMsg = "strPeerId=" + strPeerId;
+			dbMsg = "接続先=" + strPeerId;
 			if ( null != _peer ) {
-				dbMsg += ",_peer=" + strPeerId;
 				if ( null != _mediaConnection ) {
 					dbMsg += ",_mediaConnection=" + _mediaConnection;
 					_mediaConnection.close();
 				}
 
 				CallOption option = new CallOption();
-				_mediaConnection = _peer.call(strPeerId , _localStream , option);                        //自分 ,  相手  ,option?
+				_mediaConnection = _peer.call(strPeerId , _localStream , option);                        //接続先を呼び出す；
 
 				if ( null != _mediaConnection ) {                //_mediaConnectionがnullのまま
 					setMediaCallbacks();
@@ -1136,8 +1253,79 @@ public class MainActivity extends Activity {
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////
-	float canvasMainX;
-	float canvasMainY;
+	public void toWhiteBorrb() {
+		final String TAG = "toWhiteBorrb[MA]";
+		String dbMsg = "";
+		try {
+			dbMsg += ",isNowWhitebord=" + isNowWhitebord;
+
+			isNowWhitebord = true;
+			if ( _localStream != null ) {
+
+
+				boolean isVideoEnable = _localStream.getEnableVideoTrack(0);
+				dbMsg += ",Video;Enable=" + isVideoEnable;
+				_localStream.setEnableVideoTrack(0 , false);        //映像トラック停止
+				isVideoEnable = _localStream.getEnableVideoTrack(0);
+				dbMsg += ">>" + isVideoEnable;
+//				_localStream.removeVideoRenderer(canvasSub,0);
+//				_localStream.addVideoRenderer(main_whitebord , 0);        //アクティブになっていないと追加できない？(io.skyway.Peer.Browser.Canvas)
+				int trackCount = _localStream.getVideoTracks();
+				dbMsg += ",映像トラック=" + trackCount + "トラック";
+
+				if ( !isAddWB ) {                        //ホワイトボード追加済み
+					int hbW = main_whitebord.getWidth();
+					dbMsg += ",whitebord{" + hbW;
+					int hbH = main_whitebord.getHeight();
+					dbMsg += "×" + hbH + "]";
+					ViewGroup.LayoutParams VGLP = new ViewGroup.LayoutParams(hbW , hbH);
+					CS_CanvasView CSCV = new CS_CanvasView(this);
+					main_whitebord.addView(CSCV , 1 , VGLP);                            //上位階層にホワイトボードのviewを追加
+					isAddWB = true;
+				}
+				isVideoEnable = _localStream.getEnableVideoTrack(0);
+				dbMsg += ",ホワイトボード;Enable=" + isVideoEnable;
+				_localStream.setEnableVideoTrack(0 , true);        //ホワイトボードトラック開始
+				isVideoEnable = _localStream.getEnableVideoTrack(0);
+				dbMsg += ">>" + isVideoEnable;
+			}
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		}
+	}
+
+	public void toVideoChat() {
+		final String TAG = "toVideoChat[MA]";
+		String dbMsg = "";
+		try {
+			dbMsg += ",isNowWhitebord=" + isNowWhitebord;
+			isNowWhitebord = false;
+			if ( _localStream != null ) {
+				int trackCount = _localStream.getVideoTracks();
+				dbMsg += ",Video=" + trackCount + "トラック";
+//				boolean isVideoEnable = _localStream.getEnableVideoTrack(1);
+//				dbMsg += ",ホワイトボード;Enable=" + isVideoEnable;
+//				_localStream.setEnableVideoTrack(0 , false);        //ホワイトボードトラック停止
+//				isVideoEnable = _localStream.getEnableVideoTrack(0);
+//				dbMsg += ">>" + isVideoEnable;
+//				_localStream.removeVideoRenderer(main_whitebord,0);
+//				_localStream.addVideoRenderer( canvasSub, 0);        //アクティブになっていないと追加できない？(io.skyway.Peer.Browser.Canvas)         canvasSub
+
+				boolean isVideoEnable = _localStream.getEnableVideoTrack(0);
+				dbMsg += ",Video;Enable=" + isVideoEnable;
+				_localStream.setEnableVideoTrack(0 , true);        //映像トラック再生
+				isVideoEnable = _localStream.getEnableVideoTrack(0);
+				dbMsg += ">>" + isVideoEnable;
+			}
+
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		}
+	}
+
+
 	public void sendVeiwChange() {
 		final String TAG = "sendVeiwChange[MA]";
 		String dbMsg = "";
@@ -1148,74 +1336,15 @@ public class MainActivity extends Activity {
 			boolean isVideoEnable = _localStream.getEnableVideoTrack(0);
 			dbMsg += ",Enable=" + isVideoEnable;
 			if ( isNowWhitebord ) {
-				isNowWhitebord = false;
-				_localStream.setEnableVideoTrack(0,true);		//映像トラック再生
-				isVideoEnable = _localStream.getEnableVideoTrack(0);
-				dbMsg += ">>" + isVideoEnable;
-
-				wh_paret.setVisibility(View.GONE);		//ホワイトボードツールボックス;非表示
-				connect_bt.setVisibility(View.VISIBLE);                    //接続ボタン
-				main_quit_bt.setVisibility(View.VISIBLE);                    //終了
-				canvasMain.setScaleX(1.0f);
-				canvasMain.setScaleY(1.0f);
-				canvasSub.setScaleX(1.0f);
-				canvasSub.setScaleY(1.0f);
-				main_subview_ll.setScaleX(1.0f);
-				main_subview_ll.setScaleY(1.0f);
-				main_whitebord.setScaleX(1.0f);
-				main_whitebord.setScaleY(1.0f);
+				toVideoChat();
 			} else {
-				isNowWhitebord = true;
-
-				_localStream.setEnableVideoTrack(0,false);		//映像トラック停止
-				isVideoEnable = _localStream.getEnableVideoTrack(0);
-				dbMsg += ">>" + isVideoEnable;
-
-				connect_bt.setVisibility(View.GONE);                    //接続ボタン
-				main_quit_bt.setVisibility(View.GONE);                    //終了
-				wh_paret.setVisibility(View.VISIBLE);		//ホワイトボードツールボックス;表示
-
-				canvasMainX = canvasMain.getX();
-				canvasMainY = canvasMain.getY();
-				dbMsg += ",("+canvasMainX  + ","+canvasMainY+")";
-				dbMsg += "canvasMain["+ canvasMain.getWidth()  + ","+canvasMain.getHeight()+"]";
-
-				canvasMain.setScaleX(0.05f);
-				canvasMain.setScaleY(0.05f);
-				canvasMain.setX(canvasMainX);
-				canvasMain.setY(canvasMainY);
-				canvasSub.setScaleX(0.1f);
-				canvasSub.setScaleY(0.1f);
-				canvasSub.setX(canvasMainX);
-				main_subview_ll.setScaleX(3.0f);
-				main_subview_ll.setScaleY(3.0f);
-				main_whitebord.setScaleX(3.0f);
-				main_whitebord.setScaleY(3.0f);
-				main_whitebord.setX(canvasMainX);
-
-//							io.skyway.Peer.Browser.Canvas sendVeiw = ( io.skyway.Peer.Browser.Canvas ) v;
-//							dbMsg += "sendVeiw=" + sendVeiw.getId();
-
-	//				main_whitebord = new CS_CanvasView(MainActivity.this);
-//							sendVeiw.addView(main_whitebord);
-//				Canvas canvas = (Canvas) findViewById(R.id.main_whitebord);
-//				_localStream.addVideoRenderer(canvas,1);    		//	割り当てるビデオレンダラ,    トラック番号
-		//		main_whitebord = (CS_CanvasView)canvas;
-						/*
-						  ビデオレンダラー(表示用のCanvasオブジェクト)を割り当て
-							Navigator.initialize(_peer);
-							  _localStream = Navigator.getUserMedia(constraints);
-							  Canvas canvas = (Canvas) findViewById(R.id.svLocalView);
-							  _localStream.addVideoRenderer(canvas,0);    		//	割り当てるビデオレンダラ,    トラック番号
-  						*/
+				toWhiteBorrb();
 			}
-
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 		}
 	}
-
 
 	Bitmap wrBmp;
 
@@ -1227,9 +1356,10 @@ public class MainActivity extends Activity {
 		String dbMsg = "";
 		try {
 			dbMsg = "bmp[" + bmp.getWidth() + "×" + bmp.getHeight() + "]";
-			if(main_whitebord != null){
-				main_whitebord.addBitMap(bmp);
-			}
+//			if ( main_whitebord != null ) {
+//				CS_CanvasView CCV = new CS_CanvasView(this);
+//				CCV.addBitMap(bmp);
+//			}
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
@@ -1289,3 +1419,4 @@ public class MainActivity extends Activity {
 //701SHを起動しっぱなしにしてもセッションが切れる事は無く再接続できる
 // クラッシュなどでアプリが停止すると接続中のPeerIDはクリアされる（つなぎっぱなしにはならない）
 //TURN (GB) は Signaling (回)が100回（*30秒）で0.001、
+// _localStream.addVideoRendererで複数のcanvasを割り付ける事は出来るが  _localStreamとして創出できるのは1トラックだけ
