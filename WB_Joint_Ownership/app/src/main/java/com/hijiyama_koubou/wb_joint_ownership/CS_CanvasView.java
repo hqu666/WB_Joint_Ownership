@@ -21,7 +21,7 @@ import io.skyway.Peer.Browser.MediaStream;
 
 
 public class CS_CanvasView extends FrameLayout implements RendererCommon.RendererEvents {        //org; View	から　io.skyway.Peer.Browser.Canvas	に合わせる
-
+	private Context context;
 	private Paint paint;                        //ペン
 	private int penColor = 0xFF008800;        //蛍光グリーン
 	private float penWidth =2;
@@ -48,8 +48,11 @@ public class CS_CanvasView extends FrameLayout implements RendererCommon.Rendere
 	public CS_CanvasView(Context context , AttributeSet attrs) {
 		super(context , attrs);
 		final String TAG = "CS_CanvasView[CView]";
-		String dbMsg = "";
+		String dbMsg = "xmlから";
 		try {
+			this.context = context;
+			this.initDefaults();
+
 			InitCanva();
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
@@ -60,8 +63,34 @@ public class CS_CanvasView extends FrameLayout implements RendererCommon.Rendere
 	public CS_CanvasView(Context context) {
 		super(context);
 		final String TAG = "CS_CanvasView[CView]";
+		String dbMsg = "メソッド内から";
+		try {
+			commonCon( context);
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		}
+	}
+
+	public CS_CanvasView(Context context, AttributeSet attrs, int defStyleAttr) {
+		super(context, attrs, defStyleAttr);
+		final String TAG = "CS_CanvasView[CView]";
+		String dbMsg = "？";
+		try {
+			commonCon( context);
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		}
+	}
+
+	public void  commonCon(Context context) {
+		final String TAG = "commonCon[CView]";
 		String dbMsg = "";
 		try {
+			this.context = context;
+			this.initDefaults();
+
 			InitCanva();
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
@@ -76,14 +105,18 @@ public class CS_CanvasView extends FrameLayout implements RendererCommon.Rendere
 			path = new Path();
 
 			paint = new Paint();
+			dbMsg += "ペン；"+penColor;
 			paint.setColor(penColor);                        //
 			paint.setStyle(Paint.Style.STROKE);
 			paint.setStrokeJoin(Paint.Join.ROUND);
 			paint.setStrokeCap(Paint.Cap.ROUND);
+			dbMsg += ","+penWidth+"px";
 			paint.setStrokeWidth(penWidth);
 
 			eraserPaint = new Paint();                //消しゴム
+			dbMsg += ",消しゴム；"+eraserColor;
 			eraserPaint.setColor(eraserColor);
+			dbMsg += ","+eraserWidth+"px";
 			paint.setStrokeWidth(eraserWidth);
 
 			myLog(TAG , dbMsg);
@@ -137,7 +170,7 @@ public class CS_CanvasView extends FrameLayout implements RendererCommon.Rendere
 				case REQUEST_CLEAR:                //全消去
 					canvas.drawColor(eraserColor , PorterDuff.Mode.CLEAR);                // 描画クリア
 					path.reset();
-					canvas.drawRect(0 , 0 , caWidth , caHeight , eraserPaint);        //真っ黒になるので背景色に塗りなおす
+//					canvas.drawRect(0 , 0 , caWidth , caHeight , eraserPaint);        //真っ黒になるので背景色に塗りなおす
 					REQUEST_CORD = REQUEST_DROW_PATH;
 					break;
 				case REQUEST_DROW_PATH:                //フリーハンド
@@ -247,113 +280,192 @@ public class CS_CanvasView extends FrameLayout implements RendererCommon.Rendere
 	public boolean mirror;
 	public io.skyway.Peer.Browser.Canvas.ScalingEnum scaling;
 
+	//
 	private void initDefaults() {
-		this.mirror = false;
-		this.scaling = io.skyway.Peer.Browser.Canvas.ScalingEnum.ASPECT_FIT;
+		final String TAG = "initDefaults[CView]";
+		String dbMsg = "";
+		try {
+			this.mirror = false;
+			this.scaling = io.skyway.Peer.Browser.Canvas.ScalingEnum.ASPECT_FIT;
+			dbMsg += ",scaling="+scaling;
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		}
 	}
-
+	          //MediaStream.addVideoRendererから呼ばれる
 	void init(org.webrtc.EglBase.Context eglContext) {
-		this.viewRenderer = new SurfaceViewRenderer(this.getContext());
-		this.eglBase = EglBase.create(eglContext);
-		this.viewRenderer.init(this.eglBase.getEglBaseContext() , this);
-		LayoutParams params = new LayoutParams(-1 , -1);
-		this.addView(this.viewRenderer , params);
-		this.viewRenderer.requestLayout();
+		final String TAG = "init[CView]";
+		String dbMsg = "";
+		try {
+			this.viewRenderer = new SurfaceViewRenderer(this.getContext());
+			this.eglBase = EglBase.create(eglContext);
+			this.viewRenderer.init(this.eglBase.getEglBaseContext() , this);
+			LayoutParams params = new LayoutParams(-1 , -1);
+			this.addView(this.viewRenderer , params);
+			this.viewRenderer.requestLayout();
+			dbMsg += ",viewRenderer="+viewRenderer.getId();
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		}
 	}
 
+	// startRendering(), stopRenderingから呼ばれる
 	void dispose() {
-		if ( null != this.viewRenderer ) {
-			this.removeView(this.viewRenderer);
-			this.viewRenderer.release();
-			this.viewRenderer = null;
-		}
+		final String TAG = "init[CView]";
+		String dbMsg = "";
+		try {
+			if ( null != this.viewRenderer ) {
+				this.removeView(this.viewRenderer);
+				this.viewRenderer.release();
+				this.viewRenderer = null;
+			}
 
-		if ( null != this.videoRenderer ) {
-			this.videoRenderer.dispose();
-			this.videoRenderer = null;
-		}
+			if ( null != this.videoRenderer ) {
+				this.videoRenderer.dispose();
+				this.videoRenderer = null;
+			}
 
-		if ( null != this.eglBase ) {
-			this.eglBase.release();
-			this.eglBase = null;
+			if ( null != this.eglBase ) {
+				this.eglBase.release();
+				this.eglBase = null;
+			}
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 		}
-
 	}
 
 //	/** @deprecated */
 //	public void addSrc(MediaStream stream, int trackNo) {
 //		stream.addVideoRenderer(this, trackNo);
 //	}
-//
 //	/** @deprecated */
 //	public void removeSrc(MediaStream stream, int trackNo) {
 //		stream.removeVideoRenderer(this, trackNo);
 //	}
 
 	public void setZOrderMediaOverlay(boolean isMediaOverlay) {
-		if ( null != this.viewRenderer ) {
-			this.viewRenderer.setZOrderMediaOverlay(isMediaOverlay);
+		final String TAG = "setZOrderMediaOverlay[CView]";
+		String dbMsg = "";
+		try {
+			if ( null != this.viewRenderer ) {
+				this.viewRenderer.setZOrderMediaOverlay(isMediaOverlay);
+			}
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 		}
 	}
 
 	public void setZOrderOnTop(boolean onTop) {
-		if ( null != this.viewRenderer ) {
-			this.viewRenderer.setZOrderOnTop(onTop);
+		final String TAG = "onFirstFrameRendered[CView]";
+		String dbMsg = "";
+		try {
+			if ( null != this.viewRenderer ) {
+				this.viewRenderer.setZOrderOnTop(onTop);
+			}
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 		}
 	}
 
 	private RendererCommon.ScalingType getScalingType(io.skyway.Peer.Browser.Canvas.ScalingEnum scaling) {
-		switch ( scaling ) {
-			case ASPECT_FIT:
-				return RendererCommon.ScalingType.SCALE_ASPECT_FIT;
-			case ASPECT_FILL:
-				return RendererCommon.ScalingType.SCALE_ASPECT_FILL;
-			case FILL:
-				return RendererCommon.ScalingType.SCALE_ASPECT_BALANCED;
-			default:
-				return RendererCommon.ScalingType.SCALE_ASPECT_FIT;
+		final String TAG = "onFirstFrameRendered[CView]";
+		String dbMsg = "";
+		RendererCommon.ScalingType retType = null;
+		try {
+			switch ( scaling ) {
+				case ASPECT_FIT:
+					retType= RendererCommon.ScalingType.SCALE_ASPECT_FIT;
+				case ASPECT_FILL:
+					retType= RendererCommon.ScalingType.SCALE_ASPECT_FILL;
+				case FILL:
+					retType= RendererCommon.ScalingType.SCALE_ASPECT_BALANCED;
+				default:
+					retType= RendererCommon.ScalingType.SCALE_ASPECT_FIT;
+			}
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 		}
+		return  retType;
 	}
 
 	VideoRenderer getVideoRenderer() {
+		final String TAG = "getVideoRenderer[CView]";
+		String dbMsg = "";
+		try {
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		}
 		return this.videoRenderer;
 	}
 
 	VideoRenderer startRendering() {
-		if ( null != this.videoRenderer ) {
-			this.videoRenderer.dispose();
-		}
+		final String TAG = "startRendering[CView]";
+		String dbMsg = "";
+		try {
+			if ( null != this.videoRenderer ) {
+				this.videoRenderer.dispose();
+			}
 
-		this.videoRenderer = new VideoRenderer(this.viewRenderer);
-		this.viewRenderer.setScalingType(this.getScalingType(this.scaling));
-		this.viewRenderer.setMirror(this.mirror);
+			this.videoRenderer = new VideoRenderer(this.viewRenderer);
+			this.viewRenderer.setScalingType(this.getScalingType(this.scaling));
+			this.viewRenderer.setMirror(this.mirror);			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		}
 		return this.videoRenderer;
 	}
 
 	void stopRendering() {
-		if ( null != this.videoRenderer ) {
-			this.videoRenderer.dispose();
-			this.videoRenderer = null;
+		final String TAG = "stopRendering[CView]";
+		String dbMsg = "";
+		try {
+			if ( null != this.videoRenderer ) {
+				this.videoRenderer.dispose();
+				this.videoRenderer = null;
+			}
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 		}
-
 	}
 
 
 	public static enum ScalingEnum {
 		ASPECT_FIT, ASPECT_FILL, FILL;
-
 		private ScalingEnum() {
 		}
 	}
 
 	@Override
 	public void onFirstFrameRendered() {
-
+		final String TAG = "onFirstFrameRendered[CView]";
+		String dbMsg = "";
+		try {
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		}
 	}
 
 	@Override
 	public void onFrameResolutionChanged(int i , int i1 , int i2) {
-
+		final String TAG = "onFrameResolutionChanged[CView]";
+		String dbMsg = "";
+		try {
+			dbMsg += "i" + i;
+			dbMsg += ",i1" + i;
+			dbMsg += ",i2" + i2;
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		}
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////
