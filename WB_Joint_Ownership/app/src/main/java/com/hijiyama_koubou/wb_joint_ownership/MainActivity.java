@@ -984,13 +984,15 @@ public class MainActivity extends Activity {
 			dbMsg += ",VideoTracks=" + _localStream.getVideoTracks();
 
 
+			canvasSub.getLayoutParams().width=hbW/4;        //初期状態はフルサイズなので妥当な大きさに；☆setScaleXは真ん中に寄ってしまう
+			canvasSub.getLayoutParams().height=hbH/4;
+			canvasSub.requestLayout();
 			tvPartnerId.setText(getResources().getString(R.string.conectlist_titol));        //接続先ID
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 		}
 	}
-
 
 //	public void myAddVideoRenderer(CS_CanvasView canvas, int videoTrackNumber) {
 ////		if (null != canvas) {
@@ -1372,9 +1374,10 @@ public class MainActivity extends Activity {
 			isNowWhitebord = true;
 			if ( _localStream != null ) {
 				main_conect_ll.setVisibility(View.GONE) ;    //接続関連
-//				canvasMain.setVisibility(View.GONE) ;
-//				canvasSub.setScaleX(2.0f);
-//				setContentView(canvasSub);
+				canvasMain.setVisibility(View.GONE) ;
+				canvasSub.getLayoutParams().width=canvasSub.getWidth()*4;        //setScaleXは真ん中に寄ってしまう
+				canvasSub.getLayoutParams().height=canvasSub.getHeight()*4;
+				canvasSub.requestLayout();
 				boolean isVideoEnable = _localStream.getEnableVideoTrack(0);
 				dbMsg += ",Video;Enable=" + isVideoEnable;
 //				_localStream.setEnableVideoTrack(0 , false);        //映像トラック停止
@@ -1454,9 +1457,10 @@ public class MainActivity extends Activity {
 					}
 				}
 			}
-//			canvasSub.setScaleX(1.0f);
-//			setContentView(canvasSub);
-//			canvasMain.setVisibility(View.VISIBLE) ;
+			canvasSub.getLayoutParams().width=canvasSub.getWidth()/4;        //setScaleXは真ん中に寄ってしまう
+			canvasSub.getLayoutParams().height=canvasSub.getHeight()/4;
+			canvasSub.requestLayout();
+			canvasMain.setVisibility(View.VISIBLE) ;
 			main_conect_ll.setVisibility(View.VISIBLE) ;    //接続関連
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
