@@ -689,20 +689,7 @@ public class MainActivity extends Activity {
 					final String TAG = "main_edit_bt[MA.onCr]";
 					String dbMsg = "P1の書き込み/カメラ切り替え";
 					try {
-//						if ( isNowWhitebord ) {                                                //現在ホワイトボード
-							toVideoChat();
-//							main_all_clear2_bt.setVisibility(View.GONE);                //全消去;非表示
-//							connect_bt.setVisibility(View.VISIBLE);                        //接続ボタン ;表示
-//							main_setting_bt.setVisibility(View.VISIBLE);                //設定ボタン;表示
-//							main_quit_bt.setVisibility(View.VISIBLE);                    //終了ボタン ;表示
-//						} else {
-//							toWhiteBorrb();
-//							connect_bt.setVisibility(View.GONE);                        //接続ボタン ;非表示
-//							main_setting_bt.setVisibility(View.GONE);                    //設定ボタン;非表示
-//							main_quit_bt.setVisibility(View.GONE);                    //終了ボタン ;非表示
-//							main_all_clear2_bt.setVisibility(View.VISIBLE);                //全消去;表示
-//						}
-
+						toVideoChat();
 						myLog(TAG , dbMsg);
 					} catch (Exception er) {
 						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
@@ -715,20 +702,7 @@ public class MainActivity extends Activity {
 					final String TAG = "main_edit_bt[MA.onCr]";
 					String dbMsg = "P1の書き込み/カメラ切り替え";
 					try {
-//						if ( isNowWhitebord ) {                                                //現在ホワイトボード
-//							toVideoChat();
-//							main_all_clear2_bt.setVisibility(View.GONE);                //全消去;非表示
-//							connect_bt.setVisibility(View.VISIBLE);                        //接続ボタン ;表示
-//							main_setting_bt.setVisibility(View.VISIBLE);                //設定ボタン;表示
-//							main_quit_bt.setVisibility(View.VISIBLE);                    //終了ボタン ;表示
-//						} else {
-							toWhiteBorrb();
-//							connect_bt.setVisibility(View.GONE);                        //接続ボタン ;非表示
-//							main_setting_bt.setVisibility(View.GONE);                    //設定ボタン;非表示
-//							main_quit_bt.setVisibility(View.GONE);                    //終了ボタン ;非表示
-//							main_all_clear2_bt.setVisibility(View.VISIBLE);                //全消去;表示
-//						}
-
+						toWhiteBorrb();
 						myLog(TAG , dbMsg);
 					} catch (Exception er) {
 						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
@@ -1398,7 +1372,9 @@ public class MainActivity extends Activity {
 			isNowWhitebord = true;
 			if ( _localStream != null ) {
 				main_conect_ll.setVisibility(View.GONE) ;    //接続関連
-
+//				canvasMain.setVisibility(View.GONE) ;
+//				canvasSub.setScaleX(2.0f);
+//				setContentView(canvasSub);
 				boolean isVideoEnable = _localStream.getEnableVideoTrack(0);
 				dbMsg += ",Video;Enable=" + isVideoEnable;
 //				_localStream.setEnableVideoTrack(0 , false);        //映像トラック停止
@@ -1478,6 +1454,9 @@ public class MainActivity extends Activity {
 					}
 				}
 			}
+//			canvasSub.setScaleX(1.0f);
+//			setContentView(canvasSub);
+//			canvasMain.setVisibility(View.VISIBLE) ;
 			main_conect_ll.setVisibility(View.VISIBLE) ;    //接続関連
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {

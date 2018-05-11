@@ -169,10 +169,11 @@
 		<view
 			android:id="@+id/svRemoteView"
 			class="io.skyway.Peer.Browser.Canvas"
-			android:layout_width="312dp"
+			android:layout_width="match_parent"
 			android:layout_height="match_parent"
 			android:layout_gravity="top|left"
 			android:layout_marginRight="2dp"
+			android:layout_weight="1"
 			android:gravity="top|left"/>
 		<!--app:layout_editor_absoluteX="0dp"-->
 		<!--tools:layout_editor_absoluteX="0dp"-->
@@ -181,7 +182,7 @@
 		<view
 			android:id="@+id/svLocalView"
 			class="io.skyway.Peer.Browser.Canvas"
-			android:layout_width="192dp"
+			android:layout_width="match_parent"
 			android:layout_height="match_parent"
 			android:layout_gravity="top|right"
 			android:layout_weight="1"
