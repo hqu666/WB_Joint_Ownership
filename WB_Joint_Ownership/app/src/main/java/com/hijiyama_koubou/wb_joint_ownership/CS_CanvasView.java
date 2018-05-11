@@ -24,7 +24,7 @@ public class CS_CanvasView extends FrameLayout implements RendererCommon.Rendere
 	private Context context;
 	private Paint paint;                        //ペン
 	private int penColor = 0xFF008800;        //蛍光グリーン
-	private float penWidth =2;
+	private float penWidth =1;
 
 
 	private Paint eraserPaint;                //消しゴム
@@ -170,7 +170,7 @@ public class CS_CanvasView extends FrameLayout implements RendererCommon.Rendere
 				case REQUEST_CLEAR:                //全消去
 					canvas.drawColor(eraserColor , PorterDuff.Mode.CLEAR);                // 描画クリア
 					path.reset();
-//					canvas.drawRect(0 , 0 , caWidth , caHeight , eraserPaint);        //真っ黒になるので背景色に塗りなおす
+					canvas.drawRect(0 , 0 , caWidth , caHeight , eraserPaint);        //真っ黒になるので背景色に塗りなおす
 					REQUEST_CORD = REQUEST_DROW_PATH;
 					break;
 				case REQUEST_DROW_PATH:                //フリーハンド

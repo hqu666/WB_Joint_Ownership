@@ -61,14 +61,18 @@ public class MainActivity extends Activity {
 	private Button connect_bt;                                //接続ボタン
 	private ImageButton main_setting_bt;                    //設定ボタン
 	private ImageButton main_quit_bt;                        //終了ボタン
-	//	private ImageButton switchCameraAction;                        //カメラ切替ボタン
+	private LinearLayout main_conect_ll ;    //接続関連
+	private LinearLayout main_wb_tools_ll;    //ホワイトボード関連
+
+		private ImageButton main_back2video_bt;    //自画像表示に切替ボタン
+
 	private Canvas canvasMain;         //受信モニター
 	private Canvas canvasSub;                                //自己モニター
 	private TextView tvOwnId;                                //自己ID
 	private TextView tvPartnerId;                            //接続先ID
 	private TextView conect_situation_tv;                    //接続状況
 	private LinearLayout wh_paret;        //ホワイトボードツールボックス
-//	private LinearLayout main_subview_ll;
+	//	private LinearLayout main_subview_ll;
 	private ImageButton main_c2edit_bt;        //P1の書き込み/カメラ切り替えボタン
 	private ImageButton main_all_clear2_bt;        //P1の書き込み全消去ボタン
 	private boolean isNowWhitebord = false;        //現在ホワイトボード
@@ -77,8 +81,8 @@ public class MainActivity extends Activity {
 	private CS_CanvasView main_whitebord;        //ホワイトボード        CS_CanvasView
 	private ImageButton main_all_clear_bt;        //全消去
 	private ImageButton main_edit_bt;                    //編修
-//	private ImageButton main_camera_bt;                //カメラ
-	private CS_CanvasView CSCV;    			//送信画面に組み込んだホワイトボード
+	//	private ImageButton main_camera_bt;                //カメラ
+	private CS_CanvasView CSCV;                //送信画面に組み込んだホワイトボード
 
 	private ViewFlipper mFlipper;
 	private ImageButton nextButton;                 // ViewFlipperの次（右）画面
@@ -202,20 +206,21 @@ public class MainActivity extends Activity {
 			connect_bt = ( Button ) findViewById(R.id.connect_bt);                    //接続ボタン
 			conect_situation_tv = ( TextView ) findViewById(R.id.conect_situation_tv);    //接続状況
 			main_setting_bt = ( ImageButton ) findViewById(R.id.main_setting_bt);                    //設定ボタン
-//			switchCameraAction = ( ImageButton ) findViewById(R.id.switchCameraAction);    //カメラ切替ボタン
-			 main_memu_bt = ( ImageButton ) findViewById(R.id.main_memu_bt);    //メニュー表示ボタン
+			main_back2video_bt = ( ImageButton ) findViewById(R.id.main_back2video_bt);    //自画像表示に切替ボタン
+			main_memu_bt = ( ImageButton ) findViewById(R.id.main_memu_bt);    //メニュー表示ボタン
 			main_memu_bt.setVisibility(View.GONE);                                            //メニュー;非表示
 
-//			main_subview_ll = ( LinearLayout ) findViewById(R.id.main_subview_ll);
+			main_conect_ll = ( LinearLayout ) findViewById(R.id.main_conect_ll);    //接続関連
+			main_wb_tools_ll = ( LinearLayout ) findViewById(R.id.main_wb_tools_ll);    //ホワイトボード関連
+			main_wb_tools_ll.setVisibility(View.GONE);        //ホワイトボードツールボックス;非表示
+
 
 			mFlipper = ( ViewFlipper ) findViewById(R.id.flipper);
 			nextButton = ( ImageButton ) findViewById(R.id.vf_next_bt);                 // ViewFlipperの次（右）画面
 			previousButton = ( ImageButton ) findViewById(R.id.vf_previous_bt);         // ViewFlipperの前（左）画面
 
 			wh_paret = ( LinearLayout ) findViewById(R.id.wh_paret);        //ホワイトボードツールボックス
-//			wh_paret.setVisibility(View.GONE);        //ホワイトボードツールボックス;非表示
 			main_all_clear2_bt = ( ImageButton ) findViewById(R.id.main_all_clear2_bt);        //P1の書き込み全消去ボタン
-			main_all_clear2_bt.setVisibility(View.GONE);                                                //P1の書き込み全消去ボタン;非表示
 			main_c2edit_bt = ( ImageButton ) findViewById(R.id.main_c2edit_bt);        //P1の書き込み/カメラ切り替えボタン
 			//
 			main_whitebord = ( CS_CanvasView ) findViewById(R.id.main_whitebord);        //ホワイトボード             	Canvas	     CS_CanvasView
@@ -678,25 +683,51 @@ public class MainActivity extends Activity {
 				}
 			});
 
+			main_back2video_bt.setOnClickListener(new View.OnClickListener() {                    //自画像表示に切替ボタン
+				@Override
+				public void onClick(View v) {                //P1の書き込み/カメラ切り替えボタン
+					final String TAG = "main_edit_bt[MA.onCr]";
+					String dbMsg = "P1の書き込み/カメラ切り替え";
+					try {
+//						if ( isNowWhitebord ) {                                                //現在ホワイトボード
+							toVideoChat();
+//							main_all_clear2_bt.setVisibility(View.GONE);                //全消去;非表示
+//							connect_bt.setVisibility(View.VISIBLE);                        //接続ボタン ;表示
+//							main_setting_bt.setVisibility(View.VISIBLE);                //設定ボタン;表示
+//							main_quit_bt.setVisibility(View.VISIBLE);                    //終了ボタン ;表示
+//						} else {
+//							toWhiteBorrb();
+//							connect_bt.setVisibility(View.GONE);                        //接続ボタン ;非表示
+//							main_setting_bt.setVisibility(View.GONE);                    //設定ボタン;非表示
+//							main_quit_bt.setVisibility(View.GONE);                    //終了ボタン ;非表示
+//							main_all_clear2_bt.setVisibility(View.VISIBLE);                //全消去;表示
+//						}
+
+						myLog(TAG , dbMsg);
+					} catch (Exception er) {
+						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+					}
+				}
+			});
 			main_c2edit_bt.setOnClickListener(new View.OnClickListener() {                    //page1で送信画面のモード切替
 				@Override
 				public void onClick(View v) {                //P1の書き込み/カメラ切り替えボタン
 					final String TAG = "main_edit_bt[MA.onCr]";
 					String dbMsg = "P1の書き込み/カメラ切り替え";
 					try {
-						if ( isNowWhitebord ) {                                                //現在ホワイトボード
-							toVideoChat();
-							main_all_clear2_bt.setVisibility(View.GONE);                //全消去;非表示
-							connect_bt.setVisibility(View.VISIBLE);                        //接続ボタン ;表示
-							main_setting_bt.setVisibility(View.VISIBLE);                //設定ボタン;表示
-							main_quit_bt.setVisibility(View.VISIBLE);                    //終了ボタン ;表示
-						} else {
+//						if ( isNowWhitebord ) {                                                //現在ホワイトボード
+//							toVideoChat();
+//							main_all_clear2_bt.setVisibility(View.GONE);                //全消去;非表示
+//							connect_bt.setVisibility(View.VISIBLE);                        //接続ボタン ;表示
+//							main_setting_bt.setVisibility(View.VISIBLE);                //設定ボタン;表示
+//							main_quit_bt.setVisibility(View.VISIBLE);                    //終了ボタン ;表示
+//						} else {
 							toWhiteBorrb();
-							connect_bt.setVisibility(View.GONE);                        //接続ボタン ;非表示
-							main_setting_bt.setVisibility(View.GONE);                    //設定ボタン;非表示
-							main_quit_bt.setVisibility(View.GONE);                    //終了ボタン ;非表示
-							main_all_clear2_bt.setVisibility(View.VISIBLE);                //全消去;表示
-						}
+//							connect_bt.setVisibility(View.GONE);                        //接続ボタン ;非表示
+//							main_setting_bt.setVisibility(View.GONE);                    //設定ボタン;非表示
+//							main_quit_bt.setVisibility(View.GONE);                    //終了ボタン ;非表示
+//							main_all_clear2_bt.setVisibility(View.VISIBLE);                //全消去;表示
+//						}
 
 						myLog(TAG , dbMsg);
 					} catch (Exception er) {
@@ -711,7 +742,7 @@ public class MainActivity extends Activity {
 					final String TAG = "main_all_clear_bt[MA.onCr]";
 					String dbMsg = "";
 					try {
-						if ( CSCV != null ) { ;    			//送信画面に組み込んだホワイトボード
+						if ( CSCV != null ) {
 							CSCV.clearAll();
 						}
 						myLog(TAG , dbMsg);
@@ -936,9 +967,12 @@ public class MainActivity extends Activity {
 			constraints.maxWidth = 640;       //org;960		>	1920	crash?
 			constraints.maxHeight = 480;       //org;540		>	1080
 			constraints.cameraPosition = MediaConstraints.CameraPositionEnum.FRONT;
-			dbMsg += ",constraints;maxFrameRate=" + constraints.maxFrameRate+"[" + constraints.maxWidth+"×" + constraints.maxWidth+"]";
+			dbMsg += ",constraints;maxFrameRate=" + constraints.maxFrameRate + "[" + constraints.maxWidth + "×" + constraints.maxWidth + "]";
 			_localStream = Navigator.getUserMedia(constraints);
-			_localStream.addVideoRenderer(canvasSub , 0);         // addViewm前ならクラッシュしない
+//			_localStream.addVideoRenderer(canvasSub , 0);         //SurfaceView生成； addViewm前ならクラッシュしない
+			CSCV = new CS_CanvasView(this);
+//			_localStream.addVideoRenderer((Canvas ) CSCV , 0);         //ではskywayのCanvasにキャストできない
+
 //			LinearLayout main_views_ll = ( LinearLayout ) findViewById(R.id.main_views_ll);
 //			int hbW = main_views_ll.getWidth();
 //			dbMsg += ",main_views_ll{" + hbW;
@@ -949,16 +983,26 @@ public class MainActivity extends Activity {
 			int hbH = canvasSub.getHeight();
 			dbMsg += "×" + hbH + "]";
 			int childCount = canvasSub.getChildCount();
-			dbMsg += ",getChild="+canvasSub.getChildAt(childCount-1).getClass().getName();
+			dbMsg += ",childCount=" + childCount;
+			if ( 0 < childCount ) {
+				dbMsg += ",getChild=" + canvasSub.getChildAt(childCount - 1).getClass().getName();
+			}
 
 			ViewGroup.LayoutParams VGLP = new ViewGroup.LayoutParams(hbW , hbH);
-			CSCV = new CS_CanvasView(this);
-			canvasSub.addView(CSCV , 1 , VGLP);                            //上位階層にホワイトボードのviewを追加
-			 childCount = canvasSub.getChildCount();
-			dbMsg += ",childCount="+childCount;
-			dbMsg += ",CS_CanvasView="+canvasSub.getChildAt(childCount-1).getClass().getName();
+//			canvasSub.removeViewAt(0);                //元のSurfaceViewを削除
+			canvasSub.addView(CSCV , 0 , VGLP);        //ホワイトボードのviewを追加	>クラッシュもせずホワイトボードとして書き込めるが送信映像はカメラのまま
+//			canvasSub.addView(CSCV , 1 , VGLP);		//上位階層にホワイトボードのviewを追加	>	映像トラックとして制御できない；一階層下になる
+			childCount = canvasSub.getChildCount();
+			dbMsg += ",childCount=" + childCount;
+			dbMsg += ",CS_CanvasView=" + canvasSub.getChildAt(childCount - 1).getClass().getName();
 // で// mChildren[0]=org.webrtc.SurfaceViewRenderer　 mChildren[1]=com.hijiyama_koubou.wb_joint_ownership.CS_CanvasView
-
+			_localStream.addVideoRenderer(canvasSub , 0);         // addViewm前ならクラッシュしない
+//			canvasSub.removeViewAt(1);                //カメラSurfaceViewを削除
+			childCount = canvasSub.getChildCount();
+			dbMsg += ",childCount=" + childCount;
+			if ( 0 < childCount ) {
+				dbMsg += ",getChild=" + canvasSub.getChildAt(childCount - 1).getClass().getName();
+			}
 			int trackCount = _localStream.getVideoTracks();
 			dbMsg += ",映像トラック=" + trackCount + "トラック";
 			dbMsg += ">_localStream,id=" + _localStream.getPeerId();
@@ -1064,7 +1108,7 @@ public class MainActivity extends Activity {
 			}
 		});
 
-		 //切断処理
+		//切断処理
 		_mediaConnection.on(MediaConnection.MediaEventEnum.CLOSE , new OnCallback() {
 			@Override
 			public void onCallback(Object object) {
@@ -1178,9 +1222,10 @@ public class MainActivity extends Activity {
 	}
 
 	// Close a remote MediaStream
+
 	/**
-	 *受信ストリームの表示先受信canvasから削除して 受信ストリームを閉じる
-	 * */
+	 * 受信ストリームの表示先受信canvasから削除して 受信ストリームを閉じる
+	 */
 	void closeRemoteStream() {
 		final String TAG = "closeRemoteStream[MA]";
 		String dbMsg = "";
@@ -1352,15 +1397,26 @@ public class MainActivity extends Activity {
 			dbMsg += ",isNowWhitebord=" + isNowWhitebord;
 			isNowWhitebord = true;
 			if ( _localStream != null ) {
-
+				main_conect_ll.setVisibility(View.GONE) ;    //接続関連
 
 				boolean isVideoEnable = _localStream.getEnableVideoTrack(0);
 				dbMsg += ",Video;Enable=" + isVideoEnable;
-				_localStream.setEnableVideoTrack(0 , false);        //映像トラック停止
-				isVideoEnable = _localStream.getEnableVideoTrack(0);
-				dbMsg += ">>" + isVideoEnable;
+//				_localStream.setEnableVideoTrack(0 , false);        //映像トラック停止
+//				isVideoEnable = _localStream.getEnableVideoTrack(0);
+//				dbMsg += ">>" + isVideoEnable;
 				int trackCount = _localStream.getVideoTracks();
 				dbMsg += ",映像トラック=" + trackCount + "トラック";
+				int childCount = canvasSub.getChildCount();
+				dbMsg += ",childCount=" + childCount;
+				if ( 0 < childCount ) {
+					dbMsg += ",getChild=" + canvasSub.getChildAt(childCount - 1).getClass().getName();
+					canvasSub.getChildAt(childCount - 1).setVisibility(View.GONE);  //カメラ非表示
+					 childCount = canvasSub.getChildCount();
+					dbMsg += ">>" + childCount;
+					if ( 0 < childCount ) {
+						dbMsg += ",getChild=" + canvasSub.getChildAt(childCount - 1).getClass().getName();
+					}
+				}
 				//				_localStream.removeVideoRenderer(canvasSub,0);
 //				_localStream.addVideoRenderer(main_whitebord , 0);        //アクティブになっていないと追加できない？(io.skyway.Peer.Browser.Canvas)
 //videoRenderers.mValues[0].mChildren[1]に
@@ -1379,6 +1435,7 @@ public class MainActivity extends Activity {
 //				_localStream.setEnableVideoTrack(0 , true);        //ホワイトボードトラック開始
 //				isVideoEnable = _localStream.getEnableVideoTrack(0);
 //				dbMsg += ">>" + isVideoEnable;
+				 main_wb_tools_ll.setVisibility(View.VISIBLE) ;  //ホワイトボード関連:表示
 			}
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
@@ -1392,6 +1449,7 @@ public class MainActivity extends Activity {
 		try {
 			dbMsg += ",isNowWhitebord=" + isNowWhitebord;
 			isNowWhitebord = false;
+			main_wb_tools_ll.setVisibility(View.GONE) ;  //ホワイトボード関連:非表示
 			if ( _localStream != null ) {
 				int trackCount = _localStream.getVideoTracks();
 				dbMsg += ",Video=" + trackCount + "トラック";
@@ -1405,11 +1463,22 @@ public class MainActivity extends Activity {
 
 				boolean isVideoEnable = _localStream.getEnableVideoTrack(0);
 				dbMsg += ",Video;Enable=" + isVideoEnable;
-				_localStream.setEnableVideoTrack(0 , true);        //映像トラック再生
-				isVideoEnable = _localStream.getEnableVideoTrack(0);
-				dbMsg += ">>" + isVideoEnable;
+//				_localStream.setEnableVideoTrack(0 , true);        //映像トラック再生
+//				isVideoEnable = _localStream.getEnableVideoTrack(0);
+//				dbMsg += ">>" + isVideoEnable;
+				int childCount = canvasSub.getChildCount();
+				dbMsg += ",childCount=" + childCount;
+				if ( 0 < childCount ) {
+					dbMsg += ",getChild=" + canvasSub.getChildAt(childCount - 1).getClass().getName();
+					canvasSub.getChildAt(childCount - 1).setVisibility(View.VISIBLE);  //カメラ非表示
+					childCount = canvasSub.getChildCount();
+					dbMsg += ">>" + childCount;
+					if ( 0 < childCount ) {
+						dbMsg += ",getChild=" + canvasSub.getChildAt(childCount - 1).getClass().getName();
+					}
+				}
 			}
-
+			main_conect_ll.setVisibility(View.VISIBLE) ;    //接続関連
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
