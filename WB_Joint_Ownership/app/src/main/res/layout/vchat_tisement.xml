@@ -30,13 +30,6 @@
 		<!--android:src="@android:drawable/ic_menu_edit"/>-->
 
 		<!--<ImageButton-->
-		<!--android:id="@+id/main_all_clear_bt"-->
-		<!--android:layout_width="40dp"-->
-		<!--android:layout_height="40dp"-->
-		<!--android:layout_weight="1"-->
-		<!--android:src="@android:drawable/ic_menu_delete"/>-->
-
-		<!--<ImageButton-->
 		<!--android:id="@+id/test_bt1"-->
 		<!--android:layout_width="40dp"-->
 		<!--android:layout_height="40dp"-->
@@ -45,17 +38,76 @@
 
 		<!--</LinearLayout>-->
 
-		<Button
-			android:id="@+id/connect_bt"
-			android:layout_width="wrap_content"
-			android:layout_height="40dp"
-			android:text="@string/call_bt_caption2conect"/>
-
 		<LinearLayout
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
+			android:id="@+id/main_conect_ll"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
 			android:layout_weight="1"
-			android:orientation="vertical">
+			android:orientation="horizontal">
+
+			<Button
+				android:id="@+id/connect_bt"
+				android:layout_width="wrap_content"
+				android:layout_height="40dp"
+				android:text="@string/call_bt_caption2conect"/>
+
+			<LinearLayout
+				android:layout_width="wrap_content"
+				android:layout_height="match_parent"
+				android:layout_weight="1"
+				android:orientation="vertical">
+
+				<TextView
+					android:id="@+id/conect_situation_tv"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_marginLeft="5dp"
+					android:text="@string/now_conection_meg"/>
+
+				<LinearLayout
+					android:layout_width="match_parent"
+					android:layout_height="match_parent"
+					android:orientation="horizontal">
+
+					<TextView
+						android:id="@+id/tvPartnerId"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/partner_id_titol"/>
+
+					<TextView
+						android:id="@+id/tvOwnId"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:layout_marginRight="5dp"
+						android:text="@string/my_id_titol"
+						android:textAlignment="viewEnd"
+						app:layout_constraintBottom_toTopOf="@+id/svRemoteView"
+						app:layout_constraintLeft_toLeftOf="parent"
+						app:layout_constraintRight_toLeftOf="@+id/btnAction"
+						app:layout_constraintTop_toTopOf="parent"/>
+				</LinearLayout>
+			</LinearLayout>
+
+			<ImageButton
+				android:id="@+id/main_setting_bt"
+				android:layout_width="40dp"
+				android:layout_height="40dp"
+				android:src="@android:drawable/ic_menu_manage"/>
+
+			<ImageButton
+				android:id="@+id/main_quit_bt"
+				android:layout_width="40dp"
+				android:layout_height="40dp"
+				android:layout_gravity="fill_vertical|fill_horizontal|center"
+				android:layout_marginRight="20dp"
+				android:src="@android:drawable/ic_lock_power_off"/>
+
+			<ImageButton
+				android:id="@+id/main_c2edit_bt"
+				android:layout_width="40dp"
+				android:layout_height="40dp"
+				android:src="@android:drawable/ic_menu_edit"/>
 
 		</LinearLayout>
 
@@ -67,15 +119,11 @@
 
 
 		<LinearLayout
+			android:id="@+id/main_wb_tools_ll"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
+			android:layout_gravity="right|end"
 			android:orientation="horizontal">
-
-			<ImageButton
-				android:id="@+id/main_setting_bt"
-				android:layout_width="40dp"
-				android:layout_height="40dp"
-				android:src="@android:drawable/ic_menu_manage"/>
 
 			<!--<ImageButton-->
 			<!--android:id="@+id/main_camera_bt"-->
@@ -84,18 +132,24 @@
 			<!--android:src="@android:drawable/ic_menu_camera"/>-->
 
 			<ImageButton
-				android:id="@+id/main_quit_bt"
+				android:id="@+id/main_all_clear2_bt"
 				android:layout_width="40dp"
 				android:layout_height="40dp"
-				android:layout_gravity="fill_vertical|fill_horizontal|center"
-				android:src="@android:drawable/ic_lock_power_off"/>
+				android:src="@android:drawable/ic_menu_delete"/>
+
+			<ImageButton
+				android:id="@+id/main_back2video_bt"
+				android:layout_width="40dp"
+				android:layout_height="40dp"
+				android:layout_marginLeft="20dp"
+				android:src="@android:drawable/presence_video_online"/>
 		</LinearLayout>
 
 		<ImageButton
 			android:id="@+id/vf_next_bt"
 			android:layout_width="60dp"
 			android:layout_height="36dp"
-			android:layout_marginLeft="40dp"
+			android:layout_gravity="right|end"
 			android:maxWidth="60dp"
 			android:src="@android:drawable/ic_media_ff"/>
 
@@ -115,65 +169,24 @@
 		<view
 			android:id="@+id/svRemoteView"
 			class="io.skyway.Peer.Browser.Canvas"
-			android:layout_width="390dp"
-			android:layout_height="219dp"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
 			android:layout_gravity="top|left"
 			android:layout_marginRight="2dp"
+			android:layout_weight="1"
 			android:gravity="top|left"/>
 		<!--app:layout_editor_absoluteX="0dp"-->
 		<!--tools:layout_editor_absoluteX="0dp"-->
 		<!--tools:layout_editor_absoluteY="3dp"-->
 
-		<LinearLayout
-			android:id="@+id/main_subview_ll"
+		<view
+			android:id="@+id/svLocalView"
+			class="io.skyway.Peer.Browser.Canvas"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
-			android:orientation="vertical">
-
-			<TextView
-				android:id="@+id/tvOwnId"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:layout_marginRight="5dp"
-				android:text="@string/my_id_titol"
-				android:textAlignment="viewEnd"
-				app:layout_constraintBottom_toTopOf="@+id/svRemoteView"
-				app:layout_constraintLeft_toLeftOf="parent"
-				app:layout_constraintRight_toLeftOf="@+id/btnAction"
-				app:layout_constraintTop_toTopOf="parent"/>
-
-			<view
-				android:id="@+id/svLocalView"
-				class="io.skyway.Peer.Browser.Canvas"
-				android:layout_width="192dp"
-				android:layout_height="108dp"
-				android:layout_gravity="top|right"
-				android:gravity="top|left"/>
-
-			<TextView
-				android:id="@+id/conect_situation_tv"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:layout_marginLeft="5dp"
-				android:text="@string/now_conection_meg"/>
-
-			<TextView
-				android:id="@+id/tvPartnerId"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:text="@string/partner_id_titol"
-				/>
-
-			<!--tools:layout_editor_absoluteX="390dp"-->
-			<!--tools:layout_editor_absoluteY="5dp"-->
-			<!--<com.hijiyama_koubou.wb_joint_ownership.CS_CanvasView-->
-			<!--android:id="@+id/main_whitebord"-->
-			<!--android:layout_width="192dp"-->
-			<!--android:layout_height="108dp"-->
-			<!--android:layout_gravity="top|right"/>-->
-			<!--app:layout_constraintEnd_toEndOf="parent"-->
-			<!--tools:layout_editor_absoluteY="122dp"-->
-		</LinearLayout>
+			android:layout_gravity="top|right"
+			android:layout_weight="1"
+			android:gravity="top|left"/>
 
 		<!--</android.support.constraint.ConstraintLayout>-->
 
