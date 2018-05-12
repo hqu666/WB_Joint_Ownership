@@ -11,20 +11,24 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.FrameLayout.LayoutParams;
 
 import org.webrtc.EglBase;
 import org.webrtc.RendererCommon;
 import org.webrtc.SurfaceViewRenderer;
 import org.webrtc.VideoRenderer;
+ import org.webrtc.RendererCommon.RendererEvents;
+ import org.webrtc.RendererCommon.ScalingType;
+
 
 import io.skyway.Peer.Browser.MediaStream;
 
 
-public class CS_CanvasView extends FrameLayout implements RendererCommon.RendererEvents {        //org; View	から　io.skyway.Peer.Browser.Canvas	に合わせる
+public class CS_CanvasView extends FrameLayout implements org.webrtc.RendererCommon.RendererEvents {        //org; View	から　io.skyway.Peer.Browser.Canvas	に合わせる
 	private Context context;
 	private Paint paint;                        //ペン
 	private int penColor = 0xFF008800;        //蛍光グリーン
-	private float penWidth =1;
+	private float penWidth = 1;
 
 
 	private Paint eraserPaint;                //消しゴム
@@ -65,26 +69,26 @@ public class CS_CanvasView extends FrameLayout implements RendererCommon.Rendere
 		final String TAG = "CS_CanvasView[CView]";
 		String dbMsg = "メソッド内から";
 		try {
-			commonCon( context);
+			commonCon(context);
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 		}
 	}
 
-	public CS_CanvasView(Context context, AttributeSet attrs, int defStyleAttr) {
-		super(context, attrs, defStyleAttr);
+	public CS_CanvasView(Context context , AttributeSet attrs , int defStyleAttr) {
+		super(context , attrs , defStyleAttr);
 		final String TAG = "CS_CanvasView[CView]";
 		String dbMsg = "？";
 		try {
-			commonCon( context);
+			commonCon(context);
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 		}
 	}
 
-	public void  commonCon(Context context) {
+	public void commonCon(Context context) {
 		final String TAG = "commonCon[CView]";
 		String dbMsg = "";
 		try {
@@ -102,21 +106,23 @@ public class CS_CanvasView extends FrameLayout implements RendererCommon.Rendere
 		final String TAG = "InitCanva[CView]";
 		String dbMsg = "";
 		try {
+
+
 			path = new Path();
 
 			paint = new Paint();
-			dbMsg += "ペン；"+penColor;
+			dbMsg += "ペン；" + penColor;
 			paint.setColor(penColor);                        //
 			paint.setStyle(Paint.Style.STROKE);
 			paint.setStrokeJoin(Paint.Join.ROUND);
 			paint.setStrokeCap(Paint.Cap.ROUND);
-			dbMsg += ","+penWidth+"px";
+			dbMsg += "," + penWidth + "px";
 			paint.setStrokeWidth(penWidth);
 
 			eraserPaint = new Paint();                //消しゴム
-			dbMsg += ",消しゴム；"+eraserColor;
+			dbMsg += ",消しゴム；" + eraserColor;
 			eraserPaint.setColor(eraserColor);
-			dbMsg += ","+eraserWidth+"px";
+			dbMsg += "," + eraserWidth + "px";
 			paint.setStrokeWidth(eraserWidth);
 
 			myLog(TAG , dbMsg);
@@ -274,7 +280,7 @@ public class CS_CanvasView extends FrameLayout implements RendererCommon.Rendere
 	}
 
 	//skyway.Brouser.Canvasから ///////////////////////////////////////////////////////////////////////////////////////
-	private SurfaceViewRenderer viewRenderer;
+	private SurfaceViewRenderer viewRenderer;       //org.webrtc
 	private EglBase eglBase;
 	private VideoRenderer videoRenderer;
 	public boolean mirror;
@@ -287,24 +293,31 @@ public class CS_CanvasView extends FrameLayout implements RendererCommon.Rendere
 		try {
 			this.mirror = false;
 			this.scaling = io.skyway.Peer.Browser.Canvas.ScalingEnum.ASPECT_FIT;
-			dbMsg += ",scaling="+scaling;
+			dbMsg += ",scaling=" + scaling;
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 		}
 	}
-	          //MediaStream.addVideoRendererから呼ばれる
-	void init(org.webrtc.EglBase.Context eglContext) {
+
+	//MediaStream.addVideoRendererから呼ばれる
+	void init(org.webrtc.EglBase.Context eglContext , Context context) {
 		final String TAG = "init[CView]";
 		String dbMsg = "";
 		try {
-			this.viewRenderer = new SurfaceViewRenderer(this.getContext());
+			dbMsg += ",eglContext=" + eglContext+"";
+   			this.viewRenderer = new SurfaceViewRenderer(context);      		//	this.getContext() ,this.getContext().getApplicationContext()       では生成されない
+			dbMsg += ",viewRenderer;id=" + viewRenderer.getId();
 			this.eglBase = EglBase.create(eglContext);
+			dbMsg += ",eglBase=" + this.eglBase;
+			dbMsg += ",getEglBaseContext=" + this.eglBase.getEglBaseContext().toString();
 			this.viewRenderer.init(this.eglBase.getEglBaseContext() , this);
-			LayoutParams params = new LayoutParams(-1 , -1);
+			dbMsg += ",viewRenderer;id=" + viewRenderer.getId();
+			android.widget.FrameLayout.LayoutParams params = new LayoutParams(1920 , 1080);                 //org; -1 , -1
 			this.addView(this.viewRenderer , params);
 			this.viewRenderer.requestLayout();
-			dbMsg += ",viewRenderer="+viewRenderer.getId();
+			dbMsg += ",viewRenderer;id=" + viewRenderer.getId();
+			dbMsg += "[" + viewRenderer.getWidth()+ "×" + viewRenderer.getHeight()+"]";
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
@@ -372,26 +385,26 @@ public class CS_CanvasView extends FrameLayout implements RendererCommon.Rendere
 		}
 	}
 
-	private RendererCommon.ScalingType getScalingType(io.skyway.Peer.Browser.Canvas.ScalingEnum scaling) {
+	private org.webrtc.RendererCommon.ScalingType getScalingType(io.skyway.Peer.Browser.Canvas.ScalingEnum scaling) {
 		final String TAG = "onFirstFrameRendered[CView]";
 		String dbMsg = "";
-		RendererCommon.ScalingType retType = null;
+		org.webrtc.RendererCommon.ScalingType retType = null;
 		try {
 			switch ( scaling ) {
 				case ASPECT_FIT:
-					retType= RendererCommon.ScalingType.SCALE_ASPECT_FIT;
+					retType = RendererCommon.ScalingType.SCALE_ASPECT_FIT;
 				case ASPECT_FILL:
-					retType= RendererCommon.ScalingType.SCALE_ASPECT_FILL;
+					retType = RendererCommon.ScalingType.SCALE_ASPECT_FILL;
 				case FILL:
-					retType= RendererCommon.ScalingType.SCALE_ASPECT_BALANCED;
+					retType = RendererCommon.ScalingType.SCALE_ASPECT_BALANCED;
 				default:
-					retType= RendererCommon.ScalingType.SCALE_ASPECT_FIT;
+					retType = RendererCommon.ScalingType.SCALE_ASPECT_FIT;
 			}
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 		}
-		return  retType;
+		return retType;
 	}
 
 	VideoRenderer getVideoRenderer() {
@@ -410,12 +423,16 @@ public class CS_CanvasView extends FrameLayout implements RendererCommon.Rendere
 		String dbMsg = "";
 		try {
 			if ( null != this.videoRenderer ) {
+				dbMsg += ",既存;id="+viewRenderer.getId();
 				this.videoRenderer.dispose();
 			}
-
-			this.videoRenderer = new VideoRenderer(this.viewRenderer);
+ 			this.videoRenderer = new VideoRenderer(this.viewRenderer);
+			dbMsg += ",viewRendere;idr="+viewRenderer.getId();
+			dbMsg += ",scaling="+this.scaling;
 			this.viewRenderer.setScalingType(this.getScalingType(this.scaling));
-			this.viewRenderer.setMirror(this.mirror);			myLog(TAG , dbMsg);
+			this.viewRenderer.setMirror(this.mirror);
+			dbMsg += "["+viewRenderer.getWidth()+ "×"+viewRenderer.getHeight() + "]";
+			myLog(TAG , dbMsg);
 		} catch (Exception er) {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 		}
@@ -439,6 +456,7 @@ public class CS_CanvasView extends FrameLayout implements RendererCommon.Rendere
 
 	public static enum ScalingEnum {
 		ASPECT_FIT, ASPECT_FILL, FILL;
+
 		private ScalingEnum() {
 		}
 	}
