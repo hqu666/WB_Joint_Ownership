@@ -27,6 +27,7 @@ import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -37,6 +38,7 @@ import org.json.JSONArray;
 import org.webrtc.EglBase;
 import org.webrtc.PeerConnection;
 import org.webrtc.VideoRenderer;
+import org.webrtc.VideoTrack;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -67,6 +69,9 @@ public class MainActivity extends Activity {
 	private LinearLayout main_conect_ll;    //接続関連
 	private LinearLayout main_wb_tools_ll;    //ホワイトボード関連
 
+//	private FrameLayout white_bord_bace_fl;										//ホワイトボードのベース
+//	private org.webrtc.SurfaceViewRenderer white_bord_svr ;		//ホワイトボード本体
+
 	private ImageButton main_back2video_bt;    //自画像表示に切替ボタン
 
 	private Canvas canvasMain;         //受信モニター
@@ -75,7 +80,6 @@ public class MainActivity extends Activity {
 	private TextView tvPartnerId;                            //接続先ID
 	private TextView conect_situation_tv;                    //接続状況
 	private LinearLayout wh_paret;        //ホワイトボードツールボックス
-	//	private LinearLayout main_subview_ll;
 	private ImageButton main_c2edit_bt;        //P1の書き込み/カメラ切り替えボタン
 	private ImageButton main_all_clear2_bt;        //P1の書き込み全消去ボタン
 	private boolean isNowWhitebord = false;        //現在ホワイトボード
@@ -84,7 +88,6 @@ public class MainActivity extends Activity {
 	private CS_CanvasView main_whitebord;        //ホワイトボード        CS_CanvasView
 	private ImageButton main_all_clear_bt;        //全消去
 	private ImageButton main_edit_bt;                    //編修
-	//	private ImageButton main_camera_bt;                //カメラ
 	private CS_CanvasView CSCV;                //送信画面に組み込んだホワイトボード
 
 	private ViewFlipper mFlipper;
@@ -225,15 +228,14 @@ public class MainActivity extends Activity {
 			wh_paret = ( LinearLayout ) findViewById(R.id.wh_paret);        //ホワイトボードツールボックス
 			main_all_clear2_bt = ( ImageButton ) findViewById(R.id.main_all_clear2_bt);        //P1の書き込み全消去ボタン
 			main_c2edit_bt = ( ImageButton ) findViewById(R.id.main_c2edit_bt);        //P1の書き込み/カメラ切り替えボタン
-			//
+
+					// page2
 			main_whitebord = ( CS_CanvasView ) findViewById(R.id.main_whitebord);        //ホワイトボード             	Canvas	     CS_CanvasView
 			main_all_clear_bt = ( ImageButton ) findViewById(R.id.main_all_clear_bt);        //全消去
 			main_edit_bt = ( ImageButton ) findViewById(R.id.main_edit_bt);                    //編修
-//			main_camera_bt = ( ImageButton ) findViewById(R.id.main_camera_bt);                //カメラ
 
 			main_quit_bt = ( ImageButton ) findViewById(R.id.main_quit_bt);    //終了
 			_handler = new Handler(Looper.getMainLooper());
-
 
 //			try {
 			readPref();
@@ -618,9 +620,9 @@ public class MainActivity extends Activity {
 						} else {
 							mFlipper.stopFlipping();
 //							toWhiteBorrb();
-
 						}
-
+						canvasMain.setVisibility(View.GONE);
+				canvasSub.setVisibility(View.GONE);
 						myLog(TAG , dbMsg);
 					} catch (Exception er) {
 						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
@@ -643,6 +645,8 @@ public class MainActivity extends Activity {
 							mFlipper.stopFlipping();
 //							toVideoChat();
 						}
+						canvasMain.setVisibility(View.VISIBLE);
+						canvasSub.setVisibility(View.VISIBLE);
 						myLog(TAG , dbMsg);
 					} catch (Exception er) {
 						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
@@ -944,59 +948,60 @@ public class MainActivity extends Activity {
 			constraints.maxWidth = 1920;       //org;960		>	1920	crash?
 			constraints.maxHeight = 1080;       //org;540		>	1080
 			constraints.cameraPosition = MediaConstraints.CameraPositionEnum.FRONT;
+
 			dbMsg += ",constraints;maxFrameRate=" + constraints.maxFrameRate + "[" + constraints.maxWidth + "×" + constraints.maxWidth + "]";
 			_localStream = Navigator.getUserMedia(constraints);
-//			_localStream.addVideoRenderer(canvasSub , 0);         //SurfaceView生成； addViewm前ならクラッシュしない
-			int hbW = canvasSub.getWidth();
-			dbMsg += ",canvasSub{" + hbW;
-			int hbH = canvasSub.getHeight();
-			dbMsg += "×" + hbH + "]";
+//			int hbW = canvasSub.getWidth();
+//			dbMsg += ",canvasSub{" + hbW;
+//			int hbH = canvasSub.getHeight();
+//			dbMsg += "×" + hbH + "]";
 			int childCount = canvasSub.getChildCount();
 			dbMsg += ",childCount=" + childCount;
 			if ( 0 < childCount ) {
 				dbMsg += ",getChild=" + canvasSub.getChildAt(childCount - 1).getClass().getName();
 			}
-// //  自画像側モニターにホワイトボードを追加する
-//			ViewGroup.LayoutParams VGLP = new ViewGroup.LayoutParams(hbW , hbH);
-//			canvasSub.addView(CSCV , 0 , VGLP);        //ホワイトボードのviewを追加（☆removeViewAt(0)で元のSurfaceViewを削除する必要なし）	>クラッシュもせずホワイトボードとして書き込めるが送信映像はカメラのまま
-////			canvasSub.addView(CSCV , 1 , VGLP);		//上位階層にホワイトボードのviewを追加	>	映像トラックとして制御できない；一階層下になる
-//			childCount = canvasSub.getChildCount();
-//			dbMsg += ",childCount=" + childCount;
-//			dbMsg += ",CS_CanvasView=" + canvasSub.getChildAt(childCount - 1).getClass().getName();        // で mChildren[0]=org.webrtc.SurfaceViewRenderer　 mChildren[1]=com.hijiyama_koubou.wb_joint_ownership.CS_CanvasView
-
 			dbMsg += ",映像トラック=" + _localStream.getVideoTracks() + "トラック";
 			_localStream.addVideoRenderer(canvasSub , 0);         // addViewm前ならクラッシュしない
-			dbMsg += ">>" + _localStream.getVideoTracks() + "トラック";
+			dbMsg += ">canvasSub>" + _localStream.getVideoTracks() + "トラック";
 
+// //  自画像側モニターにホワイトボードを追加する
 			CSCV = new CS_CanvasView(this);
 			LinearLayout main_views_ll = ( LinearLayout ) findViewById(R.id.main_views_ll);
 			int llW = main_views_ll.getWidth();
 			dbMsg += ",main_views_ll{" + llW;
 			int llH = main_views_ll.getHeight();
 			dbMsg += "×" + llH + "]";
-			ViewGroup.LayoutParams llLP = new ViewGroup.LayoutParams(hbW , hbH);
-			int llChildCount = main_views_ll.getChildCount();
-			;
-			dbMsg += ",llChildCount=" + llChildCount;
-			main_views_ll.addView(CSCV , llLP);
-			dbMsg += ",映像トラック=" + _localStream.getVideoTracks() + "トラック";
-			myAddVideoRenderer(CSCV , 1);                    //	_localStream.addVideoRenderer((Canvas ) CSCV , 0);ではskywayのCanvasにキャストできないのでカスタマイズ
-			dbMsg += ">>" + _localStream.getVideoTracks() + "トラック";
+			ViewGroup.LayoutParams llLP = new ViewGroup.LayoutParams(llW , llH);   //ベースにするリニアレイアウトでパラメータ作成
+////			int llChildCount = main_views_ll.getChildCount();
+////			 			dbMsg += ",llChildCount=" + llChildCount;
+			main_views_ll.addView(CSCV ,2, llLP);
+//				canvasSub.addView(CSCV ,0, llLP);			 //ホワイトボードのviewを追加（☆removeViewAt(0)で元のSurfaceViewを削除する必要なし）	>クラッシュもせずホワイトボードとして書き込めるが送信映像はカメラのまま
+//////			canvasSub.addView(CSCV , 1 , llLP);		//上位階層にホワイトボードのviewを追加	>	映像トラックとして制御できない；一階層下になる
+//			childCount = canvasSub.getChildCount();
+//			dbMsg += ",canvasSubに" + childCount;
+//		VideoTrack localVideoTrack = factory.createVideoTrack("android_local_videotrack", localVideoSource);
+//			_localStream.addTrack(localVideoTrack);
+//		VideoRenderer videoRender = new VideoRenderer(localRenderer);
+//		localVideoTrack.addRenderer(videoRender);
+
+// 			myAddVideoRenderer(CSCV , 1);                    //	_localStream.addVideoRenderer((Canvas ) CSCV , 0);ではskywayのCanvasにキャストできないのでカスタマイズ
+//			_localStream.addVideoRenderer(CSCV , 1);
+			dbMsg += ">CSCV>" + _localStream.getVideoTracks() + "トラック";
+
 			CSCV.setVisibility(View.GONE);
-			llChildCount = main_views_ll.getChildCount();
-			dbMsg += ",llChildCount=" + llChildCount;
-			if ( 0 < llChildCount ) {
-				dbMsg += ",getChild=" + main_views_ll.getChildAt(llChildCount - 1).getClass().getName();
-			}
+//			llChildCount = main_views_ll.getChildCount();
+//			dbMsg += ",llChildCount=" + llChildCount;
+//			if ( 0 < llChildCount ) {
+//				dbMsg += ",getChild=" + main_views_ll.getChildAt(llChildCount - 1).getClass().getName();
+//			}
 
 //			int trackCount = _localStream.getVideoTracks();
 			dbMsg += ">_localStream,id=" + _localStream.getPeerId();       //?取得できない？
 			dbMsg += ",Label=" + _localStream.getLabel();
 			dbMsg += ",VideoTracks=" + _localStream.getVideoTracks();
 
-
-			canvasSub.getLayoutParams().width = hbW / 4;        //初期状態はフルサイズなので妥当な大きさに；☆setScaleXは真ん中に寄ってしまう
-			canvasSub.getLayoutParams().height = hbH / 4;
+			canvasSub.getLayoutParams().width = llW / 4;        //初期状態はフルサイズなので妥当な大きさに；☆setScaleXは真ん中に寄ってしまう
+			canvasSub.getLayoutParams().height = llH / 4;
 			canvasSub.requestLayout();
 			tvPartnerId.setText(getResources().getString(R.string.conectlist_titol));        //接続先ID
 			myLog(TAG , dbMsg);
@@ -1005,6 +1010,23 @@ public class MainActivity extends Activity {
 		}
 	}
 
+	//  https://qiita.com/nakadoribooks/items/7950e29ad3b751ddab12
+//	private void setupLocalStream() {
+//
+//		SurfaceViewRenderer localRenderer = setupRenderer();
+//
+//		MediaStream localStream = factory.createLocalMediaStream("android_local_stream");
+//		videoCapturer = createCameraCapturer(new Camera2Enumerator(activity));
+//		VideoSource localVideoSource = factory.createVideoSource(videoCapturer);
+//
+//		VideoTrack localVideoTrack = factory.createVideoTrack("android_local_videotrack", localVideoSource);
+//		localStream.addTrack(localVideoTrack);
+//
+//		VideoRenderer videoRender = new VideoRenderer(localRenderer);
+//		localVideoTrack.addRenderer(videoRender);
+//	}
+
+
 	/**
 	 * canvasを CS_CanvasView　に置換え
 	 */
@@ -1012,49 +1034,53 @@ public class MainActivity extends Activity {
 		final String TAG = "myAddVideoRenderer[MA]";
 		String dbMsg = "";
 		try {
-//			SparseArray< LinkedList< CS_CanvasView > > videoRenderers = _localStream.getClass().getField("videoRenderers");    //new MediaStreamで生成され
-			SparseArray< LinkedList< CS_CanvasView > > videoRenderers = new SparseArray();    //new MediaStreamで生成され
-			boolean isRemote = false;                                                                            //falseにセットされる
+			dbMsg += ",canvas=" + canvas.getId();                //この時点で0
 
+
+////			SparseArray< LinkedList< CS_CanvasView > > videoRenderers = _localStream.getClass().getField("videoRenderers");    //new MediaStreamで生成され
+//			SparseArray< LinkedList< CS_CanvasView > > videoRenderers = new SparseArray();    //new MediaStreamで生成され
+//			boolean isRemote = false;                                                                            //falseにセットされる
+//
 			if ( null != canvas ) {
 				int nowVideoTracks = _localStream.getVideoTracks();
-				dbMsg += "nowVideoTracks=" + nowVideoTracks;
-//				if (nowVideoTracks > videoTrackNumber ) {
-				if ( !isRemote ) {                           //
-					EglBase localEglbase = _peer.getLocalEglBase();
-					if ( null == localEglbase ) {
-						return;
-					}
-					canvas.init(localEglbase.getEglBaseContext() , MainActivity.this);         //contextを thisでは渡せない
-				} else {
-					EglBase remoteEglbase = _peer.getRemoteEglbase();
-					if ( null == remoteEglbase ) {
-						return;
-					}
-					canvas.init(remoteEglbase.getEglBaseContext(),MainActivity.this);
-				}
-				VideoRenderer videoRenderer = canvas.startRendering();
-//					io.skyway.Peer.Browser.MediaStream.nativeAddVideoRenderer(videoRenderer , videoTrackNumber);
-				LinkedList< CS_CanvasView > renderers = ( LinkedList ) videoRenderers.get(videoTrackNumber);
-				if ( null == renderers ) {
-					renderers = new LinkedList();
-					dbMsg += ",videoRenderers=" + videoRenderers.size();
-					videoRenderers.append(videoTrackNumber , renderers);
-					dbMsg += ">>" + videoRenderers.size();
-				}
-				dbMsg += ",renderers=" + renderers.size();
-				renderers.add(canvas);
-				dbMsg += ">>" + renderers.size();
+				dbMsg += ",nowVideoTracks=" + nowVideoTracks;
+////				if (nowVideoTracks > videoTrackNumber ) {
+//				if ( !isRemote ) {                           //
+//					EglBase localEglbase = _peer.getLocalEglBase();
+//					if ( null == localEglbase ) {
+//						return;
+//					}
+//					canvas.init(localEglbase.getEglBaseContext() , MainActivity.this,_localStream);         //contextを thisでは渡せない
+//				} else {
+//					EglBase remoteEglbase = _peer.getRemoteEglbase();
+//					if ( null == remoteEglbase ) {
+//						return;
+//					}
+//					canvas.init(remoteEglbase.getEglBaseContext(),MainActivity.this,_localStream);
 //				}
+//				VideoRenderer videoRenderer = canvas.startRendering();
+////					io.skyway.Peer.Browser.MediaStream.nativeAddVideoRenderer(videoRenderer , videoTrackNumber);
+//				VideoRenderer videoRenderer = _localStream.;		//canvas.startRendering();
+//				this.nativeAddVideoRenderer(videoRenderer, videoTrackNumber);
+//				LinkedList<Canvas> renderers = (LinkedList)this.videoRenderers.get(videoTrackNumber);
+//				if (null == renderers) {
+//					renderers = new LinkedList();
+//					this.videoRenderers.append(videoTrackNumber, renderers);
+//				}
+//
+//				dbMsg += ",renderers=" + renderers.size();
+////				renderers.add(canvas);
+//				dbMsg += ">>" + renderers.size();
+////				}
 			}
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 		}
 	}
-//	private native boolean nativeAddVideoRenderer(VideoRenderer var1, int var2);
-
-	// Set callbacks for MediaConnection.MediaEvents     /////////////////
+////	private native boolean nativeAddVideoRenderer(VideoRenderer var1, int var2);
+//
+//	// Set callbacks for MediaConnection.MediaEvents     /////////////////
 
 	/**
 	 * 接続中のイベント取得
@@ -1401,7 +1427,7 @@ public class MainActivity extends Activity {
 			dbMsg += ",isNowWhitebord=" + isNowWhitebord;
 			isNowWhitebord = true;
 			if ( _localStream != null ) {
-				main_conect_ll.setVisibility(View.GONE);    //接続関連
+				main_conect_ll.setVisibility(View.GONE);    //接続関連パネル
 				canvasMain.setVisibility(View.GONE);
 				canvasSub.setVisibility(View.GONE);
 //				canvasSub.getLayoutParams().width = canvasSub.getWidth() * 4;        //setScaleXは真ん中に寄ってしまう
@@ -1459,10 +1485,13 @@ public class MainActivity extends Activity {
 		try {
 			dbMsg += ",isNowWhitebord=" + isNowWhitebord;
 			isNowWhitebord = false;
-			CSCV.setVisibility(View.GONE);
 			main_wb_tools_ll.setVisibility(View.GONE);  //ホワイトボード関連:非表示
 			if ( _localStream != null ) {
 				int trackCount = _localStream.getVideoTracks();
+				CSCV.setVisibility(View.GONE);
+//				canvasSub.getLayoutParams().width = canvasSub.getWidth() / 4;        //setScaleXは真ん中に寄ってしまう
+//				canvasSub.getLayoutParams().height = canvasSub.getHeight() / 4;
+//				canvasSub.requestLayout();
 				dbMsg += ",Video=" + trackCount + "トラック";
 //				boolean isVideoEnable = _localStream.getEnableVideoTrack(1);
 //				dbMsg += ",ホワイトボード;Enable=" + isVideoEnable;
