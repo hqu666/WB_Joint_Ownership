@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+	  xmlns:app="http://schemas.android.com/apk/res-auto"
+	  xmlns:tools="http://schemas.android.com/tools">
+
+	<group android:checkableBehavior="single">
+
+		<item
+			android:id="@+id/show_white_bord"
+			android:title="ホワイトボード"
+			/>
+		<!--<string name="">カメラ起動</string>-->
+		<item
+			android:id="@+id/show_web"
+			android:title="web"
+			/>
+	</group>
+
+	<item
+		android:title="その他"
+		>
+
+		<menu>
+			<item
+				android:id="@+id/mm_prefarence"
+				android:icon="@android:drawable/ic_menu_manage"
+				android:title="設定"/>
+			<item
+				android:id="@+id/mm_quit"
+				android:icon="@android:drawable/ic_lock_power_off"
+				android:title="終了"/>
+
+		</menu>
+	</item>
+
+</menu>

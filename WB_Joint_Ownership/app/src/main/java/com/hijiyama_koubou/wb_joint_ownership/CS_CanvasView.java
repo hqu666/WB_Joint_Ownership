@@ -30,7 +30,7 @@ public class CS_CanvasView extends org.webrtc.SurfaceViewRenderer{        //org;
 	private Context context;
 	private Paint paint;                        //ペン
 	private int penColor = 0xFF008800;        //蛍光グリーン
-	private float penWidth = 1;
+	private float penWidth = 2;
 
 
 	private Paint eraserPaint;                //消しゴム
