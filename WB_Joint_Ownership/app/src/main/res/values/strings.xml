@@ -1,23 +1,23 @@
 <resources>
-    <string name="app_name">WhiteBoard_test</string>
-    <string name="title_activity_video_chat">ホワイトボード</string>
-    <string name="can_not_conect_titol">現在接続できません</string>
-    <string name="can_not_conect_msg1">サーバからあなたの接続IDを得られません\n少し待って再接続して下さい。</string>
-    <string name="can_not_conect_msg2">接続できるお相手がログインしていません。\n接続先にログインして頂ける様、ご連絡ください。</string>
+	<string name="app_name">WhiteBoard_test</string>
+	<string name="title_activity_video_chat">ホワイトボード</string>
+	<string name="can_not_conect_titol">現在接続できません</string>
+	<string name="can_not_conect_msg1">サーバからあなたの接続IDを得られません\n少し待って再接続して下さい。</string>
+	<string name="can_not_conect_msg2">接続できるお相手がログインしていません。\n接続先にログインして頂ける様、ご連絡ください。</string>
 	<string name="can_not_conect_msg3">少し時間を置いて再起動してください。</string>
 	<string name="conectlist_titol">接続先を選択して下さい。</string>
 	<string name="my_id_titol">この端末のID</string>
-    <string name="non_conect_now">現在、接続していません</string>
-    <string name="conect_now">接続しました</string>
+	<string name="non_conect_now">現在、接続していません</string>
+	<string name="conect_now">接続しました</string>
 
-    <string name="camera_switch_caption">サブ/メイン切替</string>
-    <string name="camera_switch_caption2main">メインカメラへ</string>
-    <string name="camera_switch_caption2sub">サブカメラへ</string>
-    <string name="call_bt_caption2conect">接続</string>
-    <string name="call_bt_caption2disconect">切断</string>
-    <string name="partner_titol">接続先</string>
-    <string name="conect_situation_titol">接続状況</string>
-    <string name="select_dlog_msg">Backキーでキャンセル</string>
+	<string name="camera_switch_caption">サブ/メイン切替</string>
+	<string name="camera_switch_caption2main">メインカメラへ</string>
+	<string name="camera_switch_caption2sub">サブカメラへ</string>
+	<string name="call_bt_caption2conect">接続</string>
+	<string name="call_bt_caption2disconect">切断</string>
+	<string name="partner_titol">接続先</string>
+	<string name="conect_situation_titol">接続状況</string>
+	<string name="select_dlog_msg">Backキーでキャンセル</string>
 	<string
 		name="title_activity_bottom_bar">
 		bottom_bar

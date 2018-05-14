@@ -19,7 +19,10 @@ import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.provider.Browser;
 import android.util.SparseArray;
+import android.view.ContextMenu;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -64,8 +67,8 @@ public class MainActivity extends Activity {
 
 	private ImageButton main_memu_bt;    //メニュー表示ボタン
 	private Button connect_bt;                                //接続ボタン
-	private ImageButton main_setting_bt;                    //設定ボタン
-	private ImageButton main_quit_bt;                        //終了ボタン
+//	private ImageButton main_setting_bt;                    //設定ボタン
+//	private ImageButton main_quit_bt;                        //終了ボタン
 	private LinearLayout main_conect_ll;    //接続関連
 	private LinearLayout main_wb_tools_ll;    //ホワイトボード関連
 
@@ -211,10 +214,8 @@ public class MainActivity extends Activity {
 			tvPartnerId = ( TextView ) findViewById(R.id.tvPartnerId);    //接続先ID
 			connect_bt = ( Button ) findViewById(R.id.connect_bt);                    //接続ボタン
 			conect_situation_tv = ( TextView ) findViewById(R.id.conect_situation_tv);    //接続状況
-			main_setting_bt = ( ImageButton ) findViewById(R.id.main_setting_bt);                    //設定ボタン
 			main_back2video_bt = ( ImageButton ) findViewById(R.id.main_back2video_bt);    //自画像表示に切替ボタン
 			main_memu_bt = ( ImageButton ) findViewById(R.id.main_memu_bt);    //メニュー表示ボタン
-			main_memu_bt.setVisibility(View.GONE);                                            //メニュー;非表示
 
 			main_conect_ll = ( LinearLayout ) findViewById(R.id.main_conect_ll);    //接続関連
 			main_wb_tools_ll = ( LinearLayout ) findViewById(R.id.main_wb_tools_ll);    //ホワイトボード関連
@@ -234,7 +235,6 @@ public class MainActivity extends Activity {
 			main_all_clear_bt = ( ImageButton ) findViewById(R.id.main_all_clear_bt);        //全消去
 			main_edit_bt = ( ImageButton ) findViewById(R.id.main_edit_bt);                    //編修
 
-			main_quit_bt = ( ImageButton ) findViewById(R.id.main_quit_bt);    //終了
 			_handler = new Handler(Looper.getMainLooper());
 
 //			try {
@@ -420,6 +420,128 @@ public class MainActivity extends Activity {
 			return false;
 		}
 	}
+	///メニュー///////////////////////////////////////////////////////////////////////////
+	public static final int MENU_main = 0;                    //メイン画面	     <item android:id="@+id/mm_main"	android:orderInCategory="101"	android:title="@string/main_screen"/>
+	public static final int MENU_conectedt = MENU_main + 1;    //現在の接続先       <item  android:id="@+id/mm_conected" android:orderInCategory="102"  android:title="@string/current_connection"/>
+	public static final int MENU_PLC = MENU_conectedt + 1;    //現在地確認       <item android:id="@+id/mm_present_location_confirmation"  android:orderInCategory="103" android:title="@string/present_location_confirmation"　android:icon="@android:drawable/ic_dialog_map"-->
+	public static final int MENU_share = MENU_PLC + 1;        //登録したログの確認   <item android:id="@+id/mm_share" android:orderInCategory="104" android:title="@string/Indication_of_the_registered_log"/>
+	public static final int MENU_TC = MENU_share + 1;            //廃止；送信先変更    <item  android:id="@+id/mm_transmission_change" android:orderInCategory="107"  android:title="@string/transmission_change"/>
+	public static final int MENU_disconect = MENU_TC + 1;        //回線切断              <item android:id="@+id/mm_" android:orderInCategory="108" android:title="@string/info_a_setudann"/>
+	public static final int MENU_prefarence = MENU_disconect + 1;        //設定画面   <item android:id="@+id/mm_prefarence" android:title="@string/action_settings"  android:orderInCategory="189"/>
+	public static final int MENU_quit = MENU_prefarence + 1;            //    <item android:id="@+id/mm_quit" android:orderInCategory="199" android:title="@string/menu_item_sonota_end"/>
+	public static int mMenuType = MENU_main;                    //メニューレイアウト管理用変数
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.main , menu);
+		return true;
+	}
+
+	@Override
+	public boolean onPrepareOptionsMenu(Menu item) {
+		final String TAG = "onPrepareOptionsMenu[MA}";
+		String dbMsg = "開始" + item;                    //表記が返る
+		try {
+			dbMsg = dbMsg + " , mMenuType= " + mMenuType;
+			switch ( mMenuType ) {
+				case MENU_conectedt:    //現在地確認       <item android:id="@+id/mm_present_location_confirmation"  android:orderInCategory="103" android:title="@string/present_location_confirmation"　android:icon="@android:drawable/ic_dialog_map"-->
+					break;
+//				case MENU_PLC:        //登録したログの確認   <item android:id="@+id/mm_share" android:orderInCategory="104" android:title="@string/Indication_of_the_registered_log"/>
+//					break;
+//				case MENU_prefarence://設定画面   <item android:id="@+id/mm_prefarence" android:title="@string/action_settings"  android:orderInCategory="189"/>
+//					break;
+				default:
+					break;
+			}
+			//		myLog(TAG, dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + "で" + er.toString());
+		}
+		return true;        //	return super.onOptionsItemSelected ((MenuItem) item);でクラッシュ
+	}                                            //状況に合わせたメニューアイテムの表示/非表示処理	再開時;⑨
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		final String TAG = "onOptionsItemSelected[MA}";
+		String dbMsg = "開始" + item;                    //表記が返る
+		try {
+			myLog(TAG , dbMsg);
+			funcSelected(item);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + "で" + er.toString());
+		}
+		//本当は　return abdToggle.onOptionsItemSelected(item) || super.onOptionsItemSelected(item);			//アイコン回転
+		return super.onOptionsItemSelected(item);
+	}
+
+	/**
+	 * MainActivityのメニュー
+	 * ドロワーと共通になるので関数化
+	 */
+	public boolean funcSelected(MenuItem item) {
+		final String TAG = "funcSelected[MA}";
+		String dbMsg = "MenuItem" + item.toString();/////////////////////////////////////////////////
+		try {
+			Bundle bundle = new Bundle();
+			int id = item.getItemId();
+			dbMsg = "id=" + id;
+			switch ( id ) {
+				case R.id.show_white_bord:     //ホワイトボード
+					Intent _intent = new Intent(this, CS_WhitebordActivity.class);
+					startActivity(_intent);
+					break;
+				case R.id.show_web:          //web
+					Intent webIntent = new Intent(this, CS_Web_Activity.class);
+					webIntent.putExtra("dataURI", "https://webrtc.ecl.ntt.com/developer.html");						//最初に表示するページのパス
+//					baseUrl = "file://"+extras.getString("baseUrl");				//最初に表示するページを受け取る
+//					fType = extras.getString("fType");							//データタイプ
+					startActivity(webIntent);
+					break;
+				case R.id.mm_prefarence:      //設定
+					Intent settingsIntent = new Intent(MainActivity.this , MyPreferencesActivty.class);
+					//    startActivity( settingsIntent );
+					startActivityForResult(settingsIntent , REQUEST_PREF);//		StartActivity(intent);
+//					Intent camintent2 = new Intent(this, CameraActivity.class);
+//					camintent2.putExtra("tMode", getResources().getString(R.string.menu_camera_start));
+//					startActivity(camintent2);
+					break;
+				case R.id.mm_quit:        //
+					callQuit();
+					break;
+
+				default:
+					break;
+			}
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + "で" + er.toString());
+		}
+		return false;
+	}                                        //メニューとDrowerからの画面/機能選択
+
+
+	@Override
+	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+		// registerForContextMenu()で登録したViewが長押しされると、 onCreateContextMenu()が呼ばれる。ここでメニューを作成する。
+		super.onCreateContextMenu(menu, v, menuInfo);
+		getMenuInflater().inflate(R.menu.main, menu);
+	}
+
+	@Override
+	public boolean onContextItemSelected(MenuItem item) {
+		final String TAG = "onContextItemSelected[MA}";
+		String dbMsg = "開始" + item;                    //表記が返る
+		try {
+			myLog(TAG , dbMsg);
+			funcSelected(item);
+			return true; // 処理に成功したらtrueを返す
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + "で" + er.toString());
+		}
+		return super.onContextItemSelected(item);
+	}
+
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	/**
@@ -438,22 +560,7 @@ public class MainActivity extends Activity {
 				dbMsg += "=縦向き";
 			}
 			//ランタイムパーミッション処理は 	_peer.onのOPENで行う；  startLocalStreamを二重発生させるとクラッシュする
-
-			main_setting_bt.setOnClickListener(new View.OnClickListener() {           //設定ボタン
-				@Override
-				public void onClick(View v) {
-					final String TAG = "main_setting_bt[MA.onCr]";
-					String dbMsg = "";
-					try {
-						Intent settingsIntent = new Intent(MainActivity.this , MyPreferencesActivty.class);
-						//    startActivity( settingsIntent );
-						startActivityForResult(settingsIntent , REQUEST_PREF);//		StartActivity(intent);
-						myLog(TAG , dbMsg);
-					} catch (Exception er) {
-						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
-					}
-				}
-			});
+			registerForContextMenu(main_memu_bt);   //メニュー表示；☆コンテキストメニューとして割り付け
 
 			// Set GUI event listeners//////////////////////////////////////////////////  Set Peer event callbacks OPEN //
 			connect_bt.setEnabled(true);                                             //接続ボタン
@@ -479,6 +586,8 @@ public class MainActivity extends Activity {
 					}
 				}
 			});
+
+
 
 //			switchCameraAction.setText(getResources().getString(R.string.camera_switch_caption));       //カメラ切替ボタン
 //			switchCameraAction.setOnClickListener(new View.OnClickListener() {
@@ -516,50 +625,7 @@ public class MainActivity extends Activity {
 //				}
 //			});
 
-			main_quit_bt.setOnClickListener(new View.OnClickListener() {            //終了
-				@Override
-				public void onClick(View v) {
-					final String TAG = "main_quit_bt[MA.onCr]";
-					String dbMsg = "";
-					try {
-						callQuit();
-						myLog(TAG , dbMsg);
-					} catch (Exception er) {
-						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
-					}
-				}
-			});
-			//////画像送信テスト///////////////////////////////////////////////
-//			canvasSub.setOnClickListener(new View.OnClickListener() {
-//				@Override
-//				public void onClick(View v) {
-//					final String TAG = "canvasSub[MA.onCr]";
-//					String dbMsg = "isNowWhitebord="+isNowWhitebord;
-//					try {
-//						if (! isNowWhitebord ) {
-//							sendVeiwChange();
-//						}
-//						myLog(TAG , dbMsg);
-//					} catch (Exception er) {
-//						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
-//					}
-//				}
-//			});
 
-
-//			main_camera_bt.setOnClickListener(new View.OnClickListener() {            //カメラ
-//				@Override
-//				public void onClick(View v) {
-//					final String TAG = "main_camera_bt[MA.onCr]";
-//					String dbMsg = "";
-//					try {
-//						sendVeiwChange();
-//						myLog(TAG , dbMsg);
-//					} catch (Exception er) {
-//						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
-//					}
-//				}
-//			});
 
 			ImageButton test_bt1 = ( ImageButton ) findViewById(R.id.test_bt1);
 			test_bt1.setOnClickListener(new View.OnClickListener() {            //終了
@@ -986,6 +1052,20 @@ public class MainActivity extends Activity {
 
 // 			myAddVideoRenderer(CSCV , 1);                    //	_localStream.addVideoRenderer((Canvas ) CSCV , 0);ではskywayのCanvasにキャストできないのでカスタマイズ
 //			_localStream.addVideoRenderer(CSCV , 1);
+
+/**
+ *  JSなら       https://support.skyway.io/hc/ja/community/posts/360000505108-%E7%94%BB%E9%9D%A2%E5%85%B1%E6%9C%89%E3%81%A7%E9%9F%B3%E5%A3%B0%E3%82%82%E5%85%B1%E6%9C%89%E3%81%97%E3%81%9F%E3%81%84-
+ *
+ *  let ms = new MediaStream();
+
+ // 映像を追加(newStreamはScreenShareの機能から取得したもの)
+ newStream.getVideoTracks().forEach(track => {
+ ms.addTrack(track.clone())
+ });
+ *
+ *
+ * */
+
 			dbMsg += ">CSCV>" + _localStream.getVideoTracks() + "トラック";
 
 			CSCV.setVisibility(View.GONE);
