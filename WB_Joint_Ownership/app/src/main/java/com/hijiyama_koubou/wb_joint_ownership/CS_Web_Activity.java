@@ -76,7 +76,8 @@ public class CS_Web_Activity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {		//org;publicvoid
 		super.onCreate(savedInstanceState);
-		final String TAG = "onCreate[wKit]";
+		final String TAG = "onCreate[WA]";
+		String dbMsg = "";
 		try{
 			Bundle extras = getIntent().getExtras();
 			dataURI = extras.getString("dataURI");						//最初に表示するページのパス
@@ -89,23 +90,21 @@ public class CS_Web_Activity extends Activity {
 			requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS); 		//ローディングをタイトルバーのアイコンとして表示☆リソースを読み込む前にセットする
 			setContentView(R.layout.activity_cs_web);
 			webView = (WebView) findViewById(R.id.webview);		// Webビューの作成
-			webView.setVerticalScrollbarOverlay(true);					//縦スクロール有効
-//			setProgressBarIndeterminateVisibility(true);
-
+//			webView.setVerticalScrollbarOverlay(false);					//縦スクロール有効
 			settings = webView.getSettings();
-			settings.setSupportMultipleWindows(true);
-			settings.setLoadsImagesAutomatically(true);
+ //			settings.setSupportMultipleWindows(true);
+//			settings.setLoadsImagesAutomatically(true);
 			settings.setBuiltInZoomControls(true);						//ズームコントロールを表示し
 			settings.setSupportZoom(true);								//ピンチ操作を有効化
-			settings.setLightTouchEnabled(true);
+//			settings.setLightTouchEnabled(true);
+			settings.setUseWideViewPort(true);      //100％サイズで表示
+			settings.setLoadWithOverviewMode(true);
 			settings.setJavaScriptEnabled(true);						//JavaScriptを有効化
 
 			MLStr=dataURI;
 			dbBlock = fType+"をMLStr="+MLStr;////////////////////////////////////////////////////////////////////////
 //				Log.d("onCreate",dbBlock);
 			webView.loadUrl(MLStr);
-
-
 //			getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);		//タスクバーを 非表示
 //			requestWindowFeature(Window.FEATURE_NO_TITLE); 							//タイトルバーを非表示
 
@@ -141,8 +140,9 @@ public class CS_Web_Activity extends Activity {
 
 			});
 //			webView.loadUrl(requestToken);
-		} catch (Exception e) {
-			Log.e("onCreate","wKit；"+e.toString());
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 		}
 	}
 
@@ -210,53 +210,51 @@ public class CS_Web_Activity extends Activity {
 
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		final String TAG = "onKeyDown[WA]";
+		String dbMsg = "";
+		boolean retBool = true;
 		try{
-			dbBlock="keyCode="+keyCode;//+",getDisplayLabel="+String.valueOf(event.getDisplayLabel())+",getAction="+event.getAction();////////////////////////////////
+			dbMsg="keyCode="+keyCode;//+",getDisplayLabel="+String.valueOf(event.getDisplayLabel())+",getAction="+event.getAction();////////////////////////////////
 			//		Log.d("onKeyDown","[wKit]"+dbBlock);
 //		dbBlock="ppBtnID="+myNFV_S_Pref.getBoolean("prefKouseiD_PadUMU", false);///////////////////////////////////////////////////////////////////
 //			Log.d("onKeyDown","[wKit]"+dbBlock);
-			dbBlock="サイドボリュームとディスプレイ下のキー；canGoBack="+webView.canGoBack();///////////////////////////////////////////////////////////////////
+			dbMsg+="サイドボリュームとディスプレイ下のキー；canGoBack="+webView.canGoBack();///////////////////////////////////////////////////////////////////
 			switch (keyCode) {	//キーにデフォルト以外の動作を与えるもののみを記述★KEYCODE_MENUをここに書くとメニュー表示されない
 				case KeyEvent.KEYCODE_DPAD_UP:		//マルチガイド上；19
 					//	wZoomUp();						//ズームアップして上限に達すればfalse
 					if(! myNFV_S_Pref.getBoolean("prefKouseiD_PadUMU", false)){		//キーの利用が無効になっていたら
 						pNFVeditor.putBoolean("prefKouseiD_PadUMU", true);			//キーの利用を有効にして
 					}
-					return true;
 				case KeyEvent.KEYCODE_DPAD_DOWN:	//マルチガイド下；20
 					//	wZoomDown();					//ズームダウンして下限に達すればfalse
 					if(! myNFV_S_Pref.getBoolean("prefKouseiD_PadUMU", false)){		//キーの利用が無効になっていたら
 						pNFVeditor.putBoolean("prefKouseiD_PadUMU", true);			//キーの利用を有効にして
 					}
-					return true;
 				case KeyEvent.KEYCODE_DPAD_LEFT:	//マルチガイド左；21
 					wForward();						//ページ履歴で1つ後のページに移動する					return true;
 					if(! myNFV_S_Pref.getBoolean("prefKouseiD_PadUMU", false)){		//キーの利用が無効になっていたら
 						pNFVeditor.putBoolean("prefKouseiD_PadUMU", true);			//キーの利用を有効にして
 					}
-					return true;
 				case KeyEvent.KEYCODE_DPAD_RIGHT:	//マルチガイド右；22
 					wGoBack();					//ページ履歴で1つ前のページに移動する
 					if(! myNFV_S_Pref.getBoolean("prefKouseiD_PadUMU", false)){		//キーの利用が無効になっていたら
 						pNFVeditor.putBoolean("prefKouseiD_PadUMU", true);			//キーの利用を有効にして
 					}
-					return true;
 				case KeyEvent.KEYCODE_VOLUME_UP:	//24
 					wZoomUp();						//ズームアップして上限に達すればfalse
-					return true;
 				case KeyEvent.KEYCODE_VOLUME_DOWN:	//25
 					wZoomDown();					//ズームダウンして下限に達すればfalse
-					return true;
 				case KeyEvent.KEYCODE_BACK:			//4KEYCODE_BACK :keyCode；09SH: keyCode；4,event=KeyEvent{action=0 code=4 repeat=0 meta=0 scancode=158 mFlags=72}
-					wGoBack();					//ページ履歴で1つ前のページに移動する;
-					return true;
+					quitMe();			//このActivtyの終了
+//					wGoBack();					//ページ履歴で1つ前のページに移動する;
 				default:
-					return false;
+					retBool= false;
 			}
-		} catch (Exception e) {
-			Log.e("onKeyDown",dbBlock+"；"+e.toString());
-			return false;
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 		}
+		return retBool;
 	}
 
 	//メニューボタンで表示するメニュー///////////////////////////////////////////////////////////////////////////////
@@ -304,6 +302,8 @@ public class CS_Web_Activity extends Activity {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
+		final String TAG = "onOptionsItemSelected[WA]";
+		String dbMsg = "";
 		try{
 			dbBlock ="MenuItem"+item.getItemId()+"を操作";////////////////////////////////////////////////////////////////////////////
 			//			Log.d("onOptionsItemSelected",dbBlock);
@@ -325,27 +325,53 @@ public class CS_Web_Activity extends Activity {
 					quitMe();			//このActivtyの終了
 					return true;
 			}
+			myLog(TAG , dbMsg);
 			return false;
-		} catch (Exception e) {
-			Log.e("onOptionsItemSelected","エラー発生；"+e);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 			return false;
 		}
 	}
 
 	@Override
 	public void onOptionsMenuClosed(Menu wkMenu) {
-		Log.d("onOptionsMenuClosed","NakedFileVeiwActivity;mlMenu="+wkMenu);
+		final String TAG = "onOptionsMenuClosed[WA]";
+		String dbMsg = "";
+		try{
+			dbBlock ="NakedFileVeiwActivity;mlMenu="+wkMenu;//////////////拡張子=.m4a,ファイルタイプ=audio/*,フルパス=/mnt/sdcard/Music/AC DC/Blow Up Your Video/03 Meanstreak.m4a
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		}
 	}
 
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
+		final String TAG = "onDestroy[WA]";
+		String dbMsg = "";
 		try{
 			dbBlock ="onDestroy発生";//////////////拡張子=.m4a,ファイルタイプ=audio/*,フルパス=/mnt/sdcard/Music/AC DC/Blow Up Your Video/03 Meanstreak.m4a
-			quitMe();			//このActivtyの終了
-		}catch (Exception e) {
-			Log.e("onDestroy","[wKit]"+"で"+e.toString());
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 		}
 	}
 
+	///////////////////////////////////////////////////////////////////////////////////
+	public void messageShow(String titolStr , String mggStr) {
+		CS_Util UTIL = new CS_Util();
+		UTIL.messageShow(titolStr , mggStr , CS_Web_Activity.this);
+	}
+
+	public static void myLog(String TAG , String dbMsg) {
+		CS_Util UTIL = new CS_Util();
+		UTIL.myLog(TAG , dbMsg);
+	}
+
+	public static void myErrorLog(String TAG , String dbMsg) {
+		CS_Util UTIL = new CS_Util();
+		UTIL.myErrorLog(TAG , dbMsg);
+	}
+	
 }
