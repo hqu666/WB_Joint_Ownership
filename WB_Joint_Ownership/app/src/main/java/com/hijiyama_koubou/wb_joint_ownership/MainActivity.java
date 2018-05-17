@@ -12,6 +12,7 @@ import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.media.AudioManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -67,7 +68,7 @@ public class MainActivity extends Activity {
 
 	private ImageButton main_memu_bt;    //メニュー表示ボタン
 	private Button connect_bt;                                //接続ボタン
-//	private ImageButton main_setting_bt;                    //設定ボタン
+	//	private ImageButton main_setting_bt;                    //設定ボタン
 //	private ImageButton main_quit_bt;                        //終了ボタン
 	private LinearLayout main_conect_ll;    //接続関連
 	private LinearLayout main_wb_tools_ll;    //ホワイトボード関連
@@ -230,7 +231,7 @@ public class MainActivity extends Activity {
 			main_all_clear2_bt = ( ImageButton ) findViewById(R.id.main_all_clear2_bt);        //P1の書き込み全消去ボタン
 			main_c2edit_bt = ( ImageButton ) findViewById(R.id.main_c2edit_bt);        //P1の書き込み/カメラ切り替えボタン
 
-					// page2
+			// page2
 			main_whitebord = ( CS_CanvasView ) findViewById(R.id.main_whitebord);        //ホワイトボード             	Canvas	     CS_CanvasView
 			main_all_clear_bt = ( ImageButton ) findViewById(R.id.main_all_clear_bt);        //全消去
 			main_edit_bt = ( ImageButton ) findViewById(R.id.main_edit_bt);                    //編修
@@ -420,6 +421,7 @@ public class MainActivity extends Activity {
 			return false;
 		}
 	}
+
 	///メニュー///////////////////////////////////////////////////////////////////////////
 	public static final int MENU_main = 0;                    //メイン画面	     <item android:id="@+id/mm_main"	android:orderInCategory="101"	android:title="@string/main_screen"/>
 	public static final int MENU_conectedt = MENU_main + 1;    //現在の接続先       <item  android:id="@+id/mm_conected" android:orderInCategory="102"  android:title="@string/current_connection"/>
@@ -488,12 +490,15 @@ public class MainActivity extends Activity {
 			dbMsg = "id=" + id;
 			switch ( id ) {
 				case R.id.show_white_bord:     //ホワイトボード
-					Intent _intent = new Intent(this, CS_WhitebordActivity.class);
+					Intent _intent = new Intent(this , CS_WhitebordActivity.class);
 					startActivity(_intent);
 					break;
 				case R.id.show_web:          //web
-					Intent webIntent = new Intent(this, CS_Web_Activity.class);
-					webIntent.putExtra("dataURI", "https://webrtc.ecl.ntt.com/developer.html");						//最初に表示するページのパス
+//					Uri uri = Uri.parse("http://ec2-52-197-173-40.ap-northeast-1.compute.amazonaws.com:3080/");
+//					Intent webIntent = new Intent(Intent.ACTION_VIEW,uri);
+//					startActivity(webIntent);
+					Intent webIntent = new Intent(this , CS_Web_Activity.class);
+					webIntent.putExtra("dataURI" , "http://ec2-52-197-173-40.ap-northeast-1.compute.amazonaws.com:3080/");                        //最初に表示するページのパス
 //					baseUrl = "file://"+extras.getString("baseUrl");				//最初に表示するページを受け取る
 //					fType = extras.getString("fType");							//データタイプ
 					startActivity(webIntent);
@@ -522,10 +527,10 @@ public class MainActivity extends Activity {
 
 
 	@Override
-	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+	public void onCreateContextMenu(ContextMenu menu , View v , ContextMenu.ContextMenuInfo menuInfo) {
 		// registerForContextMenu()で登録したViewが長押しされると、 onCreateContextMenu()が呼ばれる。ここでメニューを作成する。
-		super.onCreateContextMenu(menu, v, menuInfo);
-		getMenuInflater().inflate(R.menu.main, menu);
+		super.onCreateContextMenu(menu , v , menuInfo);
+		getMenuInflater().inflate(R.menu.main , menu);
 	}
 
 	@Override
@@ -588,7 +593,6 @@ public class MainActivity extends Activity {
 			});
 
 
-
 //			switchCameraAction.setText(getResources().getString(R.string.camera_switch_caption));       //カメラ切替ボタン
 //			switchCameraAction.setOnClickListener(new View.OnClickListener() {
 //				@Override
@@ -624,7 +628,6 @@ public class MainActivity extends Activity {
 //					}
 //				}
 //			});
-
 
 
 			ImageButton test_bt1 = ( ImageButton ) findViewById(R.id.test_bt1);
@@ -688,7 +691,7 @@ public class MainActivity extends Activity {
 //							toWhiteBorrb();
 						}
 						canvasMain.setVisibility(View.GONE);
-				canvasSub.setVisibility(View.GONE);
+						canvasSub.setVisibility(View.GONE);
 						myLog(TAG , dbMsg);
 					} catch (Exception er) {
 						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
@@ -1040,7 +1043,7 @@ public class MainActivity extends Activity {
 			ViewGroup.LayoutParams llLP = new ViewGroup.LayoutParams(llW , llH);   //ベースにするリニアレイアウトでパラメータ作成
 ////			int llChildCount = main_views_ll.getChildCount();
 ////			 			dbMsg += ",llChildCount=" + llChildCount;
-			main_views_ll.addView(CSCV ,2, llLP);
+			main_views_ll.addView(CSCV , 2 , llLP);
 //				canvasSub.addView(CSCV ,0, llLP);			 //ホワイトボードのviewを追加（☆removeViewAt(0)で元のSurfaceViewを削除する必要なし）	>クラッシュもせずホワイトボードとして書き込めるが送信映像はカメラのまま
 //////			canvasSub.addView(CSCV , 1 , llLP);		//上位階層にホワイトボードのviewを追加	>	映像トラックとして制御できない；一階層下になる
 //			childCount = canvasSub.getChildCount();
