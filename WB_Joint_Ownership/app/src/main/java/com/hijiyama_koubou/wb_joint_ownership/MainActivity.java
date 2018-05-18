@@ -18,7 +18,10 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
-import android.provider.Browser;
+import android.support.annotation.RequiresApi;
+import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.SparseArray;
 import android.view.ContextMenu;
 import android.view.KeyEvent;
@@ -36,7 +39,6 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ViewFlipper;
 
 import org.json.JSONArray;
 import org.webrtc.EglBase;
@@ -64,9 +66,10 @@ import io.skyway.Peer.PeerOption;
  * MainActivity.java
  * ECL WebRTC p2p video-chat sample
  */
-public class MainActivity extends Activity {
+public class MainActivity extends AppCompatActivity {        // AppCompatActivity        //
 
-	private ImageButton main_memu_bt;    //メニュー表示ボタン
+	private Toolbar toolbar;
+//	private ImageButton main_memu_bt;    //メニュー表示ボタン
 	private Button connect_bt;                                //接続ボタン
 	//	private ImageButton main_setting_bt;                    //設定ボタン
 //	private ImageButton main_quit_bt;                        //終了ボタン
@@ -94,13 +97,13 @@ public class MainActivity extends Activity {
 	private ImageButton main_edit_bt;                    //編修
 	private CS_CanvasView CSCV;                //送信画面に組み込んだホワイトボード
 
-	private ViewFlipper mFlipper;
-	private ImageButton nextButton;                 // ViewFlipperの次（右）画面
-	private ImageButton previousButton;         // ViewFlipperの前（左）画面
-	private Animation mAnimRightIn;
-	private Animation mAnimRightOut;
-	private Animation mAnimLeftIn;
-	private Animation mAnimLeftOut;
+//	private ViewFlipper mFlipper;
+//	private ImageButton nextButton;                 // ViewFlipperの次（右）画面
+//	private ImageButton previousButton;         // ViewFlipperの前（左）画面
+//	private Animation mAnimRightIn;
+//	private Animation mAnimRightOut;
+//	private Animation mAnimLeftIn;
+//	private Animation mAnimLeftOut;
 
 	private boolean isFrontCam = true;                        //現在フロントカメラ
 	private MediaConstraints constraints;                                    //LocalStreamの状況
@@ -189,6 +192,7 @@ public class MainActivity extends Activity {
 	 * ①new Peer(this , option);でサーバに接続
 	 * ② PeerEventEnum.OPENでstartLocalStream()へ				// _peer.on.OPENに入らない場合は SkywayにApicationを追加する時；権限(APIキー認証を利用する)はOFFに
 	 **/
+	@RequiresApi ( api = Build.VERSION_CODES.LOLLIPOP )
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -204,11 +208,14 @@ public class MainActivity extends Activity {
 				dbMsg += "=縦向き";
 				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);      //横向きに修正
 			}
-			Window wnd = getWindow();
-			wnd.addFlags(Window.FEATURE_NO_TITLE);
+			getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+			requestWindowFeature(Window.FEATURE_NO_TITLE);
+
 			setContentView(R.layout.activity_main);
 
-			final Activity activity = this;
+			toolbar = ( Toolbar ) findViewById(R.id.main_tool_bar);
+			setSupportActionBar(toolbar);
+//			final Activity activity = this;
 			canvasMain = ( Canvas ) findViewById(R.id.svRemoteView);         //受信モニター
 			canvasSub = ( Canvas ) findViewById(R.id.svLocalView);         //送信映像;自己モニター
 			tvOwnId = ( TextView ) findViewById(R.id.tvOwnId);        //自己ID
@@ -216,16 +223,16 @@ public class MainActivity extends Activity {
 			connect_bt = ( Button ) findViewById(R.id.connect_bt);                    //接続ボタン
 			conect_situation_tv = ( TextView ) findViewById(R.id.conect_situation_tv);    //接続状況
 			main_back2video_bt = ( ImageButton ) findViewById(R.id.main_back2video_bt);    //自画像表示に切替ボタン
-			main_memu_bt = ( ImageButton ) findViewById(R.id.main_memu_bt);    //メニュー表示ボタン
+//			main_memu_bt = ( ImageButton ) findViewById(R.id.main_memu_bt);    //メニュー表示ボタン
 
 			main_conect_ll = ( LinearLayout ) findViewById(R.id.main_conect_ll);    //接続関連
 			main_wb_tools_ll = ( LinearLayout ) findViewById(R.id.main_wb_tools_ll);    //ホワイトボード関連
 			main_wb_tools_ll.setVisibility(View.GONE);        //ホワイトボードツールボックス;非表示
 
 
-			mFlipper = ( ViewFlipper ) findViewById(R.id.flipper);
-			nextButton = ( ImageButton ) findViewById(R.id.vf_next_bt);                 // ViewFlipperの次（右）画面
-			previousButton = ( ImageButton ) findViewById(R.id.vf_previous_bt);         // ViewFlipperの前（左）画面
+//			mFlipper = ( ViewFlipper ) findViewById(R.id.flipper);
+//			nextButton = ( ImageButton ) findViewById(R.id.vf_next_bt);                 // ViewFlipperの次（右）画面
+//			previousButton = ( ImageButton ) findViewById(R.id.vf_previous_bt);         // ViewFlipperの前（左）画面
 
 			wh_paret = ( LinearLayout ) findViewById(R.id.wh_paret);        //ホワイトボードツールボックス
 			main_all_clear2_bt = ( ImageButton ) findViewById(R.id.main_all_clear2_bt);        //P1の書き込み全消去ボタン
@@ -248,6 +255,7 @@ public class MainActivity extends Activity {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 		}
 	}
+
 
 	/**
 	 * 全リソースの読み込みが終わってフォーカスが当てられた時
@@ -290,19 +298,19 @@ public class MainActivity extends Activity {
 		final String TAG = "onResume[MA]";
 		String dbMsg = "";
 		try {
-			int orientation = getResources().getConfiguration().orientation;
-			dbMsg += "orientation=" + orientation;
-			if ( orientation == Configuration.ORIENTATION_LANDSCAPE ) {
-				dbMsg += "=横向き";
-			} else if ( orientation == Configuration.ORIENTATION_PORTRAIT ) {
-				dbMsg += "=縦向き";
-			}
-
-			dbMsg += ",peer_id=" + peer_id;
-			if ( peer_id == null ) {
-				peer_id = ( String ) tvOwnId.getText();
-				dbMsg += ">>" + peer_id;
-			}
+//			int orientation = getResources().getConfiguration().orientation;
+//			dbMsg += "orientation=" + orientation;
+//			if ( orientation == Configuration.ORIENTATION_LANDSCAPE ) {
+//				dbMsg += "=横向き";
+//			} else if ( orientation == Configuration.ORIENTATION_PORTRAIT ) {
+//				dbMsg += "=縦向き";
+//			}
+//
+//			dbMsg += ",peer_id=" + peer_id;
+//			if ( peer_id == null ) {
+//				peer_id = ( String ) tvOwnId.getText();
+//				dbMsg += ">>" + peer_id;
+//			}
 
 			setVolumeControlStream(AudioManager.STREAM_VOICE_CALL);            //APIL1;// Set volume control stream type to WebRTC audio.
 			myLog(TAG , dbMsg);
@@ -526,26 +534,59 @@ public class MainActivity extends Activity {
 	}                                        //メニューとDrowerからの画面/機能選択
 
 
-	@Override
-	public void onCreateContextMenu(ContextMenu menu , View v , ContextMenu.ContextMenuInfo menuInfo) {
-		// registerForContextMenu()で登録したViewが長押しされると、 onCreateContextMenu()が呼ばれる。ここでメニューを作成する。
-		super.onCreateContextMenu(menu , v , menuInfo);
-		getMenuInflater().inflate(R.menu.main , menu);
-	}
+//	@Override
+//	public void onCreateContextMenu(ContextMenu menu , View v , ContextMenu.ContextMenuInfo menuInfo) {
+//		// registerForContextMenu()で登録したViewが長押しされると、 onCreateContextMenu()が呼ばれる。ここでメニューを作成する。
+//		super.onCreateContextMenu(menu , v , menuInfo);
+//		getMenuInflater().inflate(R.menu.main , menu);
+//	}
+//
+//	@Override
+//	public boolean onContextItemSelected(MenuItem item) {
+//		final String TAG = "onContextItemSelected[MA}";
+//		String dbMsg = "開始" + item;                    //表記が返る
+//		try {
+//			myLog(TAG , dbMsg);
+//			funcSelected(item);
+//			return true; // 処理に成功したらtrueを返す
+//		} catch (Exception er) {
+//			myErrorLog(TAG , dbMsg + "で" + er.toString());
+//		}
+//		return super.onContextItemSelected(item);
+//	}
 
-	@Override
-	public boolean onContextItemSelected(MenuItem item) {
-		final String TAG = "onContextItemSelected[MA}";
-		String dbMsg = "開始" + item;                    //表記が返る
-		try {
-			myLog(TAG , dbMsg);
-			funcSelected(item);
-			return true; // 処理に成功したらtrueを返す
-		} catch (Exception er) {
-			myErrorLog(TAG , dbMsg + "で" + er.toString());
-		}
-		return super.onContextItemSelected(item);
-	}
+
+//	private void setSupportActionBar(Toolbar toolbar) {
+//		final String TAG = "setSupportActionBar[MA}";
+//		String dbMsg = "開始";
+//		try {
+//			toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+//				@Override
+//				public void onClick(View v) {
+//					Toast.makeText(MainActivity.this , "back click!!" , Toast.LENGTH_LONG).show();
+//				}
+//			});
+//
+//			toolbar.inflateMenu(R.menu.main);
+//			toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+//				@Override
+//				public boolean onMenuItemClick(MenuItem item) {
+//					funcSelected(item);
+////					int id = item.getItemId();
+//
+////					if (id == R.id.action_search) {
+////						Toast.makeText(MainActivity.this,"search click!!",Toast.LENGTH_LONG).show();
+////						return true;
+////					}
+//
+//					return true;
+//				}
+//			});
+//			myLog(TAG , dbMsg);
+//		} catch (Exception er) {
+//			myErrorLog(TAG , dbMsg + "で" + er.toString());
+//		}
+//	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -565,8 +606,30 @@ public class MainActivity extends Activity {
 				dbMsg += "=縦向き";
 			}
 			//ランタイムパーミッション処理は 	_peer.onのOPENで行う；  startLocalStreamを二重発生させるとクラッシュする
-			registerForContextMenu(main_memu_bt);   //メニュー表示；☆コンテキストメニューとして割り付け
-
+//			registerForContextMenu(main_memu_bt);   //メニュー表示；☆コンテキストメニューとして割り付け
+//			toolbar.setNavigationIcon(R.drawable.);
+//			toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+//				@Override
+//				public void onClick(View v) {
+//					Toast.makeText(MainActivity.this , "back click!!" , Toast.LENGTH_LONG).show();
+//				}
+//			});
+//
+//			toolbar.inflateMenu(R.menu.main);
+//			toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+//				@Override
+//				public boolean onMenuItemClick(MenuItem item) {
+//					funcSelected(item);
+////					int id = item.getItemId();
+//
+////					if (id == R.id.action_search) {
+////						Toast.makeText(MainActivity.this,"search click!!",Toast.LENGTH_LONG).show();
+////						return true;
+////					}
+//
+//					return true;
+//				}
+//			});
 			// Set GUI event listeners//////////////////////////////////////////////////  Set Peer event callbacks OPEN //
 			connect_bt.setEnabled(true);                                             //接続ボタン
 			connect_bt.setOnClickListener(new View.OnClickListener() {
@@ -650,10 +713,10 @@ public class MainActivity extends Activity {
 
 			//ViewFlipper /////http://android-dev-talk.blogspot.jp/2012/06/viewflipperview.html
 			// Load animation
-			mAnimRightIn = AnimationUtils.loadAnimation(this , R.anim.right_in);
-			mAnimRightOut = AnimationUtils.loadAnimation(this , R.anim.right_out);
-			mAnimLeftIn = AnimationUtils.loadAnimation(this , R.anim.left_in);
-			mAnimLeftOut = AnimationUtils.loadAnimation(this , R.anim.left_out);
+//			mAnimRightIn = AnimationUtils.loadAnimation(this , R.anim.right_in);
+//			mAnimRightOut = AnimationUtils.loadAnimation(this , R.anim.right_out);
+//			mAnimLeftIn = AnimationUtils.loadAnimation(this , R.anim.left_in);
+//			mAnimLeftOut = AnimationUtils.loadAnimation(this , R.anim.left_out);
 //			mFlipper.setAutoStart(true);     //自動でスライドショーを開始
 //			mFlipper.setFlipInterval(2000);  //更新間隔(ms単位)
 //
@@ -675,53 +738,53 @@ public class MainActivity extends Activity {
 //						break;
 //				}
 //			}
-			nextButton.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					final String TAG = "nextButton[MA.onCr]";
-					String dbMsg = "ホワイトボードへ";
-					try {
-						if ( !mFlipper.isFlipping() ) {
-							mFlipper.setInAnimation(mAnimRightIn);
-							mFlipper.setOutAnimation(mAnimLeftOut);
-							mFlipper.showNext();
-//						isFlipper =false;
-						} else {
-							mFlipper.stopFlipping();
-//							toWhiteBorrb();
-						}
-						canvasMain.setVisibility(View.GONE);
-						canvasSub.setVisibility(View.GONE);
-						myLog(TAG , dbMsg);
-					} catch (Exception er) {
-						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
-					}
-				}
-			});
-
-			previousButton.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					final String TAG = "previousButton[MA.onCr]";
-					String dbMsg = "ビデオチャットへ";
-					try {
-						if ( !mFlipper.isFlipping() ) {
-							mFlipper.setInAnimation(mAnimLeftIn);
-							mFlipper.setOutAnimation(mAnimRightOut);
-							mFlipper.showPrevious();
-//						isFlipper =false;
-						} else {
-							mFlipper.stopFlipping();
-//							toVideoChat();
-						}
-						canvasMain.setVisibility(View.VISIBLE);
-						canvasSub.setVisibility(View.VISIBLE);
-						myLog(TAG , dbMsg);
-					} catch (Exception er) {
-						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
-					}
-				}
-			});
+//			nextButton.setOnClickListener(new View.OnClickListener() {
+//				@Override
+//				public void onClick(View v) {
+//					final String TAG = "nextButton[MA.onCr]";
+//					String dbMsg = "ホワイトボードへ";
+//					try {
+//						if ( !mFlipper.isFlipping() ) {
+//							mFlipper.setInAnimation(mAnimRightIn);
+//							mFlipper.setOutAnimation(mAnimLeftOut);
+//							mFlipper.showNext();
+////						isFlipper =false;
+//						} else {
+//							mFlipper.stopFlipping();
+////							toWhiteBorrb();
+//						}
+//						canvasMain.setVisibility(View.GONE);
+//						canvasSub.setVisibility(View.GONE);
+//						myLog(TAG , dbMsg);
+//					} catch (Exception er) {
+//						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+//					}
+//				}
+//			});
+//
+//			previousButton.setOnClickListener(new View.OnClickListener() {
+//				@Override
+//				public void onClick(View v) {
+//					final String TAG = "previousButton[MA.onCr]";
+//					String dbMsg = "ビデオチャットへ";
+//					try {
+//						if ( !mFlipper.isFlipping() ) {
+//							mFlipper.setInAnimation(mAnimLeftIn);
+//							mFlipper.setOutAnimation(mAnimRightOut);
+//							mFlipper.showPrevious();
+////						isFlipper =false;
+//						} else {
+//							mFlipper.stopFlipping();
+////							toVideoChat();
+//						}
+//						canvasMain.setVisibility(View.VISIBLE);
+//						canvasSub.setVisibility(View.VISIBLE);
+//						myLog(TAG , dbMsg);
+//					} catch (Exception er) {
+//						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+//					}
+//				}
+//			});
 
 			main_all_clear_bt.setOnClickListener(new View.OnClickListener() {        //全消去
 				@Override
