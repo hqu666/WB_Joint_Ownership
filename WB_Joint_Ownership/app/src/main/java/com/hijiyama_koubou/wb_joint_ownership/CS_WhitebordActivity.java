@@ -7,32 +7,30 @@ import android.view.View;
 import android.widget.ImageButton;
 
 public class CS_WhitebordActivity extends Activity {             //AppCompatActivity
-	private CS_CanvasView main_whitebord;        //ホワイトボード        CS_CanvasView
-	private ImageButton main_all_clear_bt;        //全消去
-	private ImageButton main_edit_bt;                    //編修
+	private CS_CanvasView wb_whitebord;        //ホワイトボード        CS_CanvasView
+	private ImageButton wb_all_clear_bt;        //全消去
+	private ImageButton wb_mode_bt;                    //編修
 
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_whitebord);         //activity_whitebord          wb_tisement   ではイベント動作しない
-		main_whitebord = ( CS_CanvasView ) findViewById(R.id.main_whitebord);        //ホワイトボード             	Canvas	     CS_CanvasView
-		main_all_clear_bt = ( ImageButton ) findViewById(R.id.main_all_clear_bt);        //全消去
-		main_edit_bt = ( ImageButton ) findViewById(R.id.main_edit_bt);                    //編修
-		ImageButton	ImageButton = ( ImageButton ) findViewById(R.id.vf_previous_bt);         // ViewFlipperの前（左）画面
-		ImageButton.setVisibility(View.GONE);
+		wb_whitebord = ( CS_CanvasView ) findViewById(R.id.wb_whitebord);        //ホワイトボード             	Canvas	     CS_CanvasView
+		wb_all_clear_bt = ( ImageButton ) findViewById(R.id.wb_all_clear_bt);        //全消去
+		wb_mode_bt = ( ImageButton ) findViewById(R.id.wb_mode_bt);                    //編修
+//		ImageButton	ImageButton = ( ImageButton ) findViewById(R.id.vf_previous_bt);         // ViewFlipperの前（左）画面
+//		ImageButton.setVisibility(View.GONE);
 
 
-		main_all_clear_bt.setOnClickListener(new View.OnClickListener() {        //全消去
+		wb_all_clear_bt.setOnClickListener(new View.OnClickListener() {        //全消去
 			@Override
 			public void onClick(View v) {
-				final String TAG = "main_all_clear_bt[WB]";
+				final String TAG = "wb_all_clear_bt[WB]";
 				String dbMsg = "";
 				try {
-					if ( main_whitebord != null ) {
-						main_whitebord.clearAll();
-//							CS_CanvasView CCV = new CS_CanvasView(MainActivity.this);
-//							CCV.clearAll();
+					if ( wb_whitebord != null ) {
+						wb_whitebord.clearAll();
 					}
 					myLog(TAG , dbMsg);
 				} catch (Exception er) {
@@ -41,16 +39,14 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 			}
 		});
 
-		main_edit_bt.setOnClickListener(new View.OnClickListener() {                    //編修
+		wb_mode_bt.setOnClickListener(new View.OnClickListener() {                    //編修
 			@Override
 			public void onClick(View v) {
-				final String TAG = "main_edit_bt[WB]";
+				final String TAG = "wb_mode_bt[WB]";
 				String dbMsg = "";
 				try {
-					if ( main_whitebord != null ) {
-						main_whitebord.startFreeHand();
-//							CS_CanvasView CCV = new CS_CanvasView(MainActivity.this);
-//							CCV.startFreeHand();
+					if ( wb_whitebord != null ) {
+						wb_whitebord.startFreeHand();
 					}
 					myLog(TAG , dbMsg);
 				} catch (Exception er) {

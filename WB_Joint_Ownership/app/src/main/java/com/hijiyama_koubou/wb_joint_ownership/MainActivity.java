@@ -9,6 +9,7 @@ import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.media.AudioManager;
@@ -69,32 +70,21 @@ import io.skyway.Peer.PeerOption;
 public class MainActivity extends AppCompatActivity {        // AppCompatActivity        //
 
 	private Toolbar toolbar;
-//	private ImageButton main_memu_bt;    //メニュー表示ボタン
 	private Button connect_bt;                                //接続ボタン
-	//	private ImageButton main_setting_bt;                    //設定ボタン
-//	private ImageButton main_quit_bt;                        //終了ボタン
 	private LinearLayout main_conect_ll;    //接続関連
-	private LinearLayout main_wb_tools_ll;    //ホワイトボード関連
-
-//	private FrameLayout white_bord_bace_fl;										//ホワイトボードのベース
-//	private org.webrtc.SurfaceViewRenderer white_bord_svr ;		//ホワイトボード本体
-
-	private ImageButton main_back2video_bt;    //自画像表示に切替ボタン
+	private LinearLayout wh_paret;    //ホワイトボード関連ツールボックス
 
 	private Canvas canvasMain;         //受信モニター
 	private Canvas canvasSub;                                //自己モニター
 	private TextView tvOwnId;                                //自己ID
 	private TextView tvPartnerId;                            //接続先ID
 	private TextView conect_situation_tv;                    //接続状況
-	private LinearLayout wh_paret;        //ホワイトボードツールボックス
-	private ImageButton main_c2edit_bt;        //P1の書き込み/カメラ切り替えボタン
-	private ImageButton main_all_clear2_bt;        //P1の書き込み全消去ボタン
+	private ImageButton main_mode_change_bt;        //P1の書き込み/カメラ切り替えボタン
+	private ImageButton wb_all_clear_bt;        //P1の書き込み全消去ボタン
 	private boolean isNowWhitebord = false;        //現在ホワイトボード
 	private boolean isAddWB = false;                        //ホワイトボード追加済み
 
 	private CS_CanvasView main_whitebord;        //ホワイトボード        CS_CanvasView
-	private ImageButton main_all_clear_bt;        //全消去
-	private ImageButton main_edit_bt;                    //編修
 	private CS_CanvasView CSCV;                //送信画面に組み込んだホワイトボード
 
 //	private ViewFlipper mFlipper;
@@ -215,6 +205,8 @@ public class MainActivity extends AppCompatActivity {        // AppCompatActivit
 
 			toolbar = ( Toolbar ) findViewById(R.id.main_tool_bar);
 			setSupportActionBar(toolbar);
+			main_mode_change_bt = ( ImageButton ) findViewById(R.id.main_mode_change_bt);        //P1の書き込み/カメラ切り替えボタン
+
 //			final Activity activity = this;
 			canvasMain = ( Canvas ) findViewById(R.id.svRemoteView);         //受信モニター
 			canvasSub = ( Canvas ) findViewById(R.id.svLocalView);         //送信映像;自己モニター
@@ -222,26 +214,22 @@ public class MainActivity extends AppCompatActivity {        // AppCompatActivit
 			tvPartnerId = ( TextView ) findViewById(R.id.tvPartnerId);    //接続先ID
 			connect_bt = ( Button ) findViewById(R.id.connect_bt);                    //接続ボタン
 			conect_situation_tv = ( TextView ) findViewById(R.id.conect_situation_tv);    //接続状況
-			main_back2video_bt = ( ImageButton ) findViewById(R.id.main_back2video_bt);    //自画像表示に切替ボタン
-//			main_memu_bt = ( ImageButton ) findViewById(R.id.main_memu_bt);    //メニュー表示ボタン
+////			main_memu_bt = ( ImageButton ) findViewById(R.id.main_memu_bt);    //メニュー表示ボタン
 
 			main_conect_ll = ( LinearLayout ) findViewById(R.id.main_conect_ll);    //接続関連
-			main_wb_tools_ll = ( LinearLayout ) findViewById(R.id.main_wb_tools_ll);    //ホワイトボード関連
-			main_wb_tools_ll.setVisibility(View.GONE);        //ホワイトボードツールボックス;非表示
-
-
+			wh_paret = ( LinearLayout ) findViewById(R.id.wh_paret);    //ホワイトボード関連
+			wh_paret.setVisibility(View.GONE);        //ホワイトボードツールボックス;非表示
 //			mFlipper = ( ViewFlipper ) findViewById(R.id.flipper);
 //			nextButton = ( ImageButton ) findViewById(R.id.vf_next_bt);                 // ViewFlipperの次（右）画面
 //			previousButton = ( ImageButton ) findViewById(R.id.vf_previous_bt);         // ViewFlipperの前（左）画面
 
 			wh_paret = ( LinearLayout ) findViewById(R.id.wh_paret);        //ホワイトボードツールボックス
-			main_all_clear2_bt = ( ImageButton ) findViewById(R.id.main_all_clear2_bt);        //P1の書き込み全消去ボタン
-			main_c2edit_bt = ( ImageButton ) findViewById(R.id.main_c2edit_bt);        //P1の書き込み/カメラ切り替えボタン
+			wb_all_clear_bt = ( ImageButton ) findViewById(R.id.wb_all_clear_bt);        //P1の書き込み全消去ボタン
 
 			// page2
 			main_whitebord = ( CS_CanvasView ) findViewById(R.id.main_whitebord);        //ホワイトボード             	Canvas	     CS_CanvasView
-			main_all_clear_bt = ( ImageButton ) findViewById(R.id.main_all_clear_bt);        //全消去
-			main_edit_bt = ( ImageButton ) findViewById(R.id.main_edit_bt);                    //編修
+			wb_all_clear_bt = ( ImageButton ) findViewById(R.id.wb_all_clear_bt);        //全消去
+//			wb_mode_bt = ( ImageButton ) findViewById(R.id.wb_mode_bt);                    //編修
 
 			_handler = new Handler(Looper.getMainLooper());
 
@@ -532,8 +520,6 @@ public class MainActivity extends AppCompatActivity {        // AppCompatActivit
 		}
 		return false;
 	}                                        //メニューとDrowerからの画面/機能選択
-
-
 //	@Override
 //	public void onCreateContextMenu(ContextMenu menu , View v , ContextMenu.ContextMenuInfo menuInfo) {
 //		// registerForContextMenu()で登録したViewが長押しされると、 onCreateContextMenu()が呼ばれる。ここでメニューを作成する。
@@ -605,31 +591,10 @@ public class MainActivity extends AppCompatActivity {        // AppCompatActivit
 			} else if ( orientation == Configuration.ORIENTATION_PORTRAIT ) {
 				dbMsg += "=縦向き";
 			}
+
+			toolbar.setTitle("");
+
 			//ランタイムパーミッション処理は 	_peer.onのOPENで行う；  startLocalStreamを二重発生させるとクラッシュする
-//			registerForContextMenu(main_memu_bt);   //メニュー表示；☆コンテキストメニューとして割り付け
-//			toolbar.setNavigationIcon(R.drawable.);
-//			toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-//				@Override
-//				public void onClick(View v) {
-//					Toast.makeText(MainActivity.this , "back click!!" , Toast.LENGTH_LONG).show();
-//				}
-//			});
-//
-//			toolbar.inflateMenu(R.menu.main);
-//			toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
-//				@Override
-//				public boolean onMenuItemClick(MenuItem item) {
-//					funcSelected(item);
-////					int id = item.getItemId();
-//
-////					if (id == R.id.action_search) {
-////						Toast.makeText(MainActivity.this,"search click!!",Toast.LENGTH_LONG).show();
-////						return true;
-////					}
-//
-//					return true;
-//				}
-//			});
 			// Set GUI event listeners//////////////////////////////////////////////////  Set Peer event callbacks OPEN //
 			connect_bt.setEnabled(true);                                             //接続ボタン
 			connect_bt.setOnClickListener(new View.OnClickListener() {
@@ -654,7 +619,6 @@ public class MainActivity extends AppCompatActivity {        // AppCompatActivit
 					}
 				}
 			});
-
 
 //			switchCameraAction.setText(getResources().getString(R.string.camera_switch_caption));       //カメラ切替ボタン
 //			switchCameraAction.setOnClickListener(new View.OnClickListener() {
@@ -691,8 +655,6 @@ public class MainActivity extends AppCompatActivity {        // AppCompatActivit
 //					}
 //				}
 //			});
-
-
 			ImageButton test_bt1 = ( ImageButton ) findViewById(R.id.test_bt1);
 			test_bt1.setOnClickListener(new View.OnClickListener() {            //終了
 				@Override
@@ -786,10 +748,10 @@ public class MainActivity extends AppCompatActivity {        // AppCompatActivit
 //				}
 //			});
 
-			main_all_clear_bt.setOnClickListener(new View.OnClickListener() {        //全消去
+			wb_all_clear_bt.setOnClickListener(new View.OnClickListener() {        //全消去
 				@Override
 				public void onClick(View v) {
-					final String TAG = "main_all_clear_bt[MA.onCr]";
+					final String TAG = "wb_all_clear_bt[MA.onCr]";
 					String dbMsg = "";
 					try {
 						if ( main_whitebord != null ) {
@@ -804,16 +766,41 @@ public class MainActivity extends AppCompatActivity {        // AppCompatActivit
 				}
 			});
 
-			main_edit_bt.setOnClickListener(new View.OnClickListener() {                    //編修
+//			wb_mode_bt.setOnClickListener(new View.OnClickListener() {                    //編修
+//				@Override
+//				public void onClick(View v) {
+//					final String TAG = "wb_mode_bt[MA.onCr]";
+//					String dbMsg = "";
+//					try {
+//						if ( main_whitebord != null ) {
+//							main_whitebord.startFreeHand();
+////							CS_CanvasView CCV = new CS_CanvasView(MainActivity.this);
+////							CCV.startFreeHand();
+//						}
+//						myLog(TAG , dbMsg);
+//					} catch (Exception er) {
+//						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+//					}
+//				}
+//			});
+
+			main_mode_change_bt.setSelected(true);			//ビデオモード；鉛筆アイコン
+			main_mode_change_bt.setOnClickListener(new View.OnClickListener() {                    //page1で送信画面のモード切替
 				@Override
-				public void onClick(View v) {
-					final String TAG = "main_edit_bt[MA.onCr]";
-					String dbMsg = "";
+				public void onClick(View v) {                //P1の書き込み/カメラ切り替えボタン
+					final String TAG = "main_mode_change_bt[MA.onCr]";
+					String dbMsg = "P1の書き込み/カメラ切り替え";
 					try {
-						if ( main_whitebord != null ) {
-							main_whitebord.startFreeHand();
-//							CS_CanvasView CCV = new CS_CanvasView(MainActivity.this);
-//							CCV.startFreeHand();
+						ImageButton seleBt = (ImageButton) v;
+//						int[] ds = seleBt.getDrawableState();
+						boolean nowIs = seleBt.isSelected();
+						dbMsg += ",現在=" + nowIs;
+						if(	nowIs){
+							toWhiteBorrb();
+							main_mode_change_bt.setSelected(false);			//ホワイトボードモード；ビデオアイコン
+						}     else{
+							toVideoChat();
+							main_mode_change_bt.setSelected(true);			//ビデオモード；鉛筆アイコン
 						}
 						myLog(TAG , dbMsg);
 					} catch (Exception er) {
@@ -822,37 +809,10 @@ public class MainActivity extends AppCompatActivity {        // AppCompatActivit
 				}
 			});
 
-			main_back2video_bt.setOnClickListener(new View.OnClickListener() {                    //自画像表示に切替ボタン
-				@Override
-				public void onClick(View v) {                //P1の書き込み/カメラ切り替えボタン
-					final String TAG = "main_edit_bt[MA.onCr]";
-					String dbMsg = "P1の書き込み/カメラ切り替え";
-					try {
-						toVideoChat();
-						myLog(TAG , dbMsg);
-					} catch (Exception er) {
-						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
-					}
-				}
-			});
-			main_c2edit_bt.setOnClickListener(new View.OnClickListener() {                    //page1で送信画面のモード切替
-				@Override
-				public void onClick(View v) {                //P1の書き込み/カメラ切り替えボタン
-					final String TAG = "main_edit_bt[MA.onCr]";
-					String dbMsg = "P1の書き込み/カメラ切り替え";
-					try {
-						toWhiteBorrb();
-						myLog(TAG , dbMsg);
-					} catch (Exception er) {
-						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
-					}
-				}
-			});
-
-			main_all_clear2_bt.setOnClickListener(new View.OnClickListener() {        //P1の書き込み全消去ボタン
+			wb_all_clear_bt.setOnClickListener(new View.OnClickListener() {        //P1の書き込み全消去ボタン
 				@Override
 				public void onClick(View v) {
-					final String TAG = "main_all_clear_bt[MA.onCr]";
+					final String TAG = "wb_all_clear_bt[MA.onCr]";
 					String dbMsg = "";
 					try {
 						if ( CSCV != null ) {
@@ -1617,7 +1577,7 @@ public class MainActivity extends AppCompatActivity {        // AppCompatActivit
 //				isVideoEnable = _localStream.getEnableVideoTrack(0);
 //				dbMsg += ">>" + isVideoEnable;
 				CSCV.setVisibility(View.VISIBLE);
-				main_wb_tools_ll.setVisibility(View.VISIBLE);  //ホワイトボード関連:表示
+				wh_paret.setVisibility(View.VISIBLE);  //ホワイトボード関連:表示
 			}
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
@@ -1631,7 +1591,7 @@ public class MainActivity extends AppCompatActivity {        // AppCompatActivit
 		try {
 			dbMsg += ",isNowWhitebord=" + isNowWhitebord;
 			isNowWhitebord = false;
-			main_wb_tools_ll.setVisibility(View.GONE);  //ホワイトボード関連:非表示
+			wh_paret.setVisibility(View.GONE);  //ホワイトボード関連:非表示
 			if ( _localStream != null ) {
 				int trackCount = _localStream.getVideoTracks();
 				CSCV.setVisibility(View.GONE);

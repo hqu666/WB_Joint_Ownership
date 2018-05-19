@@ -38,12 +38,11 @@
 		</activity>
 		<activity android:name=".MyPreferencesActivty"/>
 		<activity android:name=".CS_Web_Activity"
-				  android:screenOrientation="landscape"
-				  android:theme="@android:style/Theme.Light.NoTitleBar.Fullscreen">
+				  android:screenOrientation="landscape">
 		</activity>
 		<activity android:name=".CS_WhitebordActivity"
-				  android:screenOrientation="landscape"
-				  android:theme="@android:style/Theme.Light.NoTitleBar.Fullscreen">
+				  android:screenOrientation="landscape">
+				  <!--android:theme="@android:style/Theme.Light.NoTitleBar.Fullscreen">-->
 		</activity>
 	</application>
 

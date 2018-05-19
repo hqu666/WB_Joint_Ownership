@@ -14,14 +14,9 @@
 	<!--android:layout_width="match_parent"-->
 	<!--android:layout_height="match_parent"-->
 	<!--android:layout_margin="0dp"-->
-	<!--&gt;-->
-
 	<!--<include-->
 	<!--android:id="@+id/page1"-->
 	<!--layout="@layout/vchat_tisement"-->
-
-	<!--/>-->
-
 	<!--<include-->
 	<!--android:id="@+id/page2"-->
 	<!--layout="@layout/wb_tisement"/>-->
@@ -35,10 +30,9 @@
 		android:minHeight="?attr/actionBarSize"
 		android:theme="?attr/actionBarTheme">
 
-
 		<LinearLayout
 			android:id="@+id/main_conect_ll"
-			android:layout_width="match_parent"
+			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
 			android:layout_weight="1"
 			android:orientation="horizontal">
@@ -60,6 +54,7 @@
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
 					android:layout_marginLeft="5dp"
+					android:layout_weight="1"
 					android:text="@string/now_conection_meg"/>
 
 				<LinearLayout
@@ -86,68 +81,28 @@
 						app:layout_constraintTop_toTopOf="parent"/>
 				</LinearLayout>
 			</LinearLayout>
-
-			<!--<ImageButton-->
-			<!--android:id="@+id/main_setting_bt"-->
-			<!--android:layout_width="40dp"-->
-			<!--android:layout_height="40dp"-->
-			<!--android:src="@android:drawable/ic_menu_manage"/>-->
-
-			<!--<ImageButton-->
-			<!--android:id="@+id/main_quit_bt"-->
-			<!--android:layout_width="40dp"-->
-			<!--android:layout_height="40dp"-->
-			<!--android:layout_gravity="fill_vertical|fill_horizontal|center"-->
-			<!--android:layout_marginRight="20dp"-->
-			<!--android:src="@android:drawable/ic_lock_power_off"/>-->
-
-			<ImageButton
-				android:id="@+id/main_c2edit_bt"
-				android:layout_width="40dp"
-				android:layout_height="40dp"
-				android:src="@android:drawable/ic_menu_edit"/>
 		</LinearLayout>
 
-
-		<LinearLayout
-			android:id="@+id/main_wb_tools_ll"
+		<include
+			layout="@layout/wb_edit_panel"
 			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_gravity="right|end"
-			android:orientation="horizontal">
+			android:layout_height="wrap_content"/>
 
-			<!--<ImageButton-->
-			<!--android:id="@+id/main_camera_bt"-->
-			<!--android:layout_width="40dp"-->
-			<!--android:layout_height="40dp"-->
-			<!--android:src="@android:drawable/ic_menu_camera"/>-->
-
-			<ImageButton
-				android:id="@+id/main_all_clear2_bt"
-				android:layout_width="40dp"
-				android:layout_height="40dp"
-				android:src="@android:drawable/ic_menu_delete"/>
-
-			<ImageButton
-				android:id="@+id/main_back2video_bt"
-				android:layout_width="40dp"
-				android:layout_height="40dp"
-				android:layout_marginLeft="20dp"
-				android:src="@android:drawable/presence_video_online"/>
-		</LinearLayout>
+		<ImageButton
+			android:id="@+id/main_mode_change_bt"
+			android:layout_width="40dp"
+			android:layout_height="40dp"
+			android:layout_gravity="right"
+			android:src="@drawable/mode_selector"/>
 
 	</android.support.v7.widget.Toolbar>
 
 	<LinearLayout
 		android:id="@+id/main_views_ll"
 		android:layout_width="match_parent"
-		android:layout_height="match_parent"
+		android:layout_height="0dp"
 		android:layout_weight="1"
 		android:orientation="horizontal">
-
-		<!--<android.support.constraint.ConstraintLayout-->
-		<!--android:layout_width="match_parent"-->
-		<!--android:layout_height="wrap_content">-->
 
 		<view
 			android:id="@+id/svRemoteView"
@@ -162,12 +117,6 @@
 		<!--tools:layout_editor_absoluteX="0dp"-->
 		<!--tools:layout_editor_absoluteY="3dp"-->
 
-		<!--<LinearLayout-->
-		<!--android:layout_width="match_parent"-->
-		<!--android:layout_height="match_parent"-->
-		<!--android:layout_weight="2"-->
-		<!--android:orientation="vertical">-->
-
 		<view
 			android:id="@+id/svLocalView"
 			class="io.skyway.Peer.Browser.Canvas"
@@ -176,32 +125,8 @@
 			android:layout_gravity="top|right"
 			android:gravity="top|right"/>
 		<!--android:layout_weight="1" を外して全画面へ広げる-->
-		<!--<view-->
-		<!--android:id="@+id/main_whitebord2"-->
-		<!--class="com.hijiyama_koubou.wb_joint_ownership.CS_CanvasView"-->
-		<!--android:layout_width="match_parent"-->
-		<!--android:layout_height="match_parent"-->
-		<!--android:layout_weight="1"-->
-		<!--/>-->
-		<!--class="com.hijiyama_koubou.wb_joint_ownership.CS_CanvasView"-->
+                   		<!--class="com.hijiyama_koubou.wb_joint_ownership.CS_CanvasView"-->
 		<!--class="io.skyway.Peer.Browser.Canvas"-->
-		<!--<FrameLayout-->
-		<!--android:id="@+id/white_bord_bace_fl"-->
-		<!--android:layout_width="match_parent"-->
-		<!--android:layout_height="match_parent"-->
-		<!--android:layout_marginLeft="20dp"-->
-		<!--android:layout_marginTop="300dp"-->
-		<!--android:layout_weight="1"-->
-		<!--android:background="@color/colorAccent">-->
-
-		<!--<org.webrtc.SurfaceViewRenderer-->
-		<!--android:id="@+id/white_bord_svr"-->
-		<!--android:layout_width="match_parent"-->
-		<!--android:layout_height="match_parent"-->
-		<!--/>-->
-		<!--</FrameLayout>-->
-		<!--</LinearLayout>-->
-
 		<!--</android.support.constraint.ConstraintLayout>-->
 
 	</LinearLayout>
