@@ -77,7 +77,7 @@ public class CS_Web_Activity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {		//org;publicvoid
 		super.onCreate(savedInstanceState);
-		final String TAG = "onCreate[WA]";
+		final String TAG = "onCreate[WabA]";
 		String dbMsg = "";
 		try{
 			Bundle extras = getIntent().getExtras();
@@ -211,7 +211,7 @@ public class CS_Web_Activity extends Activity {
 
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		final String TAG = "onKeyDown[WA]";
+		final String TAG = "onKeyDown[WabA]";
 		String dbMsg = "";
 		boolean retBool = true;
 		try{
@@ -303,7 +303,7 @@ public class CS_Web_Activity extends Activity {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		final String TAG = "onOptionsItemSelected[WA]";
+		final String TAG = "onOptionsItemSelected[WabA]";
 		String dbMsg = "";
 		try{
 			dbBlock ="MenuItem"+item.getItemId()+"を操作";////////////////////////////////////////////////////////////////////////////
@@ -336,7 +336,7 @@ public class CS_Web_Activity extends Activity {
 
 	@Override
 	public void onOptionsMenuClosed(Menu wkMenu) {
-		final String TAG = "onOptionsMenuClosed[WA]";
+		final String TAG = "onOptionsMenuClosed[WabA]";
 		String dbMsg = "";
 		try{
 			dbBlock ="NakedFileVeiwActivity;mlMenu="+wkMenu;//////////////拡張子=.m4a,ファイルタイプ=audio/*,フルパス=/mnt/sdcard/Music/AC DC/Blow Up Your Video/03 Meanstreak.m4a
@@ -349,7 +349,7 @@ public class CS_Web_Activity extends Activity {
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		final String TAG = "onDestroy[WA]";
+		final String TAG = "onDestroy[WabA]";
 		String dbMsg = "";
 		try{
 			dbBlock ="onDestroy発生";//////////////拡張子=.m4a,ファイルタイプ=audio/*,フルパス=/mnt/sdcard/Music/AC DC/Blow Up Your Video/03 Meanstreak.m4a

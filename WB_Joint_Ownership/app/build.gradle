@@ -34,6 +34,7 @@ dependencies {
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
     //    implementation 'com.google.android:support-v4:r7'
     //    implementation 'com.pkware.truth-android:truth-android-support-v4:1.0.0'
+    implementation files('libs/socketio.jar')
 }
 
 //repositories{
