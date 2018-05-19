@@ -84,7 +84,7 @@
 		</LinearLayout>
 
 		<include
-			layout="@layout/wb_edit_panel"
+			layout="@layout/whit_bord_cp"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"/>
 

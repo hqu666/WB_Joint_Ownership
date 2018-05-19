@@ -31,7 +31,8 @@ import android.os.Bundle;
 //import android.view.View;
 //import android.view.Window;				//タイトルバーに文字列を設定
 //import android.view.WindowManager;
-		import android.webkit.WebSettings;
+import android.view.WindowManager;
+import android.webkit.WebSettings;
 		import android.webkit.WebView;
 //import android.webkit.WebView.PictureListener;
 		import android.webkit.WebViewClient;
@@ -85,8 +86,12 @@ public class CS_Web_Activity extends Activity {
 			fType = extras.getString("fType");							//データタイプ
 			String[] testSrA=dataURI.split(File.separator);
 			fName=testSrA[testSrA.length-1];
-			dbBlock = "dataURI="+dataURI+",fType="+fType+",fName="+fName+",baseUrl="+baseUrl;////////////////////////////////////////////////////////////////////////
-			Log.d(TAG,dbBlock);
+			dbMsg += "dataURI="+dataURI+",fType="+fType+",fName="+fName+",baseUrl="+baseUrl;////////////////////////////////////////////////////////////////////////
+
+			getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+			//			getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);		//タスクバーを 非表示
+			requestWindowFeature(Window.FEATURE_NO_TITLE); 							//タイトルバーを非表示
+
 			requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS); 		//ローディングをタイトルバーのアイコンとして表示☆リソースを読み込む前にセットする
 			setContentView(R.layout.activity_cs_web);
 			webView = (WebView) findViewById(R.id.webview);		// Webビューの作成
@@ -102,12 +107,8 @@ public class CS_Web_Activity extends Activity {
 			settings.setJavaScriptEnabled(true);						//JavaScriptを有効化
 
 			MLStr=dataURI;
-			dbBlock = fType+"をMLStr="+MLStr;////////////////////////////////////////////////////////////////////////
-//				Log.d("onCreate",dbBlock);
+			dbMsg += fType+"をMLStr="+MLStr;////////////////////////////////////////////////////////////////////////
 			webView.loadUrl(MLStr);
-//			getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);		//タスクバーを 非表示
-//			requestWindowFeature(Window.FEATURE_NO_TITLE); 							//タイトルバーを非表示
-
 			webView.setWebViewClient(new WebViewClient() {		//リンク先もこのWebViewで表示させる；端末のブラウザを起動させない
 				@Override
 				public void onPageStarted(WebView view, String url, Bitmap favicon) {

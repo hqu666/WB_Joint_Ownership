@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ImageButton;
 
 public class CS_WhitebordActivity extends Activity {             //AppCompatActivity
@@ -15,12 +17,15 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+		requestWindowFeature(Window.FEATURE_NO_TITLE);
+
 		setContentView(R.layout.activity_whitebord);         //activity_whitebord          wb_tisement   ではイベント動作しない
+
 		wb_whitebord = ( CS_CanvasView ) findViewById(R.id.wb_whitebord);        //ホワイトボード             	Canvas	     CS_CanvasView
 		wb_all_clear_bt = ( ImageButton ) findViewById(R.id.wb_all_clear_bt);        //全消去
 		wb_mode_bt = ( ImageButton ) findViewById(R.id.wb_mode_bt);                    //編修
-//		ImageButton	ImageButton = ( ImageButton ) findViewById(R.id.vf_previous_bt);         // ViewFlipperの前（左）画面
-//		ImageButton.setVisibility(View.GONE);
 
 
 		wb_all_clear_bt.setOnClickListener(new View.OnClickListener() {        //全消去
