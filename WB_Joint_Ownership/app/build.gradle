@@ -24,18 +24,27 @@ android {
 dependencies {
     implementation fileTree(include: '*.aar', dir: 'libs')
     implementation files('libs/skyway.aar')
-    //        implementation(name: 'skyway', ext: 'aar')
+     //        implementation(name: 'skyway', ext: 'aar')
+    implementation files('libs/socketio.jar')
+//    implementation files('libs/WebSocket.jar')
     androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     implementation 'com.android.support:support-v4:25.1.1'
     implementation 'com.android.support:appcompat-v7:25.1.1'
-    testImplementation 'junit:junit:4.12'
+    implementation 'com.android.support:recyclerview-v7:25.1.1'
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
+    //chat用
+    implementation ('io.socket:socket.io-client:1.0.0') {
+        // excluding org.json which is provided by Android
+        exclude group: 'org.json', module: 'json'
+    }                    //
+//Program type already present: org.java_websocket.SSLSocketChannel
     //    implementation 'com.google.android:support-v4:r7'
     //    implementation 'com.pkware.truth-android:truth-android-support-v4:1.0.0'
-    implementation files('libs/socketio.jar')
-}
+    testImplementation 'junit:junit:4.12'
+
+ }
 
 //repositories{
 //    flatDir {

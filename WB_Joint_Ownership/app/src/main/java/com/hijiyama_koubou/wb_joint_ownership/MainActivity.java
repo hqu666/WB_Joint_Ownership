@@ -485,6 +485,10 @@ public class MainActivity extends AppCompatActivity {        // AppCompatActivit
 			int id = item.getItemId();
 			dbMsg = "id=" + id;
 			switch ( id ) {
+				case R.id.show_str_chat:     //文字チャット
+					Intent cIntent = new Intent(this, SocketIOChat.class);
+					startActivity(cIntent);
+					break;
 				case R.id.show_white_bord:     //ホワイトボード
 					Intent _intent = new Intent(this , CS_WhitebordActivity.class);
 					startActivity(_intent);

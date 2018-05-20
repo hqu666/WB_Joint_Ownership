@@ -28,22 +28,34 @@
 			android:label="@string/title_activity_video_chat"
 			android:screenOrientation="landscape"
 			android:theme="@style/AppTheme.NoActionBar">
-			<!--android:theme="@android:style/Theme.NoTitleBar.Fullscreen">-->
+
+			<!-- android:theme="@android:style/Theme.NoTitleBar.Fullscreen"> -->
 			<!-- android:configChanges="orientation|keyboardHidden|screenSize" -->
 			<!--  -->
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN"/>
+
 				<category android:name="android.intent.category.LAUNCHER"/>
 			</intent-filter>
 		</activity>
 		<activity android:name=".MyPreferencesActivty"/>
-		<activity android:name=".CS_Web_Activity"
+		<activity
+			android:name=".CS_Web_Activity"
+			android:screenOrientation="landscape">
+		</activity>
+		<activity
+			android:name=".CS_WhitebordActivity"
+			android:screenOrientation="landscape">
+
+			<!-- android:theme="@android:style/Theme.Light.NoTitleBar.Fullscreen"> -->
+		</activity>
+		<activity android:name=".SocketIOChat"
 				  android:screenOrientation="landscape">
 		</activity>
-		<activity android:name=".CS_WhitebordActivity"
+		<activity android:name=".ChatLoginActivity"
 				  android:screenOrientation="landscape">
-				  <!--android:theme="@android:style/Theme.Light.NoTitleBar.Fullscreen">-->
 		</activity>
+
 	</application>
 
 </manifest>

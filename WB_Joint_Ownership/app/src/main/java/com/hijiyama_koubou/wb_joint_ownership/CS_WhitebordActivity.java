@@ -141,11 +141,11 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 
 					mSocket.connect(new IOCallback() {
 						@Override
-						public void onConnect() {
+						public void onConnect() {                      //サーバとの接続が確立されたとき
 							final String TAG = "onConnect[WA]";
 							String dbMsg = "";
 							try {
-//								mSocket.send("android");      								// connectしたらAndroidからsend
+								mSocket.send("android");      								// connectしたらAndroidからsend
 								myLog(TAG , dbMsg);
 							} catch (Exception er) {
 								myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
@@ -153,7 +153,7 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 						}
 
 						@Override
-						public void onDisconnect() {
+						public void onDisconnect() {                   			//サーバとの接続が切断されたとき
 							final String TAG = "onDisconnect[WA]";
 							String dbMsg = "";
 							try {
@@ -171,7 +171,7 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 						}
 
 						@Override
-						public void on(String eventName , IOAcknowledge ack , Object... args) {
+						public void on(String eventName , IOAcknowledge ack , Object... args) {          		//イベントを受信したとき
 							final String TAG = "on[WA]";
 							String dbMsg = "";
 							try {
@@ -202,7 +202,7 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 						}
 
 						@Override
-						public void onMessage(JSONObject data , IOAcknowledge ack) {
+						public void onMessage(JSONObject data , IOAcknowledge ack) {     		//JSONを受信したとき
 							final String TAG = "onMessage;JSONObject[WA]";
 							String dbMsg = "";
 							try {
@@ -281,4 +281,6 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
  * 2014-01-11		Androidでsocket.io											https://kinjouj.github.io/2014/01/android-socketio.html
  * 2012年12月30日	リアルタイム通信へ挑戦 														http://blog.shonanshachu.com/2012/12/android.html
  * 2017年03月16日	Android とNode.js とsocket.io　簡単なチャットやり取り		 https://qiita.com/sirokitune999/items/5c058873e4f7bff2db1f
+ * Native Socket.IO and Android		https://socket.io/blog/native-socket-io-and-android/
+ *
  */

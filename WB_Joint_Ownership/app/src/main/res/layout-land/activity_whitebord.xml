@@ -30,8 +30,8 @@
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_margin="5dp"
-		android:layout_weight="1"
-		android:background="@android:color/background_light"/>
+		android:layout_weight="1"/>
+		<!--android:background="@android:color/background_light"/>-->
 	<!--class="com.hijiyama_koubou.wb_joint_ownership.CS_CanvasView"-->
 	<!--class="io.skyway.Peer.Browser.Canvas"-->
 
