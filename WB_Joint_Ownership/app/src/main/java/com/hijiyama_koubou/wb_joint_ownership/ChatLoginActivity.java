@@ -7,6 +7,7 @@ import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
@@ -35,6 +36,7 @@ public class ChatLoginActivity extends Activity {
 		final String TAG = "onCreate[CLA]";
 		String dbMsg = "";
 		try {
+			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);		//ソフトウェアキーボードが出ているときにAction Barが隠れたりしないようにする
 			setContentView(R.layout.chat_activity_main);                          //android.view.InflateException: Binary XML file line #9: Binary XML file line #9: Error inflating class fragment
 			ChatApplication app = ( ChatApplication ) getApplication();
 			mSocket = app.getSocket();
@@ -89,6 +91,7 @@ public class ChatLoginActivity extends Activity {
 		try {
 			mUsernameView.setError(null);                                        // Reset errors.
 			String username = mUsernameView.getText().toString().trim();            // Store values at the time of the login attempt.
+			dbMsg += ",username=" + username;
 			// Check for a valid username.
 			if ( TextUtils.isEmpty(username) ) {
 				// There was an error; don't attempt login and focus the first
@@ -147,6 +150,4 @@ public class ChatLoginActivity extends Activity {
 		UTIL.myErrorLog(TAG , dbMsg);
 	}
 }
-
-
 

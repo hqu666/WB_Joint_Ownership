@@ -1,7 +1,9 @@
 package com.hijiyama_koubou.wb_joint_ownership;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -19,6 +21,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -93,6 +96,7 @@ public class ChatMainFragment extends Fragment {
 		final String TAG = "onCreate[CF]";
 		String dbMsg = "";
 		try {
+			getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);        //ソフトウェアキーボードが出ているときにAction Barが隠れたりしないようにする
 			setHasOptionsMenu(true);
 
 			//	ChatApplication app =( ChatApplication ) getActivity().getApplication();    // Attempt to invoke virtual method 'android.content.Context android.app.Activity.getApplicationContext()' on a null object reference
@@ -396,9 +400,27 @@ public class ChatMainFragment extends Fragment {
 		String dbMsg = "";
 		try {
 			mUsername = null;
-			Intent intent = new Intent( this.getActivity().getParent(), ChatLoginActivity.class);			//で開くが Attempt to invoke virtual method 'java.lang.String android.content.Context.getPackageName()' on a null object reference
-			// getActivity().getParent()    getContext()                    this.getActivity().getApplicationContext()
-			startActivityForResult(intent , REQUEST_LOGIN);
+			///インプットダイアログに置換え
+			String titolStr = "ニックネーム設定";
+			String mggStr = "チャット画面に表示する名前を設定して下さい（それでログインできます。）";
+			final EditText editView = new EditText(this.getContext());
+			new AlertDialog.Builder(this.getContext()).setIcon(android.R.drawable.ic_dialog_info).setTitle(titolStr).setMessage(mggStr).setView(editView).setPositiveButton("OK" , new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog , int whichButton) {
+					mUsername = editView.getText().toString();
+					if ( mUsername == null ) {
+						startSignIn();
+					}
+				}
+			}).setNegativeButton("キャンセル" , new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog , int whichButton) {
+					startSignIn();
+				}
+			}).show();
+
+//			Intent intent = new Intent( this.getActivity().getParent(), ChatLoginActivity.class);			//で開くが Attempt to invoke virtual method 'java.lang.String android.content.Context.getPackageName()' on a null object reference
+//			// getActivity().getParent()    getContext()                    this.getActivity().getApplicationContext()
+//			startActivityForResult(intent , REQUEST_LOGIN);
+			dbMsg = "mUsername=" + mUsername;
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
@@ -676,4 +698,9 @@ public class ChatMainFragment extends Fragment {
 		UTIL.myErrorLog(TAG , dbMsg);
 	}
 }
+
+/*
+ *    EditText 2014		   https://qiita.com/yyaammaa/items/e5d39d423dd9fe660979
+ *
+ * */
 

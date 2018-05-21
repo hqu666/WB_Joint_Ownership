@@ -29,11 +29,13 @@
 			android:layout_height="wrap_content"
 			android:layout_weight="1"
 			android:hint="@string/prompt_message"
-				android:imeActionLabel="@string/action_send"
 			android:imeActionId="@+id/send"
-			android:imeOptions="actionSend"
-			android:inputType="text"
+			android:imeActionLabel="@string/action_send"
+			android:imeOptions="actionSend|flagNoFullscreen"
+			android:inputType="text|textImeMultiLine"
 			android:maxLines="1"
+			android:password="false"
+			android:phoneNumber="false"
 			android:singleLine="true"/>
 
 		<ImageButton
