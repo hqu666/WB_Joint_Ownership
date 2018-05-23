@@ -1,5 +1,6 @@
 package com.hijiyama_koubou.wb_joint_ownership;
 
+import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 //
@@ -23,11 +24,13 @@ import android.os.Bundle;
 //import android.graphics.Picture;
 		import android.os.Bundle;
 		import android.util.Log;
-		import android.view.KeyEvent;
+import android.view.ContextMenu;
+import android.view.KeyEvent;
 		import android.view.Menu;
 		import android.view.MenuItem;
 		import android.view.SubMenu;
-		import android.view.Window;
+import android.view.View;
+import android.view.Window;
 //import android.view.View;
 //import android.view.Window;				//タイトルバーに文字列を設定
 //import android.view.WindowManager;
@@ -99,13 +102,11 @@ public class CS_Web_Activity extends Activity {
 			settings = webView.getSettings();
  //			settings.setSupportMultipleWindows(true);
 //			settings.setLoadsImagesAutomatically(true);
-			settings.setBuiltInZoomControls(true);						//ズームコントロールを表示し
-			settings.setSupportZoom(true);								//ピンチ操作を有効化
-//			settings.setLightTouchEnabled(true);
-			settings.setUseWideViewPort(true);      //100％サイズで表示
-			settings.setLoadWithOverviewMode(true);
-			settings.setJavaScriptEnabled(true);						//JavaScriptを有効化
 
+//			settings.setLightTouchEnabled(true);
+			settings.setJavaScriptEnabled(true);						//JavaScriptを有効化
+			initSize();
+			webView.clearCache(true);
 			MLStr=dataURI;
 			dbMsg += fType+"をMLStr="+MLStr;////////////////////////////////////////////////////////////////////////
 			webView.loadUrl(MLStr);
@@ -140,6 +141,7 @@ public class CS_Web_Activity extends Activity {
 //				}
 
 			});
+			registerForContextMenu(webView);
 //			webView.loadUrl(requestToken);
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
@@ -158,6 +160,7 @@ public class CS_Web_Activity extends Activity {
 		return retStr;
 	}
 
+
 	public void quitMe(){			//このActivtyの終了
 		try{
 			this.finish();
@@ -165,6 +168,7 @@ public class CS_Web_Activity extends Activity {
 			Log.e("quitMe","wKitで"+e.toString());
 		}
 	}
+
 
 	public boolean wZoomUp() {				//ズームアップして上限に達すればfalse
 		try{
@@ -208,6 +212,65 @@ public class CS_Web_Activity extends Activity {
 		}
 	}
 
+	public void zoomSetting(){
+		final String TAG = "zoomSetting[WabA]";
+		String dbMsg = "";
+		try{
+//			settings.setBuiltInZoomControls(true);						//ズームコントロールを表示し
+			settings.setSupportZoom(true);								//ピンチ操作を有効化
+			 			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		}
+	}
+
+	//https://qiita.com/morigamix/items/6083e2e63793021babf9
+	public void initSize(){
+		final String TAG = "initSize[WabA]";
+		String dbMsg = "";
+		try{
+			// setInitialScaleを使う場合はこの2つをfalseにしないといけない（referenceにも書いてある）
+			settings.setLoadWithOverviewMode(true);         //レスポンシブデザインが正常に表示されない場合
+			settings.setUseWideViewPort(true);				//100％サイズで表示
+			// Densityに合わせてスケーリング
+//			var scale = this.context.resources.displayMetrics.density * 100
+			webView.setInitialScale(1);
+			webView.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);                      		//スクロールバーをWebView内に含める
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		}
+	}
+
+	public void clearCacheNow(){
+		final String TAG = "clearCacheNow[WabA]";
+		String dbMsg = "";
+		try{
+			webView.clearCache(true);    //
+			webView.reload();
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		}
+	}
+
+	public void executionJavascript(String scripyName){
+		final String TAG = "executionJavascript[WabA]";
+		String dbMsg = "scripyName=" + scripyName ; 						//     "foo()"  など
+		try{
+			if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+				// KitKat以上は専用の関数が用意されたみたい
+				// 第二引数はコールバック
+				webView.evaluateJavascript(scripyName, null);
+			} else {
+				// 以前は javascript: *** を呼び出せばOK
+				webView.loadUrl("javascript:" + scripyName);
+			}
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		}
+	}
 
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
@@ -345,6 +408,44 @@ public class CS_Web_Activity extends Activity {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 		}
 	}
+
+	@Override
+	public void onCreateContextMenu(ContextMenu menu , View v , ContextMenu.ContextMenuInfo menuInfo) {
+		// registerForContextMenu()で登録したViewが長押しされると、 onCreateContextMenu()が呼ばれる。ここでメニューを作成する。
+		super.onCreateContextMenu(menu , v , menuInfo);
+		getMenuInflater().inflate(R.menu.wev_cont , menu);
+	}
+
+	@Override
+	public boolean onContextItemSelected(MenuItem item) {
+		final String TAG = "onContextItemSelected[WabA}";
+		String dbMsg = "開始" + item;                    //表記が返る
+		try {
+			myLog(TAG , dbMsg);
+			dbBlock ="MenuItem"+item.getItemId()+"を操作";////////////////////////////////////////////////////////////////////////////
+			//			Log.d("onOptionsItemSelected",dbBlock);
+			switch (item.getItemId()) {
+				case R.id.web_menu_rewrite:						//再読込み
+					clearCacheNow();
+					return true;
+				case R.id.web_menu_rescaling:				//サイズ合わせ;
+					initSize();
+					return true;
+				case R.id.web_menu_zoom_enable:				//ズーム有効化;
+					zoomSetting();
+					return true;
+
+				case R.id.web_menu_quit:						//終了";
+					quitMe();			//このActivtyの終了
+					return true;
+			}
+			return true; // 処理に成功したらtrueを返す
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + "で" + er.toString());
+		}
+		return super.onContextItemSelected(item);
+	}
+
 
 	@Override
 	protected void onDestroy() {

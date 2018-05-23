@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+	  xmlns:app="http://schemas.android.com/apk/res-auto"
+	  xmlns:tools="http://schemas.android.com/tools">
+
+	<group android:checkableBehavior="single">
+
+		<item
+			android:id="@+id/web_menu_rewrite"
+			android:checkable="false"
+			android:checked="false"
+			android:title="再読込み"/>
+		<item
+			android:id="@+id/web_menu_rescaling"
+			android:checkable="false"
+			android:title="サイズ合わせ"/>
+		<item
+			android:id="@+id/web_menu_zoom_enable"
+			android:checkable="false"
+			android:icon="@android:drawable/ic_menu_directions"
+			android:title="ズーム有効"/>
+		<!--<string name="">カメラ起動</string>-->
+	</group>
+
+	<item
+		android:title="その他"
+		>
+
+		<menu>
+			<item
+				android:id="@+id/web_menu_quit"
+				android:checkable="false"
+				android:icon="@android:drawable/ic_lock_power_off"
+				android:title="終了"/>
+
+		</menu>
+	</item>
+
+</menu>
