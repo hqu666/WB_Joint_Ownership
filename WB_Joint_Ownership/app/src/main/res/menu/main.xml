@@ -6,10 +6,6 @@
 	<group android:checkableBehavior="single">
 
 		<item
-			android:id="@+id/show_str_chat"
-			android:checked="false"
-			android:title="文字チャット"/>
-		<item
 			android:id="@+id/show_white_bord"
 			android:checkable="false"
 			android:icon="@android:drawable/ic_menu_directions"
@@ -20,6 +16,11 @@
 			android:checkable="false"
 			android:icon="@android:drawable/ic_menu_share"
 			android:title="web"/>
+		<item
+			android:id="@+id/show_str_chat"
+			android:checkable="false"
+			android:checked="false"
+			android:title="文字チャット"/>
 	</group>
 
 	<item

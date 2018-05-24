@@ -22,6 +22,7 @@ import io.socket.client.Socket;
 import io.socket.emitter.Emitter;
 
 /**
+ * 未使用
  * A login screen that offers login via username.
  */
 public class ChatLoginActivity extends Activity {
