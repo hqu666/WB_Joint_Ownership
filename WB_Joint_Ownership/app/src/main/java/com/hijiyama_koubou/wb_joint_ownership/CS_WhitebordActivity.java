@@ -3,6 +3,8 @@ package com.hijiyama_koubou.wb_joint_ownership;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.graphics.Color;
+import android.graphics.Point;
 import android.os.Build;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -35,13 +37,26 @@ import java.net.URISyntaxException;
 
 import static android.content.ContentValues.TAG;
 
+/*
+５/２４課題
+	htmlとの双方にカラーピック作成＞＞双方の差異確認
+	カラーが渡せるまで、双方その時点の選択値で
+	  function onColorUpdate(e) に直接送信
+
+	太さ　も同様
+	文字送信
+
+	URL
+	をtoolbarに表示
+	Naitive間通信
+* */
 
 public class CS_WhitebordActivity extends Activity {             //AppCompatActivity
 	private CS_CanvasView wb_whitebord;        //ホワイトボード        CS_CanvasView
 	private ImageButton wb_all_clear_bt;        //全消去
 	private ImageButton wb_mode_bt;                    //編修
 
- /////SocketIO////Androidでsocket.io		  https://kinjouj.github.io/2014/01/android-socketio.html
+	/////SocketIO////Androidでsocket.io		  https://kinjouj.github.io/2014/01/android-socketio.html
 	Handler mHandler;
 	//	ArrayAdapter< string > mAdapter;
 //	SocketThread mThread;
@@ -50,14 +65,18 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 	private String mUsername;
 	private Socket mSocket;
 	private Boolean isConnected = true;
-	public class SocketIOData{
-		public int    x0  ;
-		public int    y0  ;
-		public int    x1  ;
-		public int    y1  ;
-		public int    color  ;
-	}				// drawLine(data.x0 * w, data.y0 * h, data.x1 * w, data.y1 * h, data.color); に渡すデータ
- ////////////////////////////////////
+	private Boolean drawing;
+
+	public class SocketIOData {
+		public float x0;
+		public float y0;
+		public float x1;
+		public float y1;
+		public String color;
+	}                // drawLine(data.x0 * w, data.y0 * h, data.x1 * w, data.y1 * h, data.color); に渡すデータ
+
+	public SocketIOData _SocketIOData;
+	////////////////////////////////////
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -87,6 +106,9 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 			mSocket.on("stop typing" , onStopTyping);
 			mSocket.connect();
 
+			_SocketIOData = new SocketIOData();
+			_SocketIOData.color = "#000000";
+			;
 //			mHandler = new Handler();
 //		mAdapter = new ArrayAdapter< string >(this , android.R.layout.simple_list_item_1);
 
@@ -109,24 +131,35 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 
 			wb_whitebord.setOnTouchListener(new View.OnTouchListener() {
 				@Override
-				public boolean onTouch(View v, MotionEvent event) {
+				public boolean onTouch(View v , MotionEvent event) {
 					final String TAG = "onTouch[WB]";
 					String dbMsg = "";
 					try {
 						int action = event.getAction();
 						dbMsg = "action=" + action;
+						float eventX = event.getX();
+						float eventY = event.getY();
+						dbMsg += "(" + eventX + " , " + eventY + ")";
 						switch ( action ) {
-							case MotionEvent.ACTION_DOWN:
-
+							case MotionEvent.ACTION_DOWN:     //0
+								drawing = true;
+								_SocketIOData.x0 = eventX;
+								_SocketIOData.y0 = eventY;
 								break;
-							case MotionEvent.ACTION_MOVE:
-
+							case MotionEvent.ACTION_MOVE:     //2
+								if ( drawing ) {
+									drawLine(_SocketIOData.x0 , _SocketIOData.y0 , eventX , eventY , _SocketIOData.color);
+									_SocketIOData.x0 = eventX;
+									_SocketIOData.y0 = eventY;
+								}
 								break;
-							case MotionEvent.ACTION_UP:
-
+							case MotionEvent.ACTION_UP:    //1
+								if ( drawing ) {
+									drawing = false;
+									drawLine(_SocketIOData.x0 , _SocketIOData.y0 , eventX , eventY , _SocketIOData.color);
+								}
 								break;
 						}
-		//				mSocket.emit("drawing" , "");     //共有webページに全消去命令送信
 						myLog(TAG , dbMsg);
 					} catch (Exception er) {
 						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
@@ -154,6 +187,7 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 		} catch (Exception er) {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 		}
+
 	}
 
 
@@ -198,7 +232,7 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 		boolean retBool = true;
 		try {
 			dbMsg = "keyCode=" + keyCode;//+",getDisplayLabel="+String.valueOf(event.getDisplayLabel())+",getAction="+event.getAction();////////////////////////////////
-				switch ( keyCode ) {    //キーにデフォルト以外の動作を与えるもののみを記述★KEYCODE_MENUをここに書くとメニュー表示されない
+			switch ( keyCode ) {    //キーにデフォルト以外の動作を与えるもののみを記述★KEYCODE_MENUをここに書くとメニュー表示されない
 //				case KeyEvent.KEYCODE_DPAD_UP:        //マルチガイド上；19
 //					//	wZoomUp();						//ズームアップして上限に達すればfalse
 //					if ( !myNFV_S_Pref.getBoolean("prefKouseiD_PadUMU" , false) ) {        //キーの利用が無効になっていたら
@@ -224,7 +258,7 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 //				case KeyEvent.KEYCODE_VOLUME_DOWN:    //25
 //					wZoomDown();                    //ズームダウンして下限に達すればfalse
 				case KeyEvent.KEYCODE_BACK:            //4KEYCODE_BACK :keyCode；09SH: keyCode；4,event=KeyEvent{action=0 code=4 repeat=0 meta=0 scancode=158 mFlags=72}
-					callQuit() ;
+					callQuit();
 				default:
 					retBool = false;
 			}
@@ -262,14 +296,15 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 		}
 	}
+
 	/////SocketIO///////////////////////////////////
 	public static final String CHAT_SERVER_URL = "http://ec2-52-197-173-40.ap-northeast-1.compute.amazonaws.com:3080/";
 
 	/**
 	 * URLからSocket作成
-	 *
+	 * <p>
 	 * 呼び出しはonCreate
-	 * */
+	 */
 	public Socket getSocket() {
 		final String TAG = "getSocket[WA]";
 		String dbMsg = "";
@@ -281,6 +316,28 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 			throw new RuntimeException(er);
 		}
 		return _mSocket;
+	}
+
+	public void drawLine(float x0 , float y0 , float x1 , float y1 , String color) {
+		final String TAG = "drawLine[WA]";
+		String dbMsg = "";
+		try {
+			int cw = wb_whitebord.getWidth();
+			int ch = wb_whitebord.getHeight();
+			dbMsg = "whitebord[" + cw + " , " + ch + "]";
+			SocketIOData sioData = new SocketIOData();
+			sioData.x0 = x0;	// / cw;
+			sioData.y0 = y0;	// / ch;
+			sioData.x1 = x1;	//	 / cw;
+			sioData.y1 = y1;	// / ch;
+			sioData.color = color;
+			dbMsg += ",(" + sioData.x0 + " , " + sioData.y0 + ")～(" + sioData.x1 + " , " + sioData.y1 + ")" + sioData.color;
+			mSocket.emit("drawing" ,sioData);     //共有webページに全消去命令送信           { x0,y0 ,x1,y1,color}
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+			throw new RuntimeException(er);
+		}
 	}
 
 	private void addLog(String message) {
@@ -820,5 +877,4 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
  * 2012年12月30日	リアルタイム通信へ挑戦 														http://blog.shonanshachu.com/2012/12/android.html
  * 2017年03月16日	Android とNode.js とsocket.io　簡単なチャットやり取り		 https://qiita.com/sirokitune999/items/5c058873e4f7bff2db1f
  * Native Socket.IO and Android		https://socket.io/blog/native-socket-io-and-android/
- *
  */
