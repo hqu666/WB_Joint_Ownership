@@ -42,6 +42,7 @@ import io.socket.emitter.Emitter;      //WebSocket
 //		import java.net.MalformedURLException;
 
 /**
+ * Stock.ioのチャットボードにアカウント無しでつながるサンプル
  * A chat fragment containing messages view and input form.
  */
 public class ChatMainFragment extends Fragment {
@@ -60,7 +61,6 @@ public class ChatMainFragment extends Fragment {
 	private Handler mTypingHandler = new Handler();
 	private String mUsername;
 	private Socket mSocket;
-
 	private Boolean isConnected = true;
 
 	public ChatMainFragment() {
@@ -81,11 +81,14 @@ public class ChatMainFragment extends Fragment {
 	}
 
 	public Socket getSocket() {
+		final String TAG = "getSocket[CF]";
+		String dbMsg = "";
 		Socket _mSocket;
 		try {
 			_mSocket = IO.socket(ChatConstants.CHAT_SERVER_URL);
-		} catch (URISyntaxException e) {
-			throw new RuntimeException(e);
+		} catch (URISyntaxException er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+			throw new RuntimeException(er);
 		}
 		return _mSocket;
 	}

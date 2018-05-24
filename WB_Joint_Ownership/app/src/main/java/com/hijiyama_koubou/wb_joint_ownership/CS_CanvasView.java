@@ -17,16 +17,14 @@ import org.webrtc.EglBase;
 import org.webrtc.RendererCommon;
 import org.webrtc.SurfaceViewRenderer;
 import org.webrtc.VideoRenderer;
- import org.webrtc.RendererCommon.RendererEvents;
- import org.webrtc.RendererCommon.ScalingType;
+import org.webrtc.RendererCommon.RendererEvents;
+import org.webrtc.RendererCommon.ScalingType;
 
 
 import io.skyway.Peer.Browser.MediaStream;
 
 
-public
-class
-CS_CanvasView extends View{        //org; View	から　io.skyway.Peer.Browser.Canvas	に合わせる
+public class CS_CanvasView extends View {        //org; View	から　io.skyway.Peer.Browser.Canvas	に合わせる
 	// extends FrameLayout implements RendererEvents
 	//extends FrameLayout implements org.webrtc.RendererCommon.RendererEvents
 	private Context context;
