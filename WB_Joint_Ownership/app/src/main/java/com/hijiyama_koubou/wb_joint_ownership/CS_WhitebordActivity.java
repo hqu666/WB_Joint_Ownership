@@ -19,6 +19,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import io.socket.IOAcknowledge;
@@ -55,7 +56,11 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 	private CS_CanvasView wb_whitebord;        //ホワイトボード        CS_CanvasView
 	private ImageButton wb_all_clear_bt;        //全消去
 	private ImageButton wb_mode_bt;                    //編修
+	private ImageButton wb_color_bt ;			//色選択
+	private TextView wb_info_tv ;			//情報表示
 
+	public int selectColor = Color.BLACK;
+	private	ColorPickerDialog mColorPickerDialog;
 	/////SocketIO////Androidでsocket.io		  https://kinjouj.github.io/2014/01/android-socketio.html
 	Handler mHandler;
 	//	ArrayAdapter< string > mAdapter;
@@ -72,7 +77,7 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 		public float y0;
 		public float x1;
 		public float y1;
-		public String color;
+		public int color;
 	}                // drawLine(data.x0 * w, data.y0 * h, data.x1 * w, data.y1 * h, data.color); に渡すデータ
 
 	public SocketIOData _SocketIOData;
@@ -91,6 +96,8 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 			wb_whitebord = ( CS_CanvasView ) findViewById(R.id.wb_whitebord);        //ホワイトボード             	Canvas	     CS_CanvasView
 			wb_all_clear_bt = ( ImageButton ) findViewById(R.id.wb_all_clear_bt);        //全消去
 			wb_mode_bt = ( ImageButton ) findViewById(R.id.wb_mode_bt);                    //編修
+			wb_color_bt = ( ImageButton ) findViewById(R.id.wb_color_bt);			//色選択
+			wb_info_tv = ( TextView ) findViewById(R.id.wb_info_tv);			//情報表示
 
 			/////SocketIO///////////////////////////////////
 			mSocket = getSocket();
@@ -107,10 +114,34 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 			mSocket.connect();
 
 			_SocketIOData = new SocketIOData();
-			_SocketIOData.color = "#000000";
+			_SocketIOData.color = selectColor;
 			;
 //			mHandler = new Handler();
 //		mAdapter = new ArrayAdapter< string >(this , android.R.layout.simple_list_item_1);
+			//色選択
+			wb_color_bt.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					final String TAG = "wb_color_bt[WB]";
+					String dbMsg = "";
+					try {
+						mColorPickerDialog = new ColorPickerDialog(CS_WhitebordActivity.this,new ColorPickerDialog.OnColorChangedListener() {
+									@Override
+									public void colorChanged(int color) {
+										selectColor = color;
+										wb_whitebord.setPenColor(selectColor);
+									}
+								},
+								selectColor);
+						mColorPickerDialog.show();
+						myLog(TAG , dbMsg);
+					} catch (Exception er) {
+						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+						//android.view.WindowManager$BadTokenException: Unable to add window -- token null is not valid; is your activity running?
+					}
+				}
+			});
+
 
 			wb_all_clear_bt.setOnClickListener(new View.OnClickListener() {        //全消去
 				@Override
@@ -310,6 +341,7 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 		String dbMsg = "";
 		Socket _mSocket;
 		try {
+			wb_info_tv.setText(CHAT_SERVER_URL);			//情報表示
 			_mSocket = IO.socket(CHAT_SERVER_URL);
 		} catch (URISyntaxException er) {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
@@ -318,7 +350,7 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 		return _mSocket;
 	}
 
-	public void drawLine(float x0 , float y0 , float x1 , float y1 , String color) {
+	public void drawLine(float x0 , float y0 , float x1 , float y1 , int color) {
 		final String TAG = "drawLine[WA]";
 		String dbMsg = "";
 		try {

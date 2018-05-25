@@ -21,6 +21,9 @@ import org.webrtc.RendererCommon.RendererEvents;
 import org.webrtc.RendererCommon.ScalingType;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
 import io.skyway.Peer.Browser.MediaStream;
 
 
@@ -29,15 +32,24 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 	//extends FrameLayout implements org.webrtc.RendererCommon.RendererEvents
 	private Context context;
 	private Paint paint;                        //ペン
-	private int penColor = 0xFF008800;        //蛍光グリーン
-	private float penWidth = 2;
+//	public List< Paint > paintIist;
+	public int penColor = 0xFF008800;        //蛍光グリーン
+	public int selectColor = penColor;
+
+	private float penWidth = 5;
+	private float selectWidth = penWidth;
 
 
 	private Paint eraserPaint;                //消しゴム
 	private int eraserColor = Color.WHITE;        //背景色に揃える
 	private float eraserWidth = 50.0f;
 
-	private Path path;
+	//	private Path path;
+	public List< PathObject > pathIist;
+	class PathObject{
+		Path path;
+		Paint paint;
+	}
 
 	float upX;
 	float upY;
@@ -103,8 +115,8 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 		final String TAG = "InitCanva[CView]";
 		String dbMsg = "";
 		try {
-			path = new Path();
-			paint = new Paint();
+			pathIist = new ArrayList< PathObject >();
+			 paint = new Paint();
 			dbMsg += ",ペン；" + penColor;
 			paint.setColor(penColor);                        //
 			paint.setStyle(Paint.Style.STROKE);
@@ -119,6 +131,44 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 			dbMsg += "," + eraserWidth + "px";
 			eraserPaint.setStrokeWidth(eraserWidth);
 
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		}
+	}
+
+	/**
+	 * ペンの色変更
+	 */
+	public void setPenColor(int selectColor) {
+		final String TAG = "setPenColor[CView]";
+		String dbMsg = "";
+		try {
+			dbMsg = "selectColor=" + selectColor;
+			this.selectColor = selectColor;
+			 paint = new Paint();
+			dbMsg += ",ペン；" + selectColor;
+			paint.setColor(selectColor);                        //
+			paint.setStyle(Paint.Style.STROKE);
+			paint.setStrokeJoin(Paint.Join.ROUND);
+			paint.setStrokeCap(Paint.Cap.ROUND);
+			dbMsg += "," + penWidth + "px";
+			paint.setStrokeWidth(penWidth);
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		}
+	}
+
+	/**
+	 * ペンの太さ変更
+	 */
+	public void setPenWidth(int selectWidth) {
+		final String TAG = "setPenColor[CView]";
+		String dbMsg = "";
+		try {
+			dbMsg = "selectWidth=" + selectWidth;
+			this.selectWidth = selectWidth;
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
@@ -165,15 +215,20 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 			int caWidth = canvas.getWidth();
 			int caHeight = canvas.getHeight();
 			dbMsg += ".canvas[" + caWidth + "" + caHeight + "]";
+
 			switch ( REQUEST_CORD ) {
 				case REQUEST_CLEAR:                //全消去
 					canvas.drawColor(eraserColor , PorterDuff.Mode.CLEAR);                // 描画クリア
-					path.reset();
+					for ( PathObject pathObject: pathIist ) {
+						pathObject.path.reset();
+					}
 					canvas.drawRect(0 , 0 , caWidth , caHeight , eraserPaint);        //?真っ黒になるので背景色に塗りなおす
 					REQUEST_CORD = REQUEST_DROW_PATH;
 					break;
 				case REQUEST_DROW_PATH:                //フリーハンド
-					canvas.drawPath(path , paint);
+					for ( PathObject pathObject : pathIist ) {
+						canvas.drawPath(pathObject.path , pathObject.paint);
+					}
 					break;
 				case REQUEST_ADD_BITMAP:                //ビットマップ挿入
 					canvas.drawBitmap(aBmp , upX , upY , ( Paint ) null); // image, x座標, y座標, Paintイタンス
@@ -185,43 +240,76 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 		}
 	}
 
+
+	public void drawPathLine(int action , float xPoint , float yPoint) {
+		final String TAG = "drawPathLine[CView]";
+		String dbMsg = "";
+		try {
+
+			dbMsg = "action=" + action + "(" + xPoint + " , " + yPoint + ")";
+			switch ( action ) {
+				case MotionEvent.ACTION_DOWN:   //0
+					PathObject pathObject =new PathObject();
+					Path path = new Path();
+					path.moveTo(xPoint , yPoint);
+					pathObject.path = path;
+					pathObject.paint = paint;
+					pathIist.add(pathObject);
+					invalidate();
+					break;
+				case MotionEvent.ACTION_MOVE:   //2
+					pathIist.get(pathIist.size() - 1).path.lineTo(xPoint , yPoint);
+					invalidate();
+					break;
+				case MotionEvent.ACTION_UP:     //1
+					pathIist.get(pathIist.size() - 1).path.lineTo(xPoint , yPoint);
+					invalidate();                        //onDrawを発生させて描画実行
+					break;
+			}
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		}
+	}
+
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		final String TAG = "onTouchEvent[CView]";
 		String dbMsg = "";
 		try {
-			float x = event.getX();
-			float y = event.getY();
-			dbMsg += "myCanvas[" + x + "×" + y + "]";
+			float xPoint = event.getX();
+			float yPoint = event.getY();
+			dbMsg += "myCanvas[" + xPoint + "×" + yPoint + "]";
 			switch ( REQUEST_CORD ) {
 				case REQUEST_CLEAR:                        //全消去
 //					path = new Path();
 					break;
 				case REQUEST_DROW_PATH:                        //フリーハンド
-					switch ( event.getAction() ) {
-						case MotionEvent.ACTION_DOWN:
-							path.moveTo(x , y);
-							invalidate();
-							break;
-						case MotionEvent.ACTION_MOVE:
-							path.lineTo(x , y);
-							invalidate();
-							break;
-						case MotionEvent.ACTION_UP:
-							path.lineTo(x , y);
-							invalidate();                        //onDrawを発生させて描画実行
-							break;
-					}
+					drawPathLine(event.getAction() , xPoint , yPoint);
+//					switch ( ) {
+//						case MotionEvent.ACTION_DOWN:
+//							path.moveTo(x , y);
+//							invalidate();
+//							break;
+//						case MotionEvent.ACTION_MOVE:
+//							path.lineTo(x , y);
+//							invalidate();
+//							break;
+//						case MotionEvent.ACTION_UP:
+//							path.lineTo(x , y);
+//							invalidate();                        //onDrawを発生させて描画実行
+//							break;
+//					}
 					break;
 				case REQUEST_ADD_BITMAP:                        //ビットマップ挿入
-					upX = x;
-					upY = y;
+					upX = xPoint;
+					upY = yPoint;
 					invalidate();                        //onDrawを発生させて描画実行
 					REQUEST_CORD = 0;
 					break;
 				default:
-					upX = x;
-					upY = y;
+					upX = xPoint;
+					upY = yPoint;
 					invalidate();                        //onDrawを発生させて描画実行
 //					REQUEST_CORD = 0;
 					break;
