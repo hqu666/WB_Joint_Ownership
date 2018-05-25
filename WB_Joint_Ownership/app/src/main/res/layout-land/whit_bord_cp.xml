@@ -18,11 +18,25 @@
 			android:src="@android:drawable/ic_menu_edit"/>
 
 		<ImageButton
+			android:id="@+id/wb_text_bt"
+			android:layout_width="42dp"
+			android:layout_height="42dp"
+			android:scaleType="centerCrop"
+			app:srcCompat="@drawable/text_input"/>
+
+		<ImageButton
 			android:id="@+id/wb_color_bt"
 			android:layout_width="42dp"
 			android:layout_height="42dp"
 			android:scaleType="centerCrop"
 			android:src="@drawable/color_paret"/>
+
+		<Button
+			android:id="@+id/wb_line_width_bt"
+			android:layout_width="40dp"
+			android:layout_height="40dp"
+			android:text="太"
+			android:textSize="18sp"/>
 
 		<ImageButton
 			android:id="@+id/test_bt1"

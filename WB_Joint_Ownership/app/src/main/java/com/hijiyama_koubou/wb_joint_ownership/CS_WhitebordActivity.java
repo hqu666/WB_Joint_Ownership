@@ -17,6 +17,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -56,9 +57,11 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 	private CS_CanvasView wb_whitebord;        //ホワイトボード        CS_CanvasView
 	private ImageButton wb_all_clear_bt;        //全消去
 	private ImageButton wb_mode_bt;                    //編修
+	private	Button wb_line_width_bt;			//太さ選択
 	private ImageButton wb_color_bt ;			//色選択
 	private TextView wb_info_tv ;			//情報表示
 
+	public int selectWidth = 5;
 	public int selectColor = Color.BLACK;
 	private	ColorPickerDialog mColorPickerDialog;
 	/////SocketIO////Androidでsocket.io		  https://kinjouj.github.io/2014/01/android-socketio.html
@@ -96,6 +99,7 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 			wb_whitebord = ( CS_CanvasView ) findViewById(R.id.wb_whitebord);        //ホワイトボード             	Canvas	     CS_CanvasView
 			wb_all_clear_bt = ( ImageButton ) findViewById(R.id.wb_all_clear_bt);        //全消去
 			wb_mode_bt = ( ImageButton ) findViewById(R.id.wb_mode_bt);                    //編修
+			wb_line_width_bt = ( Button ) findViewById(R.id.wb_line_width_bt);			//太さ選択
 			wb_color_bt = ( ImageButton ) findViewById(R.id.wb_color_bt);			//色選択
 			wb_info_tv = ( TextView ) findViewById(R.id.wb_info_tv);			//情報表示
 
@@ -122,23 +126,51 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 			wb_color_bt.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					final String TAG = "wb_color_bt[WB]";
-					String dbMsg = "";
-					try {
-						mColorPickerDialog = new ColorPickerDialog(CS_WhitebordActivity.this,new ColorPickerDialog.OnColorChangedListener() {
-									@Override
-									public void colorChanged(int color) {
-										selectColor = color;
-										wb_whitebord.setPenColor(selectColor);
-									}
-								},
-								selectColor);
-						mColorPickerDialog.show();
-						myLog(TAG , dbMsg);
-					} catch (Exception er) {
-						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
-						//android.view.WindowManager$BadTokenException: Unable to add window -- token null is not valid; is your activity running?
-					}
+				final String TAG = "wb_color_bt[WB]";
+				String dbMsg = "";
+				try {
+					mColorPickerDialog = new ColorPickerDialog(CS_WhitebordActivity.this,
+						new ColorPickerDialog.OnColorChangedListener() {
+							@Override
+							public void colorChanged(int color) {
+								selectColor = color;
+								wb_whitebord.setPenColor(selectColor);
+							}
+						},selectColor);
+					mColorPickerDialog.show();
+					myLog(TAG , dbMsg);
+				} catch (Exception er) {
+					myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+				}
+				}
+			});
+
+			wb_line_width_bt.setOnClickListener(new View.OnClickListener() {    			//太さ選択
+				@Override
+				public void onClick(View v) {
+				final String TAG = "wb_color_bt[WB]";
+				String dbMsg = "";
+				try {
+					final CharSequence[] items = {"1","5","10","20","50"};
+					dbMsg += ">>" + items.length + "件";
+					AlertDialog.Builder listDlg = new AlertDialog.Builder(CS_WhitebordActivity.this);
+					listDlg.setTitle("タップして選択");
+					listDlg.setItems(items , new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog , int which) {
+							// リスト選択時の処理
+							// which は、選択されたアイテムのインデックス
+							selectWidth = Integer.parseInt( items[which]+"");            //	editView.getText().toString();
+							if(selectWidth<1){
+								selectWidth = 1;
+							}
+							wb_whitebord.setPenWidth(selectWidth);
+						}
+					});
+					listDlg.create().show();                // 表示					myLog(TAG , dbMsg);
+				} catch (Exception er) {
+					myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+					//android.view.WindowManager$BadTokenException: Unable to add window -- token null is not valid; is your activity running?
+				}
 				}
 			});
 

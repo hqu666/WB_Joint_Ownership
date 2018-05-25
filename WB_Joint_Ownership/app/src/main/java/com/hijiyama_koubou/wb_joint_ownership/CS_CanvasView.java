@@ -152,8 +152,8 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 			paint.setStyle(Paint.Style.STROKE);
 			paint.setStrokeJoin(Paint.Join.ROUND);
 			paint.setStrokeCap(Paint.Cap.ROUND);
-			dbMsg += "," + penWidth + "px";
-			paint.setStrokeWidth(penWidth);
+			dbMsg += "," + selectWidth + "px";
+			paint.setStrokeWidth(selectWidth);
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
@@ -169,6 +169,14 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 		try {
 			dbMsg = "selectWidth=" + selectWidth;
 			this.selectWidth = selectWidth;
+			paint = new Paint();
+			dbMsg += ",ペン；" + selectColor;
+			paint.setColor(selectColor);                        //
+			paint.setStyle(Paint.Style.STROKE);
+			paint.setStrokeJoin(Paint.Join.ROUND);
+			paint.setStrokeCap(Paint.Cap.ROUND);
+			dbMsg += "," + selectWidth + "px";
+			paint.setStrokeWidth(selectWidth);
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
