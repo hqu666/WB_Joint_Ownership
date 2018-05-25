@@ -40,16 +40,11 @@ import java.net.URISyntaxException;
 import static android.content.ContentValues.TAG;
 
 /*
-５/２４課題
-	htmlとの双方にカラーピック作成＞＞双方の差異確認
-	カラーが渡せるまで、双方その時点の選択値で
-	  function onColorUpdate(e) に直接送信
-
-	太さ　も同様
+5/25/課題
+	webへイベント送信
+	xamppに繋がらない
 	文字送信
 
-	URL
-	をtoolbarに表示
 	Naitive間通信
 * */
 
@@ -57,13 +52,15 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 	private CS_CanvasView wb_whitebord;        //ホワイトボード        CS_CanvasView
 	private ImageButton wb_all_clear_bt;        //全消去
 	private ImageButton wb_mode_bt;                    //編修
-	private	Button wb_line_width_bt;			//太さ選択
-	private ImageButton wb_color_bt ;			//色選択
-	private TextView wb_info_tv ;			//情報表示
+	private Button wb_line_width_bt;            //太さ選択
+	private ImageButton wb_color_bt;            //色選択
+	private TextView wb_info_tv;            //情報表示
 
+	public float nowX;
+	public float nowY;
 	public int selectWidth = 5;
 	public int selectColor = Color.BLACK;
-	private	ColorPickerDialog mColorPickerDialog;
+	private ColorPickerDialog mColorPickerDialog;
 	/////SocketIO////Androidでsocket.io		  https://kinjouj.github.io/2014/01/android-socketio.html
 	Handler mHandler;
 	//	ArrayAdapter< string > mAdapter;
@@ -75,15 +72,16 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 	private Boolean isConnected = true;
 	private Boolean drawing;
 
-	public class SocketIOData {
-		public float x0;
-		public float y0;
-		public float x1;
-		public float y1;
-		public int color;
-	}                // drawLine(data.x0 * w, data.y0 * h, data.x1 * w, data.y1 * h, data.color); に渡すデータ
+//	public class SocketIOData {
+//		int x0;
+//		 int y0;
+//		 int x1;
+//		 float y1;
+//		 int color;
+//	}
+	// drawLine(data.x0 * w, data.y0 * h, data.x1 * w, data.y1 * h, data.color); に渡すデータ         //float
 
-	public SocketIOData _SocketIOData;
+//	public SocketIOData _SocketIOData;
 	////////////////////////////////////
 
 	@Override
@@ -99,78 +97,77 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 			wb_whitebord = ( CS_CanvasView ) findViewById(R.id.wb_whitebord);        //ホワイトボード             	Canvas	     CS_CanvasView
 			wb_all_clear_bt = ( ImageButton ) findViewById(R.id.wb_all_clear_bt);        //全消去
 			wb_mode_bt = ( ImageButton ) findViewById(R.id.wb_mode_bt);                    //編修
-			wb_line_width_bt = ( Button ) findViewById(R.id.wb_line_width_bt);			//太さ選択
-			wb_color_bt = ( ImageButton ) findViewById(R.id.wb_color_bt);			//色選択
-			wb_info_tv = ( TextView ) findViewById(R.id.wb_info_tv);			//情報表示
+			wb_line_width_bt = ( Button ) findViewById(R.id.wb_line_width_bt);            //太さ選択
+			wb_color_bt = ( ImageButton ) findViewById(R.id.wb_color_bt);            //色選択
+			wb_info_tv = ( TextView ) findViewById(R.id.wb_info_tv);            //情報表示
 
 			/////SocketIO///////////////////////////////////
-			mSocket = getSocket();
+			mSocket = getSocket(CHAT_SERVER_URL);
 
-			mSocket.on(Socket.EVENT_CONNECT , onConnect);
-			mSocket.on(Socket.EVENT_DISCONNECT , onDisconnect);
-			mSocket.on(Socket.EVENT_CONNECT_ERROR , onConnectError);
-			mSocket.on(Socket.EVENT_CONNECT_TIMEOUT , onConnectError);
-			mSocket.on("new message" , onNewMessage);
-			mSocket.on("user joined" , onUserJoined);
-			mSocket.on("user left" , onUserLeft);
-			mSocket.on("typing" , onTyping);
-			mSocket.on("stop typing" , onStopTyping);
-			mSocket.connect();
+//			mSocket.on(Socket.EVENT_CONNECT , onConnect);
+//			mSocket.on(Socket.EVENT_DISCONNECT , onDisconnect);
+//			mSocket.on(Socket.EVENT_CONNECT_ERROR , onConnectError);
+//			mSocket.on(Socket.EVENT_CONNECT_TIMEOUT , onConnectError);
+//			mSocket.on("new message" , onNewMessage);
+//			mSocket.on("user joined" , onUserJoined);
+//			mSocket.on("user left" , onUserLeft);
+//			mSocket.on("typing" , onTyping);
+//			mSocket.on("stop typing" , onStopTyping);
+//			mSocket.connect();
+//
+//			_SocketIOData = new SocketIOData();
+//			_SocketIOData.color = selectColor;
 
-			_SocketIOData = new SocketIOData();
-			_SocketIOData.color = selectColor;
-			;
 //			mHandler = new Handler();
 //		mAdapter = new ArrayAdapter< string >(this , android.R.layout.simple_list_item_1);
 			//色選択
 			wb_color_bt.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
-				final String TAG = "wb_color_bt[WB]";
-				String dbMsg = "";
-				try {
-					mColorPickerDialog = new ColorPickerDialog(CS_WhitebordActivity.this,
-						new ColorPickerDialog.OnColorChangedListener() {
+					final String TAG = "wb_color_bt[WB]";
+					String dbMsg = "";
+					try {
+						mColorPickerDialog = new ColorPickerDialog(CS_WhitebordActivity.this , new ColorPickerDialog.OnColorChangedListener() {
 							@Override
 							public void colorChanged(int color) {
 								selectColor = color;
 								wb_whitebord.setPenColor(selectColor);
 							}
-						},selectColor);
-					mColorPickerDialog.show();
-					myLog(TAG , dbMsg);
-				} catch (Exception er) {
-					myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
-				}
+						} , selectColor);
+						mColorPickerDialog.show();
+						myLog(TAG , dbMsg);
+					} catch (Exception er) {
+						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+					}
 				}
 			});
 
-			wb_line_width_bt.setOnClickListener(new View.OnClickListener() {    			//太さ選択
+			wb_line_width_bt.setOnClickListener(new View.OnClickListener() {                //太さ選択
 				@Override
 				public void onClick(View v) {
-				final String TAG = "wb_color_bt[WB]";
-				String dbMsg = "";
-				try {
-					final CharSequence[] items = {"1","5","10","20","50"};
-					dbMsg += ">>" + items.length + "件";
-					AlertDialog.Builder listDlg = new AlertDialog.Builder(CS_WhitebordActivity.this);
-					listDlg.setTitle("タップして選択");
-					listDlg.setItems(items , new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog , int which) {
-							// リスト選択時の処理
-							// which は、選択されたアイテムのインデックス
-							selectWidth = Integer.parseInt( items[which]+"");            //	editView.getText().toString();
-							if(selectWidth<1){
-								selectWidth = 1;
+					final String TAG = "wb_color_bt[WB]";
+					String dbMsg = "";
+					try {
+						final CharSequence[] items = {"1" , "5" , "10" , "20" , "50"};
+						dbMsg += ">>" + items.length + "件";
+						AlertDialog.Builder listDlg = new AlertDialog.Builder(CS_WhitebordActivity.this);
+						listDlg.setTitle("タップして選択");
+						listDlg.setItems(items , new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog , int which) {
+								// リスト選択時の処理
+								// which は、選択されたアイテムのインデックス
+								selectWidth = Integer.parseInt(items[which] + "");            //	editView.getText().toString();
+								if ( selectWidth < 1 ) {
+									selectWidth = 1;
+								}
+								wb_whitebord.setPenWidth(selectWidth);
 							}
-							wb_whitebord.setPenWidth(selectWidth);
-						}
-					});
-					listDlg.create().show();                // 表示					myLog(TAG , dbMsg);
-				} catch (Exception er) {
-					myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
-					//android.view.WindowManager$BadTokenException: Unable to add window -- token null is not valid; is your activity running?
-				}
+						});
+						listDlg.create().show();                // 表示					myLog(TAG , dbMsg);
+					} catch (Exception er) {
+						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+						//android.view.WindowManager$BadTokenException: Unable to add window -- token null is not valid; is your activity running?
+					}
 				}
 			});
 
@@ -206,20 +203,20 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 						switch ( action ) {
 							case MotionEvent.ACTION_DOWN:     //0
 								drawing = true;
-								_SocketIOData.x0 = eventX;
-								_SocketIOData.y0 = eventY;
+								nowX = ( int ) eventX;
+								nowY = ( int ) eventY;
 								break;
 							case MotionEvent.ACTION_MOVE:     //2
 								if ( drawing ) {
-									drawLine(_SocketIOData.x0 , _SocketIOData.y0 , eventX , eventY , _SocketIOData.color);
-									_SocketIOData.x0 = eventX;
-									_SocketIOData.y0 = eventY;
+									drawLine(nowX , nowY , eventX , eventY , selectColor);
+									nowX = eventX;
+									nowY =  eventY;
 								}
 								break;
 							case MotionEvent.ACTION_UP:    //1
 								if ( drawing ) {
 									drawing = false;
-									drawLine(_SocketIOData.x0 , _SocketIOData.y0 , eventX , eventY , _SocketIOData.color);
+									drawLine(nowX , nowY , eventX ,  eventY , selectColor);
 								}
 								break;
 						}
@@ -246,6 +243,39 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 					}
 				}
 			});
+
+			ImageButton test_bt1 = ( ImageButton ) findViewById(R.id.test_bt1);            //情報表示
+			test_bt1.setOnClickListener(new View.OnClickListener() {                    //編修
+				@Override
+				public void onClick(View v) {
+					final String TAG = "test_bt1[WB]";
+					String dbMsg = "";
+					try {
+						String titolStr = "接続先変更";
+						String mggStr = "手入力で移動先のURLを入力して下さい。";
+						final EditText editView = new EditText(CS_WhitebordActivity.this);
+						editView.setText("http://192.168.100.6:3080");
+						new AlertDialog.Builder(CS_WhitebordActivity.this)
+//					.setIcon(android.R.drawable.ic_dialog_info)
+								.setTitle(titolStr).setMessage(mggStr).setView(editView).setPositiveButton("OK" , new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog , int whichButton) {
+								CHAT_SERVER_URL = editView.getText().toString();
+								if ( CHAT_SERVER_URL != null && !CHAT_SERVER_URL.equals("") ) {
+									Toast.makeText(getApplicationContext() , CHAT_SERVER_URL + "へ移動中…" , Toast.LENGTH_LONG).show();
+									getSocket(CHAT_SERVER_URL);         //192.168.100.6:3080
+								}
+							}
+						}).setNegativeButton("キャンセル" , new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog , int whichButton) {
+							}
+						}).show();
+						myLog(TAG , dbMsg);
+					} catch (Exception er) {
+						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+					}
+				}
+			});
+
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
@@ -336,17 +366,18 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 		final String TAG = "callQuit[WA]";
 		String dbMsg = "";
 		try {
-			mSocket.disconnect();
-
-			mSocket.off(Socket.EVENT_CONNECT , onConnect);
-			mSocket.off(Socket.EVENT_DISCONNECT , onDisconnect);
-			mSocket.off(Socket.EVENT_CONNECT_ERROR , onConnectError);
-			mSocket.off(Socket.EVENT_CONNECT_TIMEOUT , onConnectError);
-			mSocket.off("new message" , onNewMessage);
-			mSocket.off("user joined" , onUserJoined);
-			mSocket.off("user left" , onUserLeft);
-			mSocket.off("typing" , onTyping);
-			mSocket.off("stop typing" , onStopTyping);
+			sioDisconnect();
+//			mSocket.disconnect();
+//
+//			mSocket.off(Socket.EVENT_CONNECT , onConnect);
+//			mSocket.off(Socket.EVENT_DISCONNECT , onDisconnect);
+//			mSocket.off(Socket.EVENT_CONNECT_ERROR , onConnectError);
+//			mSocket.off(Socket.EVENT_CONNECT_TIMEOUT , onConnectError);
+//			mSocket.off("new message" , onNewMessage);
+//			mSocket.off("user joined" , onUserJoined);
+//			mSocket.off("user left" , onUserLeft);
+//			mSocket.off("typing" , onTyping);
+//			mSocket.off("stop typing" , onStopTyping);
 
 			this.finish();
 			if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ) {
@@ -361,20 +392,61 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 	}
 
 	/////SocketIO///////////////////////////////////
-	public static final String CHAT_SERVER_URL = "http://ec2-52-197-173-40.ap-northeast-1.compute.amazonaws.com:3080/";
+	public String CHAT_SERVER_URL = "http://ec2-52-197-173-40.ap-northeast-1.compute.amazonaws.com:3080/";
+
+	//	public String CHAT_SERVER_URL = "http://192.0.0.6:3080" ;
+	public void sioDisconnect() {
+		final String TAG = "sioDisconnect[WA]";
+		String dbMsg = "";
+		Socket _mSocket;
+		try {
+			if ( mSocket != null ) {
+				if ( mSocket.connected() ) {
+					mSocket.disconnect();
+
+					mSocket.off(Socket.EVENT_CONNECT , onConnect);
+					mSocket.off(Socket.EVENT_DISCONNECT , onDisconnect);
+					mSocket.off(Socket.EVENT_CONNECT_ERROR , onConnectError);
+					mSocket.off(Socket.EVENT_CONNECT_TIMEOUT , onConnectError);
+					mSocket.off("new message" , onNewMessage);
+					mSocket.off("user joined" , onUserJoined);
+					mSocket.off("user left" , onUserLeft);
+					mSocket.off("typing" , onTyping);
+					mSocket.off("stop typing" , onStopTyping);
+					wb_info_tv.setText("お疲れさまでした");            //情報表示
+				}
+			}
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		}
+	}
 
 	/**
 	 * URLからSocket作成
 	 * <p>
 	 * 呼び出しはonCreate
 	 */
-	public Socket getSocket() {
+	public Socket getSocket(String chatServerUrl) {
 		final String TAG = "getSocket[WA]";
 		String dbMsg = "";
 		Socket _mSocket;
 		try {
-			wb_info_tv.setText(CHAT_SERVER_URL);			//情報表示
-			_mSocket = IO.socket(CHAT_SERVER_URL);
+			sioDisconnect();
+			wb_info_tv.setText(chatServerUrl);            //情報表示
+			_mSocket = IO.socket(chatServerUrl);
+			_mSocket.on(Socket.EVENT_CONNECT , onConnect);
+			_mSocket.on(Socket.EVENT_DISCONNECT , onDisconnect);
+			_mSocket.on(Socket.EVENT_CONNECT_ERROR , onConnectError);
+			_mSocket.on(Socket.EVENT_CONNECT_TIMEOUT , onConnectError);
+			_mSocket.on("new message" , onNewMessage);
+			_mSocket.on("user joined" , onUserJoined);
+			_mSocket.on("user left" , onUserLeft);
+			_mSocket.on("typing" , onTyping);
+			_mSocket.on("stop typing" , onStopTyping);
+			_mSocket.connect();
+			CHAT_SERVER_URL = chatServerUrl;
+//			_SocketIOData = new SocketIOData();
+//			_SocketIOData.color = selectColor;
 		} catch (URISyntaxException er) {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 			throw new RuntimeException(er);
@@ -386,17 +458,23 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 		final String TAG = "drawLine[WA]";
 		String dbMsg = "";
 		try {
+			dbMsg += ",(" + x0 + " , " + y0 + ")～(" + x1 + " , " + y1 + ")" + color;
 			int cw = wb_whitebord.getWidth();
 			int ch = wb_whitebord.getHeight();
-			dbMsg = "whitebord[" + cw + " , " + ch + "]";
-			SocketIOData sioData = new SocketIOData();
-			sioData.x0 = x0;	// / cw;
-			sioData.y0 = y0;	// / ch;
-			sioData.x1 = x1;	//	 / cw;
-			sioData.y1 = y1;	// / ch;
-			sioData.color = color;
-			dbMsg += ",(" + sioData.x0 + " , " + sioData.y0 + ")～(" + sioData.x1 + " , " + sioData.y1 + ")" + sioData.color;
-			mSocket.emit("drawing" ,sioData);     //共有webページに全消去命令送信           { x0,y0 ,x1,y1,color}
+			dbMsg += "whitebord[" + cw + " , " + ch + "]";
+			x0 = x0 / cw;
+			y0 = y0 / ch;
+			x1 = x1 / cw;
+			y1 = y1 / ch;
+			dbMsg += ">(" + x0 + " , " + y0 + ")～(" + x1 + " , " + y1 + ")" + color;
+			JSONObject sioData = new JSONObject();      //☆ JSONObjectでNodeのDataと名前を揃える
+			try {
+				dbMsg += ",JSONObject.put";
+				sioData.put("x0" , x0 ).put("y0" , y0 ).put("x1" , x1 ).put("y1" , y1 ).put("color" , color);
+			} catch (JSONException er) {
+				myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+			}
+ 			mSocket.emit("drawing" , sioData);     //共有webページに全消去命令送信           { x0,y0 ,x1,y1,color}
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
