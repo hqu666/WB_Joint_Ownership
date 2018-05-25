@@ -160,6 +160,19 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 		}
 	}
 
+	public int getPenColor() {
+		final String TAG = "setPenColor[CView]";
+		String dbMsg = "";
+		try {
+			dbMsg = "selectColor=" + selectColor;
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		}
+		return    selectColor;
+	}
+
+
 	/**
 	 * ペンの太さ変更
 	 */

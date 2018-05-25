@@ -39,14 +39,16 @@ import java.net.URISyntaxException;
 
 import static android.content.ContentValues.TAG;
 
-/*
-5/25/課題
-	webへイベント送信
-	xamppに繋がらない
-	文字送信
-
-	Naitive間通信
-* */
+/**
+ * stock.io/Naitive間通信
+ * <p>
+ * 5/25/課題
+ * webとのへイベント受信
+ * <p>
+ * 色、太さ、	文字送信、
+ * xamppに繋がらない
+ * stock .io のURL をプリファレンスに保持
+ */
 
 public class CS_WhitebordActivity extends Activity {             //AppCompatActivity
 	private CS_CanvasView wb_whitebord;        //ホワイトボード        CS_CanvasView
@@ -72,16 +74,6 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 	private Boolean isConnected = true;
 	private Boolean drawing;
 
-//	public class SocketIOData {
-//		int x0;
-//		 int y0;
-//		 int x1;
-//		 float y1;
-//		 int color;
-//	}
-	// drawLine(data.x0 * w, data.y0 * h, data.x1 * w, data.y1 * h, data.color); に渡すデータ         //float
-
-//	public SocketIOData _SocketIOData;
 	////////////////////////////////////
 
 	@Override
@@ -103,21 +95,6 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 
 			/////SocketIO///////////////////////////////////
 			mSocket = getSocket(CHAT_SERVER_URL);
-
-//			mSocket.on(Socket.EVENT_CONNECT , onConnect);
-//			mSocket.on(Socket.EVENT_DISCONNECT , onDisconnect);
-//			mSocket.on(Socket.EVENT_CONNECT_ERROR , onConnectError);
-//			mSocket.on(Socket.EVENT_CONNECT_TIMEOUT , onConnectError);
-//			mSocket.on("new message" , onNewMessage);
-//			mSocket.on("user joined" , onUserJoined);
-//			mSocket.on("user left" , onUserLeft);
-//			mSocket.on("typing" , onTyping);
-//			mSocket.on("stop typing" , onStopTyping);
-//			mSocket.connect();
-//
-//			_SocketIOData = new SocketIOData();
-//			_SocketIOData.color = selectColor;
-
 //			mHandler = new Handler();
 //		mAdapter = new ArrayAdapter< string >(this , android.R.layout.simple_list_item_1);
 			//色選択
@@ -208,15 +185,15 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 								break;
 							case MotionEvent.ACTION_MOVE:     //2
 								if ( drawing ) {
-									drawLine(nowX , nowY , eventX , eventY , selectColor);
+									drawLine(nowX , nowY , eventX , eventY);
 									nowX = eventX;
-									nowY =  eventY;
+									nowY = eventY;
 								}
 								break;
 							case MotionEvent.ACTION_UP:    //1
 								if ( drawing ) {
 									drawing = false;
-									drawLine(nowX , nowY , eventX ,  eventY , selectColor);
+									drawLine(nowX , nowY , eventX , eventY);
 								}
 								break;
 						}
@@ -402,7 +379,9 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 		try {
 			if ( mSocket != null ) {
 				if ( mSocket.connected() ) {
+					mUsername = null;
 					mSocket.disconnect();
+					mSocket.connect();
 
 					mSocket.off(Socket.EVENT_CONNECT , onConnect);
 					mSocket.off(Socket.EVENT_DISCONNECT , onDisconnect);
@@ -438,6 +417,9 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 			_mSocket.on(Socket.EVENT_DISCONNECT , onDisconnect);
 			_mSocket.on(Socket.EVENT_CONNECT_ERROR , onConnectError);
 			_mSocket.on(Socket.EVENT_CONNECT_TIMEOUT , onConnectError);
+			_mSocket.on("drawing" , onDrawingEvent);
+			_mSocket.on("allclear" , onAllClear);
+
 			_mSocket.on("new message" , onNewMessage);
 			_mSocket.on("user joined" , onUserJoined);
 			_mSocket.on("user left" , onUserLeft);
@@ -454,11 +436,11 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 		return _mSocket;
 	}
 
-	public void drawLine(float x0 , float y0 , float x1 , float y1 , int color) {
+	public void drawLine(float x0 , float y0 , float x1 , float y1) {
 		final String TAG = "drawLine[WA]";
 		String dbMsg = "";
 		try {
-			dbMsg += ",(" + x0 + " , " + y0 + ")～(" + x1 + " , " + y1 + ")" + color;
+			dbMsg += ",(" + x0 + " , " + y0 + ")～(" + x1 + " , " + y1 + ")";
 			int cw = wb_whitebord.getWidth();
 			int ch = wb_whitebord.getHeight();
 			dbMsg += "whitebord[" + cw + " , " + ch + "]";
@@ -466,15 +448,16 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 			y0 = y0 / ch;
 			x1 = x1 / cw;
 			y1 = y1 / ch;
+			int color = wb_whitebord.getPenColor();
 			dbMsg += ">(" + x0 + " , " + y0 + ")～(" + x1 + " , " + y1 + ")" + color;
 			JSONObject sioData = new JSONObject();      //☆ JSONObjectでNodeのDataと名前を揃える
 			try {
 				dbMsg += ",JSONObject.put";
-				sioData.put("x0" , x0 ).put("y0" , y0 ).put("x1" , x1 ).put("y1" , y1 ).put("color" , color);
+				sioData.put("x0" , x0).put("y0" , y0).put("x1" , x1).put("y1" , y1).put("color" , color);
 			} catch (JSONException er) {
 				myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 			}
- 			mSocket.emit("drawing" , sioData);     //共有webページに全消去命令送信           { x0,y0 ,x1,y1,color}
+			mSocket.emit("drawing" , sioData);     //共有webページに全消去命令送信           { x0,y0 ,x1,y1,color}
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
@@ -482,6 +465,62 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 		}
 	}
 
+	private Emitter.Listener onDrawingEvent = new Emitter.Listener() {
+
+		@Override
+		public void call(final Object... args) {
+			runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					final String TAG = "onDrawingEvent[WA]";
+					String dbMsg = "";
+					try {
+						JSONObject data = ( JSONObject ) args[0];
+						try {
+							float x0 = Float.parseFloat(data.getString("x0"));
+							float y0 = Float.parseFloat(data.getString("y0"));
+							float x1 = Float.parseFloat(data.getString("x1"));
+							float y1 = Float.parseFloat(data.getString("y1"));
+					//		int color  = Integer.parseInt(data.getString("color"));           //blackなどの文字が来る
+							dbMsg += "(" + x0 + " , " + y0 + ")～(" + x1 + " , " + y1 + ")";	// + color;
+
+							
+							myLog(TAG , dbMsg);
+						} catch (JSONException er) {
+							myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+							return;
+						}
+					} catch (Exception er) {
+						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+					}
+				}
+			});
+		}
+	};
+
+
+	private Emitter.Listener onAllClear = new Emitter.Listener() {
+		@Override
+		public void call(final Object... args) {
+			runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					final String TAG = "onAllClear[WA]";
+					String dbMsg = "";
+					try {
+						if ( wb_whitebord != null ) {
+							wb_whitebord.clearAll();
+						}						myLog(TAG , dbMsg);
+					} catch (Exception er) {
+						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+					}
+				}
+			});
+		}
+	};
+
+
+	//addParticipantsLog　、onUserJoine　、onUserLeftdから
 	private void addLog(String message) {
 		final String TAG = "addLog[WA]";
 		String dbMsg = "";
@@ -706,19 +745,19 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 					final String TAG = "onNewMessage[WA]";
 					String dbMsg = "";
 					try {
-						JSONObject data = ( JSONObject ) args[0];
-						String username;
-						String message;
-						try {
-							username = data.getString("username");
-							message = data.getString("message");
-						} catch (JSONException e) {
-							Log.e(TAG , e.getMessage());
-							return;
-						}
-
-						removeTyping(username);
-//						addMessage(username , message);
+//						JSONObject data = ( JSONObject ) args[0];
+//						String username;
+//						String message;
+//						try {
+//							username = data.getString("username");
+//							message = data.getString("message");
+//						} catch (JSONException e) {
+//							Log.e(TAG , e.getMessage());
+//							return;
+//						}
+//
+//						removeTyping(username);
+////						addMessage(username , message);
 						myLog(TAG , dbMsg);
 					} catch (Exception er) {
 						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
@@ -737,19 +776,19 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 					final String TAG = "onUserJoined[WA]";
 					String dbMsg = "";
 					try {
-						JSONObject data = ( JSONObject ) args[0];
-						String username;
-						int numUsers;
-						try {
-							username = data.getString("username");
-							numUsers = data.getInt("numUsers");
-						} catch (JSONException e) {
-							Log.e(TAG , e.getMessage());
-							return;
-						}
-
-						addLog(getResources().getString(R.string.message_user_joined , username));
-						addParticipantsLog(numUsers);
+//						JSONObject data = ( JSONObject ) args[0];
+//						String username;
+//						int numUsers;
+//						try {
+//							username = data.getString("username");
+//							numUsers = data.getInt("numUsers");
+//						} catch (JSONException e) {
+//							Log.e(TAG , e.getMessage());
+//							return;
+//						}
+//
+//						addLog(getResources().getString(R.string.message_user_joined , username));
+//						addParticipantsLog(numUsers);
 						myLog(TAG , dbMsg);
 					} catch (Exception er) {
 						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
@@ -800,15 +839,15 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 					final String TAG = "onTyping[WA]";
 					String dbMsg = "";
 					try {
-						JSONObject data = ( JSONObject ) args[0];
-						String username;
-						try {
-							username = data.getString("username");
-						} catch (JSONException e) {
-							Log.e(TAG , e.getMessage());
-							return;
-						}
-						addTyping(username);
+//						JSONObject data = ( JSONObject ) args[0];
+//						String username;
+//						try {
+//							username = data.getString("username");
+//						} catch (JSONException e) {
+//							Log.e(TAG , e.getMessage());
+//							return;
+//						}
+//						、(username);
 						myLog(TAG , dbMsg);
 					} catch (Exception er) {
 						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
@@ -827,15 +866,15 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 					final String TAG = "onStopTyping[WA]";
 					String dbMsg = "";
 					try {
-						JSONObject data = ( JSONObject ) args[0];
-						String username;
-						try {
-							username = data.getString("username");
-						} catch (JSONException e) {
-							Log.e(TAG , e.getMessage());
-							return;
-						}
-						removeTyping(username);
+//						JSONObject data = ( JSONObject ) args[0];
+//						String username;
+//						try {
+//							username = data.getString("username");
+//						} catch (JSONException e) {
+//							Log.e(TAG , e.getMessage());
+//							return;
+//						}
+//						removeTyping(username);
 						myLog(TAG , dbMsg);
 					} catch (Exception er) {
 						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
