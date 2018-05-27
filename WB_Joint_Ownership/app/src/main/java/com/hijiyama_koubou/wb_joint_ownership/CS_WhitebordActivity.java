@@ -17,9 +17,11 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -42,26 +44,28 @@ import static android.content.ContentValues.TAG;
 /**
  * stock.io/Naitive間通信
  * <p>
- * 5/25/課題
- * webとのへイベント受信
- * <p>
- * 色、太さ、	文字送信、
+ * 5/28/課題
+  * 色、
+ * 文字送信、
  * xamppに繋がらない
  * stock .io のURL をプリファレンスに保持
  */
 
 public class CS_WhitebordActivity extends Activity {             //AppCompatActivity
 	private CS_CanvasView wb_whitebord;        //ホワイトボード        CS_CanvasView
-	private ImageButton wb_all_clear_bt;        //全消去
-	private ImageButton wb_mode_bt;                    //編修
-	private Button wb_line_width_bt;            //太さ選択
+	private Spinner wb_mode_sp;                    //描画種別選択
 	private ImageButton wb_color_bt;            //色選択
+	private Spinner wb_width_sp;                    //太さ選択
+	private Spinner wb_linecaps_sp;                    //先端形状
+	private ImageButton wb_all_clear_bt;        //全消去
 	private TextView wb_info_tv;            //情報表示
 
 	public float nowX;
 	public float nowY;
+	public String selectMode;
+	public String selectCaps = "round";
 	public int selectWidth = 5;
-	public int selectColor = Color.BLACK;
+	public int selectColor = Color.GREEN;
 	private ColorPickerDialog mColorPickerDialog;
 	/////SocketIO////Androidでsocket.io		  https://kinjouj.github.io/2014/01/android-socketio.html
 	Handler mHandler;
@@ -87,16 +91,18 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 			setContentView(R.layout.activity_whitebord);         //activity_whitebord          wb_tisement   ではイベント動作しない
 
 			wb_whitebord = ( CS_CanvasView ) findViewById(R.id.wb_whitebord);        //ホワイトボード             	Canvas	     CS_CanvasView
-			wb_all_clear_bt = ( ImageButton ) findViewById(R.id.wb_all_clear_bt);        //全消去
-			wb_mode_bt = ( ImageButton ) findViewById(R.id.wb_mode_bt);                    //編修
-			wb_line_width_bt = ( Button ) findViewById(R.id.wb_line_width_bt);            //太さ選択
+			wb_mode_sp = ( Spinner ) findViewById(R.id.wb_mode_sp);                    //描画種別選択
 			wb_color_bt = ( ImageButton ) findViewById(R.id.wb_color_bt);            //色選択
+			wb_width_sp = ( Spinner ) findViewById(R.id.wb_width_sp);                    //太さ選択
+			wb_linecaps_sp = ( Spinner ) findViewById(R.id.wb_linecaps_sp);                    //先端形状
 			wb_info_tv = ( TextView ) findViewById(R.id.wb_info_tv);            //情報表示
+			wb_all_clear_bt = ( ImageButton ) findViewById(R.id.wb_all_clear_bt);        //全消去
 
 			/////SocketIO///////////////////////////////////
 			mSocket = getSocket(CHAT_SERVER_URL);
 //			mHandler = new Handler();
 //		mAdapter = new ArrayAdapter< string >(this , android.R.layout.simple_list_item_1);
+
 			//色選択
 			wb_color_bt.setOnClickListener(new View.OnClickListener() {
 				@Override
@@ -107,8 +113,15 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 						mColorPickerDialog = new ColorPickerDialog(CS_WhitebordActivity.this , new ColorPickerDialog.OnColorChangedListener() {
 							@Override
 							public void colorChanged(int color) {
+								final String TAG = "wb_color_bt[WB]";
+								String dbMsg = "";
 								selectColor = color;
+								dbMsg = "selectColor=" + selectColor;
 								wb_whitebord.setPenColor(selectColor);
+//								int color = wb_whitebord.getPenColor();
+								dbMsg += ">emit>" + selectColor;
+								mSocket.emit("changeColor" , selectColor+"");                             //線の色
+								myLog(TAG , dbMsg);
 							}
 						} , selectColor);
 						mColorPickerDialog.show();
@@ -118,37 +131,6 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 					}
 				}
 			});
-
-			wb_line_width_bt.setOnClickListener(new View.OnClickListener() {                //太さ選択
-				@Override
-				public void onClick(View v) {
-					final String TAG = "wb_color_bt[WB]";
-					String dbMsg = "";
-					try {
-						final CharSequence[] items = {"1" , "5" , "10" , "20" , "50"};
-						dbMsg += ">>" + items.length + "件";
-						AlertDialog.Builder listDlg = new AlertDialog.Builder(CS_WhitebordActivity.this);
-						listDlg.setTitle("タップして選択");
-						listDlg.setItems(items , new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog , int which) {
-								// リスト選択時の処理
-								// which は、選択されたアイテムのインデックス
-								selectWidth = Integer.parseInt(items[which] + "");            //	editView.getText().toString();
-								if ( selectWidth < 1 ) {
-									selectWidth = 1;
-								}
-								wb_whitebord.setPenWidth(selectWidth);
-							}
-						});
-						listDlg.create().show();                // 表示					myLog(TAG , dbMsg);
-					} catch (Exception er) {
-						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
-						//android.view.WindowManager$BadTokenException: Unable to add window -- token null is not valid; is your activity running?
-					}
-				}
-			});
-
-
 			wb_all_clear_bt.setOnClickListener(new View.OnClickListener() {        //全消去
 				@Override
 				public void onClick(View v) {
@@ -185,7 +167,7 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 								break;
 							case MotionEvent.ACTION_MOVE:     //2
 								if ( drawing ) {
-									drawLine(nowX , nowY , eventX , eventY);
+									drawLine(nowX , nowY , eventX , eventY , action);
 									nowX = eventX;
 									nowY = eventY;
 								}
@@ -193,7 +175,7 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 							case MotionEvent.ACTION_UP:    //1
 								if ( drawing ) {
 									drawing = false;
-									drawLine(nowX , nowY , eventX , eventY);
+									drawLine(nowX , nowY , eventX , eventY , action);
 								}
 								break;
 						}
@@ -205,24 +187,8 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 				}
 			});
 
-			wb_mode_bt.setOnClickListener(new View.OnClickListener() {                    //編修
-				@Override
-				public void onClick(View v) {
-					final String TAG = "wb_mode_bt[WB]";
-					String dbMsg = "";
-					try {
-						if ( wb_whitebord != null ) {
-							wb_whitebord.startFreeHand();
-						}
-						myLog(TAG , dbMsg);
-					} catch (Exception er) {
-						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
-					}
-				}
-			});
 
-			ImageButton test_bt1 = ( ImageButton ) findViewById(R.id.test_bt1);            //情報表示
-			test_bt1.setOnClickListener(new View.OnClickListener() {                    //編修
+			wb_info_tv.setOnClickListener(new View.OnClickListener() {                    //編修
 				@Override
 				public void onClick(View v) {
 					final String TAG = "test_bt1[WB]";
@@ -238,6 +204,7 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 							public void onClick(DialogInterface dialog , int whichButton) {
 								CHAT_SERVER_URL = editView.getText().toString();
 								if ( CHAT_SERVER_URL != null && !CHAT_SERVER_URL.equals("") ) {
+									sioDisconnect();
 									Toast.makeText(getApplicationContext() , CHAT_SERVER_URL + "へ移動中…" , Toast.LENGTH_LONG).show();
 									getSocket(CHAT_SERVER_URL);         //192.168.100.6:3080
 								}
@@ -253,6 +220,15 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 				}
 			});
 
+			dbMsg = "selectColor=" + selectColor;
+			wb_whitebord.setPenColor(selectColor);
+			dbMsg = "selectWidth=" + selectWidth;
+			String[] rList = getResources().getStringArray(R.array.lineWidthSelectList);
+			int selP = 1;// rList.
+			wb_width_sp.setSelection(selP);
+			wb_whitebord.setPenWidth(selectWidth);
+			dbMsg += ",selectCaps=" + selectCaps;
+			wb_whitebord.setPenCap(selectCaps);
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
@@ -260,6 +236,121 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 
 	}
 
+	/**
+	 * Spinnerは起動時に一度呼ばれてしまう
+	 */
+	@Override
+	public void onWindowFocusChanged(boolean hasFocus) {
+		super.onWindowFocusChanged(hasFocus);
+		final String TAG = "onStart[WB]";
+		String dbMsg = "hasFocus=" + hasFocus;
+		try {
+			if ( hasFocus ) {
+				wb_mode_sp.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+					@Override
+					public void onItemSelected(AdapterView< ? > parent , View view , int position , long id) {
+						final String TAG = "wb_mode_sp[WB]";
+						String dbMsg = "";
+						try {
+							dbMsg = ",position=" + position + ",id=" + id;
+							Spinner spinner = ( Spinner ) parent;
+							if ( spinner.isFocusable() == false ) { //
+								dbMsg += "isFocusable=false";
+								spinner.setFocusable(true);
+							} else {
+								String item = ( String ) spinner.getSelectedItem();
+								dbMsg += ",item=" + item;
+								String[] items = getResources().getStringArray(R.array.typeSelectValList);
+								selectMode = items[position];
+								dbMsg += ",selectMode=" + selectMode;
+							}
+							myLog(TAG , dbMsg);
+						} catch (Exception er) {
+							myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+						}
+					}
+
+					@Override
+					public void onNothingSelected(AdapterView< ? > arg0) {
+					}
+				});
+
+				wb_width_sp.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+					@Override
+					public void onItemSelected(AdapterView< ? > parent , View view , int position , long id) {
+						final String TAG = "wb_width_sp[WB]";
+						String dbMsg = "";
+						try {
+
+							dbMsg = "position=" + position + "id=" + id;
+							Spinner spinner = ( Spinner ) parent;
+							if ( spinner.isFocusable() == false ) { // 起動時に一度呼ばれてしまう
+								dbMsg += "isFocusable=false";
+								spinner.setFocusable(true);
+							} else {
+								String item = ( String ) spinner.getSelectedItem();
+								dbMsg += "item=" + item;
+								selectWidth = Integer.parseInt(item);
+								dbMsg += "selectWidth=" + selectWidth;
+								if ( selectWidth < 1 ) {
+									selectWidth = 1;
+								}
+								wb_whitebord.setPenWidth(selectWidth);
+								int _width = ( int ) wb_whitebord.getPenWidth();
+								dbMsg += ">emit>" + _width;
+								mSocket.emit("changeLineWidth" , _width);                             //線の太さ
+							}
+							myLog(TAG , dbMsg);
+						} catch (Exception er) {
+							myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+						}
+					}
+
+					@Override
+					public void onNothingSelected(AdapterView< ? > arg0) {
+					}
+				});
+
+				wb_linecaps_sp.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+					@Override
+					public void onItemSelected(AdapterView< ? > parent , View view , int position , long id) {
+						final String TAG = "wb_linecaps_sp[WB]";
+						String dbMsg = "";
+						try {
+							dbMsg = ",position=" + position + ",id=" + id;
+							Spinner spinner = ( Spinner ) parent;
+							if ( spinner.isFocusable() == false ) { // 起動時に一度呼ばれてしまう
+								dbMsg += "isFocusable=false";
+								spinner.setFocusable(true);
+							} else {
+								String item = ( String ) spinner.getSelectedItem();
+								dbMsg += ",item=" + item;
+								String[] items = getResources().getStringArray(R.array.lineCapSelecttValList);
+								selectCaps = items[position];
+								dbMsg += ",selectCaps=" + selectCaps;
+								wb_whitebord.setPenCap(selectCaps);
+								String caps = wb_whitebord.getPenCap();
+								dbMsg += ">emit>" + caps;
+								mSocket.emit("changeLineCap" , caps);                             //先端形状
+							}
+							myLog(TAG , dbMsg);
+						} catch (Exception er) {
+							myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+						}
+					}
+
+					@Override
+					public void onNothingSelected(AdapterView< ? > arg0) {
+					}
+				});
+
+
+			}
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		}
+	}
 
 	@Override
 	public void onStart() {
@@ -387,6 +478,12 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 					mSocket.off(Socket.EVENT_DISCONNECT , onDisconnect);
 					mSocket.off(Socket.EVENT_CONNECT_ERROR , onConnectError);
 					mSocket.off(Socket.EVENT_CONNECT_TIMEOUT , onConnectError);
+					mSocket.off("drawing" , onDrawingEvent);
+					mSocket.off("changeColor" , onChangeColor);              //線の色
+					mSocket.off("changeLineWidth" , onChangeLineWidth);        //線の太さ
+					mSocket.off("changeLineCap" , onChangeLineCap);   //先端形状
+					mSocket.off("allclear" , onAllClear);
+
 					mSocket.off("new message" , onNewMessage);
 					mSocket.off("user joined" , onUserJoined);
 					mSocket.off("user left" , onUserLeft);
@@ -418,6 +515,9 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 			_mSocket.on(Socket.EVENT_CONNECT_ERROR , onConnectError);
 			_mSocket.on(Socket.EVENT_CONNECT_TIMEOUT , onConnectError);
 			_mSocket.on("drawing" , onDrawingEvent);
+			_mSocket.on("changeColor" , onChangeColor);              //線の色
+			_mSocket.on("changeLineWidth" , onChangeLineWidth);        //線の太さ
+			_mSocket.on("changeLineCap" , onChangeLineCap);   //先端形状
 			_mSocket.on("allclear" , onAllClear);
 
 			_mSocket.on("new message" , onNewMessage);
@@ -436,7 +536,10 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 		return _mSocket;
 	}
 
-	public void drawLine(float x0 , float y0 , float x1 , float y1) {
+	//		drawLine(currentX, currentY, current.x, current.y, current.color , current.width , current.lineCap , 2 , true);
+
+
+	public void drawLine(float x0 , float y0 , float x1 , float y1 , int action) {
 		final String TAG = "drawLine[WA]";
 		String dbMsg = "";
 		try {
@@ -448,12 +551,18 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 			y0 = y0 / ch;
 			x1 = x1 / cw;
 			y1 = y1 / ch;
+			dbMsg += ">(" + x0 + " , " + y0 + ")～(" + x1 + " , " + y1 + ")";
 			int color = wb_whitebord.getPenColor();
-			dbMsg += ">(" + x0 + " , " + y0 + ")～(" + x1 + " , " + y1 + ")" + color;
+			dbMsg += ",color=" + color;
+			int width = ( int ) wb_whitebord.getPenWidth();
+			dbMsg += ",width=" + width;
+			String lineCap = wb_whitebord.getPenCap();
+			dbMsg += ",lineCap=" + lineCap;
+			dbMsg += ",action=" + action;
 			JSONObject sioData = new JSONObject();      //☆ JSONObjectでNodeのDataと名前を揃える
 			try {
 				dbMsg += ",JSONObject.put";
-				sioData.put("x0" , x0).put("y0" , y0).put("x1" , x1).put("y1" , y1).put("color" , color);
+				sioData.put("x0" , x0).put("y0" , y0).put("x1" , x1).put("y1" , y1).put("color" , color).put("width" , width).put("lineCap" , lineCap).put("action" , action);
 			} catch (JSONException er) {
 				myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 			}
@@ -466,7 +575,6 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 	}
 
 	private Emitter.Listener onDrawingEvent = new Emitter.Listener() {
-
 		@Override
 		public void call(final Object... args) {
 			runOnUiThread(new Runnable() {
@@ -477,14 +585,52 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 					try {
 						JSONObject data = ( JSONObject ) args[0];
 						try {
+//							public String selectMode;
 							float x0 = Float.parseFloat(data.getString("x0"));
 							float y0 = Float.parseFloat(data.getString("y0"));
 							float x1 = Float.parseFloat(data.getString("x1"));
 							float y1 = Float.parseFloat(data.getString("y1"));
-					//		int color  = Integer.parseInt(data.getString("color"));           //blackなどの文字が来る
-							dbMsg += "(" + x0 + " , " + y0 + ")～(" + x1 + " , " + y1 + ")";	// + color;
+							dbMsg += "(" + x0 + " , " + y0 + ")～(" + x1 + " , " + y1 + ")";
+							Object rObj = data.get("color");
+							if ( rObj != null ) {
+								int color = Color.parseColor(data.getString("color"));
+								dbMsg += ",color=" + color;
+								if ( selectColor != color ) {
+									selectColor = color;
+									dbMsg += ">>" + selectColor;
+									wb_whitebord.setPenColor(selectColor);
+								}
+							}
+							rObj = data.get("width");
+							if ( rObj != null ) {
+								int width = Integer.parseInt(data.getString("width"));
+								;
+								dbMsg += ",width=" + width;
+								if ( selectWidth != width ) {
+									selectWidth = width;
+									dbMsg += ">>" + selectWidth;
+									wb_whitebord.setPenWidth(selectWidth);
+								}
+							}
 
-							
+							String lineCap = data.getString("lineCap");
+							dbMsg += ",lineCap=" + lineCap;
+							if ( selectCaps != lineCap ) {
+								selectCaps = lineCap;
+								dbMsg += ">>" + selectCaps;
+								wb_whitebord.setPenCap(selectCaps);
+							}
+							int action = data.getInt("action");
+							dbMsg += ",action=" + action;
+							int cw = wb_whitebord.getWidth();
+							int ch = wb_whitebord.getHeight();
+							dbMsg += "whitebord[" + cw + " , " + ch + "]";
+							x0 = x0 * cw;
+							y0 = y0 * ch;
+							x1 = x1 * cw;
+							y1 = y1 * ch;
+							dbMsg += ">(" + x0 + " , " + y0 + ")～(" + x1 + " , " + y1 + ")";
+									wb_whitebord.drawPathLine(action , x1 , y1 );
 							myLog(TAG , dbMsg);
 						} catch (JSONException er) {
 							myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
@@ -499,6 +645,97 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 	};
 
 
+	private Emitter.Listener onChangeColor = new Emitter.Listener() {
+		@Override
+		public void call(final Object... args) {
+			runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					final String TAG = "onChangeColor[WA]";
+					String dbMsg = "";
+					try {
+						selectColor = Color.parseColor(args[0].toString());
+						dbMsg = "selectColor=" + selectColor;
+						wb_whitebord.setPenColor(selectColor);
+						myLog(TAG , dbMsg);
+					} catch (Exception er) {
+						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+					}
+				}
+			});
+		}
+	};
+
+	private Emitter.Listener onChangeLineWidth = new Emitter.Listener() {
+		@Override
+		public void call(final Object... args) {
+			runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					final String TAG = "onChangeLineWidth[WA]";
+					String dbMsg = "";
+					try {
+						if ( wb_whitebord != null ) {
+							selectWidth = Integer.parseInt(args[0].toString());
+							dbMsg += "selectWidth=" + selectWidth;
+							if ( selectWidth < 1 ) {
+								selectWidth = 1;
+							}
+							wb_whitebord.setPenWidth(selectWidth);
+							String[] rList = getResources().getStringArray(R.array.lineWidthSelectList);
+							int sIndex=0;
+							for(String rName :rList){
+								if(rName.equals(selectWidth+"")){
+									break;
+								}
+								sIndex++;
+							}
+							wb_width_sp.setSelection(sIndex);
+						}
+						myLog(TAG , dbMsg);
+					} catch (Exception er) {
+						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+					}
+				}
+			});
+		}
+	};
+
+	private Emitter.Listener onChangeLineCap = new Emitter.Listener() {
+		@Override
+		public void call(final Object... args) {
+			runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					final String TAG = "onChangeLineCap[WA]";
+					String dbMsg = "";
+					try {
+						if ( wb_whitebord != null ) {
+							String rCaps = args[0].toString();
+							if(! rCaps.equals(selectCaps)) {
+								selectCaps = rCaps;
+								dbMsg += ",selectCaps=" + selectCaps;
+								wb_whitebord.setPenCap(selectCaps);
+								String[] rList = getResources().getStringArray(R.array.lineCapSelecttValList);
+								int sIndex=0;
+								for(String rName :rList){
+									if(rName.equals(selectCaps)){
+										break;
+									}
+									sIndex++;
+								}
+								wb_linecaps_sp.setSelection(sIndex);
+							}
+						}
+						myLog(TAG , dbMsg);
+					} catch (Exception er) {
+						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+					}
+				}
+			});
+		}
+	};
+
 	private Emitter.Listener onAllClear = new Emitter.Listener() {
 		@Override
 		public void call(final Object... args) {
@@ -510,7 +747,8 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 					try {
 						if ( wb_whitebord != null ) {
 							wb_whitebord.clearAll();
-						}						myLog(TAG , dbMsg);
+						}
+						myLog(TAG , dbMsg);
 					} catch (Exception er) {
 						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 					}

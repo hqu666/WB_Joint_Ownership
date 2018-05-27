@@ -10,11 +10,11 @@
 		android:layout_weight="1"
 		android:orientation="horizontal">
 
-		<ImageButton
-			android:id="@+id/wb_mode_bt"
-			android:layout_width="40dp"
-			android:layout_height="40dp"
-			android:src="@android:drawable/ic_menu_edit"/>
+		<!--<ImageButton-->
+			<!--android:id="@+id/wb_mode_bt"-->
+			<!--android:layout_width="40dp"-->
+			<!--android:layout_height="40dp"-->
+			<!--android:src="@android:drawable/ic_menu_edit"/>-->
 
 		<ImageButton
 			android:id="@+id/test_bt1"

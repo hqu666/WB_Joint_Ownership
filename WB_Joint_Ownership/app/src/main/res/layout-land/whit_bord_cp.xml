@@ -11,18 +11,11 @@
 		android:layout_weight="1"
 		android:orientation="horizontal">
 
-		<ImageButton
-			android:id="@+id/wb_mode_bt"
-			android:layout_width="42dp"
-			android:layout_height="42dp"
-			android:src="@android:drawable/ic_menu_edit"/>
-
-		<ImageButton
-			android:id="@+id/wb_text_bt"
-			android:layout_width="42dp"
-			android:layout_height="42dp"
-			android:scaleType="centerCrop"
-			app:srcCompat="@drawable/text_input"/>
+		<Spinner
+			android:id="@+id/wb_mode_sp"
+			android:layout_width="wrap_content"
+			android:layout_height="match_parent"
+			android:entries="@array/typeSelectList"/>
 
 		<ImageButton
 			android:id="@+id/wb_color_bt"
@@ -31,18 +24,17 @@
 			android:scaleType="centerCrop"
 			android:src="@drawable/color_paret"/>
 
-		<Button
-			android:id="@+id/wb_line_width_bt"
-			android:layout_width="40dp"
-			android:layout_height="40dp"
-			android:text="太"
-			android:textSize="18sp"/>
+		<Spinner
+			android:id="@+id/wb_width_sp"
+			android:layout_width="wrap_content"
+			android:layout_height="match_parent"
+			android:entries="@array/lineWidthSelectList"/>
 
-		<ImageButton
-			android:id="@+id/test_bt1"
-			android:layout_width="40dp"
-			android:layout_height="42dp"
-			android:src="@android:drawable/ic_input_get"/>
+		<Spinner
+			android:id="@+id/wb_linecaps_sp"
+			android:layout_width="wrap_content"
+			android:layout_height="match_parent"
+			android:entries="@array/lineCapSelecttList"/>
 
 		<TextView
 			android:id="@+id/wb_info_tv"

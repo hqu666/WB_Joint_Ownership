@@ -50,4 +50,38 @@
 	<string name="message_user_left">%s left</string>
 	<string name="user_action_typing">is typing</string>
 
+	<string-array name="typeSelectList">
+		<item>フリーハンド</item>
+		<item>テキスト</item>
+		<item>直線</item>
+		<item>図形スタンプ</item>
+		<item>消しゴム</item>
+	</string-array>
+	<string-array name="typeSelectValList">
+		<item>free</item>
+		<item>text</item>
+		<item>line</item>
+		<item>stamp</item>
+		<item>erasre</item>
+	</string-array>
+	<!--線の太さ-->
+	<string-array name="lineWidthSelectList">
+		<item>1</item>
+		<item>5</item>
+		<item>20</item>
+		<item>50</item>
+	</string-array>
+	<!--先端-->
+	<string-array name="lineCapSelecttList">
+		<item>丸</item>
+		<item>四角</item>
+		<item>無し</item>
+	</string-array>
+	<string-array name="lineCapSelecttValList">
+		<item>round</item>
+		<item>square</item>
+		<item>butt</item>
+	</string-array>
+
+
 </resources>
