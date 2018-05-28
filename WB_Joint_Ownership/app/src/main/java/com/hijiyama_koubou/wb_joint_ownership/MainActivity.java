@@ -11,6 +11,7 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.media.AudioManager;
 import android.net.Uri;
@@ -34,10 +35,12 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -73,6 +76,16 @@ public class MainActivity extends AppCompatActivity {        // AppCompatActivit
 	private Button connect_bt;                                //接続ボタン
 	private LinearLayout main_conect_ll;    //接続関連
 	private LinearLayout wh_paret;    //ホワイトボード関連ツールボックス
+	private Spinner wb_mode_sp;                    //描画種別選択
+	private ImageButton wb_color_bt;            //色選択
+	private Spinner wb_width_sp;                    //太さ選択
+	private Spinner wb_linecaps_sp;                    //先端形状
+
+	public String selectMode;
+	public String selectCaps = "round";
+	public int selectWidth = 5;
+	public int selectColor = Color.GREEN;
+	private ColorPickerDialog mColorPickerDialog;
 
 	private Canvas canvasMain;         //受信モニター
 	private Canvas canvasSub;                                //自己モニター
@@ -225,11 +238,16 @@ public class MainActivity extends AppCompatActivity {        // AppCompatActivit
 
 			wh_paret = ( LinearLayout ) findViewById(R.id.wh_paret);        //ホワイトボードツールボックス
 			wb_all_clear_bt = ( ImageButton ) findViewById(R.id.wb_all_clear_bt);        //P1の書き込み全消去ボタン
-
+			wb_all_clear_bt.setVisibility(View.GONE);
 			// page2
 			main_whitebord = ( CS_CanvasView ) findViewById(R.id.main_whitebord);        //ホワイトボード             	Canvas	     CS_CanvasView
-			wb_all_clear_bt = ( ImageButton ) findViewById(R.id.wb_all_clear_bt);        //全消去
-//			wb_mode_bt = ( ImageButton ) findViewById(R.id.wb_mode_bt);                    //編修
+
+			wb_mode_sp = ( Spinner ) findViewById(R.id.wb_mode_sp);                    //描画種別選択
+			wb_color_bt = ( ImageButton ) findViewById(R.id.wb_color_bt);            //色選択
+			wb_width_sp = ( Spinner ) findViewById(R.id.wb_width_sp);                    //太さ選択
+			wb_linecaps_sp = ( Spinner ) findViewById(R.id.wb_linecaps_sp);                    //先端形状
+
+
 
 			_handler = new Handler(Looper.getMainLooper());
 
@@ -238,6 +256,29 @@ public class MainActivity extends AppCompatActivity {        // AppCompatActivit
 //				Thread.sleep(1000); //3000ミリ秒Sleepする
 //			} catch (InterruptedException e) {
 //			}
+
+			String[] rList = getResources().getStringArray(R.array.lineWidthSelectList);
+			int selP = 0;// rList.
+			for ( String rStr : rList ) {
+				int rInt = Integer.parseInt(rStr);
+				if ( rInt == selectWidth ) {
+					break;
+				}
+				selP++;
+			}
+			wb_width_sp.setSelection(selP);
+
+			String[] rList2 = getResources().getStringArray(R.array.lineCapSelecttValList);
+			selP = 0;// rList.
+			for ( String rStr : rList2 ) {
+				if ( rStr.equals(selectCaps) ) {
+					break;
+				}
+				selP++;
+			}
+			wb_linecaps_sp.setSelection(selP);
+
+
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
@@ -624,169 +665,6 @@ public class MainActivity extends AppCompatActivity {        // AppCompatActivit
 				}
 			});
 
-//			switchCameraAction.setText(getResources().getString(R.string.camera_switch_caption));       //カメラ切替ボタン
-//			switchCameraAction.setOnClickListener(new View.OnClickListener() {
-//				@Override
-//				public void onClick(View v) {
-//					final String TAG = "switchCameraAction[MA.onCr]";
-//					String dbMsg = "";
-//					try {
-//						if ( null != _localStream ) {
-//							Boolean result = _localStream.switchCamera();//常にFalse?
-//							if ( true == result ) {
-//								dbMsg += "Success";
-//							} else {
-//								dbMsg += "Failed";
-//							}
-////							MediaConstraints.CameraPositionEnum cameraPosition = constraints.cameraPosition;
-////							dbMsg += ";cameraPosition" + cameraPosition.toString();
-////							if ( cameraPosition==MediaConstraints.CameraPositionEnum.FRONT) {            				//cameraPositionFRONT
-//							String cameraPosition = constraints.cameraPosition.toString();
-//							dbMsg += ";cameraPosition=" + cameraPosition;
-////							if ( cameraPosition.equals("cameraPositionFRONT")) {            				//
-//							dbMsg += ";isFrontCam=" + isFrontCam;
-////							if ( isFrontCam ) {                                   //現在フロント(サブ)カメラ//☆切替わるまでタイムラグがあるので見なし切替；切り替わった時のイベントは？
-////								switchCameraAction.setText(getResources().getString(R.string.camera_switch_caption2sub));
-////								isFrontCam = false;
-////							} else {
-////								switchCameraAction.setText(getResources().getString(R.string.camera_switch_caption2main));
-////								isFrontCam = true;
-////							}
-//						}
-//						myLog(TAG , dbMsg);
-//					} catch (Exception er) {
-//						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
-//					}
-//				}
-//			});
-			ImageButton test_bt1 = ( ImageButton ) findViewById(R.id.test_bt1);
-			test_bt1.setOnClickListener(new View.OnClickListener() {            //終了
-				@Override
-				public void onClick(View v) {
-					final String TAG = "test_bt1[MA.onCr]";
-					String dbMsg = "";
-					try {
-						ImageButton bt = ( ImageButton ) v;
-						Bitmap bmp = (( BitmapDrawable ) bt.getDrawable()).getBitmap();
-						dbMsg = "bmp[" + bmp.getWidth() + "×" + bmp.getHeight() + "]";
-						whiteBordDrow(bmp);
-						myLog(TAG , dbMsg);
-					} catch (Exception er) {
-						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
-					}
-				}
-			});
-
-			//ViewFlipper /////http://android-dev-talk.blogspot.jp/2012/06/viewflipperview.html
-			// Load animation
-//			mAnimRightIn = AnimationUtils.loadAnimation(this , R.anim.right_in);
-//			mAnimRightOut = AnimationUtils.loadAnimation(this , R.anim.right_out);
-//			mAnimLeftIn = AnimationUtils.loadAnimation(this , R.anim.left_in);
-//			mAnimLeftOut = AnimationUtils.loadAnimation(this , R.anim.left_out);
-//			mFlipper.setAutoStart(true);     //自動でスライドショーを開始
-//			mFlipper.setFlipInterval(2000);  //更新間隔(ms単位)
-//
-//			int pages[] = {R.id.page1 , R.id.page2};
-//			for ( int page : pages ) {
-//				LinearLayout layout = ( LinearLayout ) findViewById(page);
-////				ImageView advertisement_l_IV = ( ImageView ) layout.findViewById(R.id.advertisement_l_IV);
-////				ImageView advertisement_r_IV = ( ImageView ) layout.findViewById(R.id.advertisement_r_IV);
-//				switch ( page ) {
-//					case R.id.page1:
-////						advertisement_l_IV.setImageResource(R.drawable.advertisement1);
-////						advertisement_r_IV.setImageResource(R.drawable.sub_advertisement2);
-//						break;
-//					case R.id.page2:
-//						int hbW = main_whitebord.getWidth();
-//						dbMsg += ",whitebord{" + hbW;
-//						int hbH = main_whitebord.getHeight();
-//						dbMsg += "×" + hbH + "]";
-//						break;
-//				}
-//			}
-//			nextButton.setOnClickListener(new View.OnClickListener() {
-//				@Override
-//				public void onClick(View v) {
-//					final String TAG = "nextButton[MA.onCr]";
-//					String dbMsg = "ホワイトボードへ";
-//					try {
-//						if ( !mFlipper.isFlipping() ) {
-//							mFlipper.setInAnimation(mAnimRightIn);
-//							mFlipper.setOutAnimation(mAnimLeftOut);
-//							mFlipper.showNext();
-////						isFlipper =false;
-//						} else {
-//							mFlipper.stopFlipping();
-////							toWhiteBorrb();
-//						}
-//						canvasMain.setVisibility(View.GONE);
-//						canvasSub.setVisibility(View.GONE);
-//						myLog(TAG , dbMsg);
-//					} catch (Exception er) {
-//						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
-//					}
-//				}
-//			});
-//
-//			previousButton.setOnClickListener(new View.OnClickListener() {
-//				@Override
-//				public void onClick(View v) {
-//					final String TAG = "previousButton[MA.onCr]";
-//					String dbMsg = "ビデオチャットへ";
-//					try {
-//						if ( !mFlipper.isFlipping() ) {
-//							mFlipper.setInAnimation(mAnimLeftIn);
-//							mFlipper.setOutAnimation(mAnimRightOut);
-//							mFlipper.showPrevious();
-////						isFlipper =false;
-//						} else {
-//							mFlipper.stopFlipping();
-////							toVideoChat();
-//						}
-//						canvasMain.setVisibility(View.VISIBLE);
-//						canvasSub.setVisibility(View.VISIBLE);
-//						myLog(TAG , dbMsg);
-//					} catch (Exception er) {
-//						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
-//					}
-//				}
-//			});
-
-			wb_all_clear_bt.setOnClickListener(new View.OnClickListener() {        //全消去
-				@Override
-				public void onClick(View v) {
-					final String TAG = "wb_all_clear_bt[MA.onCr]";
-					String dbMsg = "";
-					try {
-						if ( main_whitebord != null ) {
-							main_whitebord.clearAll();
-//							CS_CanvasView CCV = new CS_CanvasView(MainActivity.this);
-//							CCV.clearAll();
-						}
-						myLog(TAG , dbMsg);
-					} catch (Exception er) {
-						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
-					}
-				}
-			});
-
-//			wb_mode_bt.setOnClickListener(new View.OnClickListener() {                    //編修
-//				@Override
-//				public void onClick(View v) {
-//					final String TAG = "wb_mode_bt[MA.onCr]";
-//					String dbMsg = "";
-//					try {
-//						if ( main_whitebord != null ) {
-//							main_whitebord.startFreeHand();
-////							CS_CanvasView CCV = new CS_CanvasView(MainActivity.this);
-////							CCV.startFreeHand();
-//						}
-//						myLog(TAG , dbMsg);
-//					} catch (Exception er) {
-//						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
-//					}
-//				}
-//			});
 
 			main_mode_change_bt.setSelected(true);			//ビデオモード；鉛筆アイコン
 			main_mode_change_bt.setOnClickListener(new View.OnClickListener() {                    //page1で送信画面のモード切替
@@ -801,9 +679,11 @@ public class MainActivity extends AppCompatActivity {        // AppCompatActivit
 						dbMsg += ",現在=" + nowIs;
 						if(	nowIs){
 							toWhiteBorrb();
+							wb_all_clear_bt.setVisibility(View.VISIBLE);
 							main_mode_change_bt.setSelected(false);			//ホワイトボードモード；ビデオアイコン
 						}     else{
 							toVideoChat();
+							wb_all_clear_bt.setVisibility(View.GONE);
 							main_mode_change_bt.setSelected(true);			//ビデオモード；鉛筆アイコン
 						}
 						myLog(TAG , dbMsg);
@@ -828,6 +708,8 @@ public class MainActivity extends AppCompatActivity {        // AppCompatActivit
 					}
 				}
 			});
+
+
 
 
 			myLog(TAG , dbMsg);
@@ -1114,6 +996,134 @@ public class MainActivity extends AppCompatActivity {        // AppCompatActivit
 			canvasSub.getLayoutParams().height = llH / 4;
 			canvasSub.requestLayout();
 			tvPartnerId.setText(getResources().getString(R.string.conectlist_titol));        //接続先ID
+
+			//			色選択
+			wb_color_bt.setBackgroundColor(selectColor);
+			wb_color_bt.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					final String TAG = "wb_color_bt[MA]";
+					String dbMsg = "";
+					try {
+						mColorPickerDialog = new ColorPickerDialog(MainActivity.this , new ColorPickerDialog.OnColorChangedListener() {
+							@Override
+							public void colorChanged(int color) {
+								final String TAG = "wb_color_bt[MA]";
+								String dbMsg = "";
+								selectColor = color;
+								dbMsg = "selectColor=" + selectColor;
+								CSCV.setPenColor(selectColor);
+								wb_color_bt.setBackgroundColor(selectColor);
+								myLog(TAG , dbMsg);
+							}
+						} , selectColor);
+						mColorPickerDialog.show();
+						myLog(TAG , dbMsg);
+					} catch (Exception er) {
+						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+					}
+				}
+			});
+
+			wb_mode_sp.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+				@Override
+				public void onItemSelected(AdapterView< ? > parent , View view , int position , long id) {
+					final String TAG = "wb_mode_sp[MA]";
+					String dbMsg = "";
+					try {
+						dbMsg = ",position=" + position + ",id=" + id;
+						Spinner spinner = ( Spinner ) parent;
+						if ( spinner.isFocusable() == false ) { //
+							dbMsg += "isFocusable=false";
+							spinner.setFocusable(true);
+						} else {
+							String item = ( String ) spinner.getSelectedItem();
+							dbMsg += ",item=" + item;
+							String[] items = getResources().getStringArray(R.array.typeSelectValList);
+							selectMode = items[position];
+							dbMsg += ",selectMode=" + selectMode;
+						}
+						myLog(TAG , dbMsg);
+					} catch (Exception er) {
+						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+					}
+				}
+
+				@Override
+				public void onNothingSelected(AdapterView< ? > arg0) {
+				}
+			});
+
+			wb_width_sp.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+				@Override
+				public void onItemSelected(AdapterView< ? > parent , View view , int position , long id) {
+					final String TAG = "wb_width_sp[MA]";
+					String dbMsg = "";
+					try {
+
+						dbMsg = "position=" + position + ",id=" + id;
+						Spinner spinner = ( Spinner ) parent;
+						if ( spinner.isFocusable() == false ) { // 起動時に一度呼ばれてしまう
+							dbMsg += "isFocusable=false";
+							spinner.setFocusable(true);
+						} else {
+							String item = ( String ) spinner.getSelectedItem();
+							dbMsg += "item=" + item;
+							selectWidth = Integer.parseInt(item);
+							dbMsg += "selectWidth=" + selectWidth;
+							if ( selectWidth < 1 ) {
+								selectWidth = 1;
+							}
+							if ( CSCV != null ) {
+								CSCV.setPenWidth(selectWidth);
+//								int _width = ( int ) CSCV.getPenWidth();
+							}   else{
+								dbMsg += "CSCV=null" ;
+							}
+						}
+						myLog(TAG , dbMsg);
+					} catch (Exception er) {
+						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+					}
+				}
+
+				@Override
+				public void onNothingSelected(AdapterView< ? > arg0) {
+				}
+			});
+
+			wb_linecaps_sp.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+				@Override
+				public void onItemSelected(AdapterView< ? > parent , View view , int position , long id) {
+					final String TAG = "wb_linecaps_sp[MA]";
+					String dbMsg = "";
+					try {
+						dbMsg = ",position=" + position + ",id=" + id;
+						Spinner spinner = ( Spinner ) parent;
+						if ( spinner.isFocusable() == false ) { // 起動時に一度呼ばれてしまう
+							dbMsg += "isFocusable=false";
+							spinner.setFocusable(true);
+						} else {
+							String item = ( String ) spinner.getSelectedItem();
+							dbMsg += ",item=" + item;
+							String[] items = getResources().getStringArray(R.array.lineCapSelecttValList);
+							selectCaps = items[position];
+							dbMsg += ",selectCaps=" + selectCaps;
+							if ( CSCV != null ) {
+								CSCV.setPenCap(selectCaps);                             //先端形状
+							}
+						}
+						myLog(TAG , dbMsg);
+					} catch (Exception er) {
+						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+					}
+				}
+
+				@Override
+				public void onNothingSelected(AdapterView< ? > arg0) {
+				}
+			});
+
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
@@ -1581,6 +1591,13 @@ public class MainActivity extends AppCompatActivity {        // AppCompatActivit
 //				isVideoEnable = _localStream.getEnableVideoTrack(0);
 //				dbMsg += ">>" + isVideoEnable;
 				CSCV.setVisibility(View.VISIBLE);
+
+				dbMsg += ",selectColor=" + selectColor;
+				CSCV.setPenColor(selectColor);
+				dbMsg += ",selectWidth=" + selectWidth;
+				CSCV.setPenWidth(selectWidth);
+				dbMsg += ",selectCaps=" + selectCaps;
+				CSCV.setPenCap(selectCaps);
 				wh_paret.setVisibility(View.VISIBLE);  //ホワイトボード関連:表示
 			}
 			myLog(TAG , dbMsg);

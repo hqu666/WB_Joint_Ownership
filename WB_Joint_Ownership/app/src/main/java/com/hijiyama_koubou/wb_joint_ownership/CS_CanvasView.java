@@ -12,6 +12,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.FrameLayout.LayoutParams;
+import android.widget.ImageButton;
+import android.widget.Spinner;
 
 import org.webrtc.EglBase;
 import org.webrtc.RendererCommon;
@@ -31,13 +33,13 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 	// extends FrameLayout implements RendererEvents
 	//extends FrameLayout implements org.webrtc.RendererCommon.RendererEvents
 	private Context context;
-	private Paint paint;                        //ペン
-	//	public List< Paint > paintIist;
-	public int penColor = 0xFF008800;        //蛍光グリーン
-	public int selectColor = penColor;
 
-	private float penWidth = 5;
-	public float selectWidth = penWidth;
+	private Paint paint;                        //ペン
+	//	public int penColor = 0xFF008800;        //蛍光グリーン
+	public int selectColor = 0xFF008800;        //蛍光グリーン
+
+	//	private float penWidth = 5;
+	public float selectWidth = 5;
 	public String selectLineCap = "";
 	public String[] lineCapList;
 
@@ -89,24 +91,13 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 		}
 	}
 
-//	public CS_CanvasView(Context context , AttributeSet attrs , int defStyleAttr) {
-//		super(context , attrs , defStyleAttr);
-//		final String TAG = "CS_CanvasView[CView]";
-//		String dbMsg = "？";
-//		try {
-//			commonCon(context);
-//			myLog(TAG , dbMsg);
-//		} catch (Exception er) {
-//			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
-//		}
-//	}
 
-	public void commonCon(Context context) {
+	public void commonCon(final Context context) {
 		final String TAG = "commonCon[CView]";
 		String dbMsg = "";
 		try {
 			this.context = context;
-			lineCapList = context.getResources().getStringArray(R.array.lineCapSelecttValList);
+           			lineCapList = context.getResources().getStringArray(R.array.lineCapSelecttValList);
 			selectLineCap = lineCapList[0];
 			InitCanva();
 			myLog(TAG , dbMsg);
@@ -121,13 +112,13 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 		try {
 			pathIist = new ArrayList< PathObject >();
 			paint = new Paint();
-			dbMsg += ",ペン；" + penColor;
-			paint.setColor(penColor);                        //
+			dbMsg += ",ペン；" + selectColor;
+			paint.setColor(selectColor);                        //
 			paint.setStyle(Paint.Style.STROKE);
 			paint.setStrokeJoin(Paint.Join.ROUND);
 			paint.setStrokeCap(Paint.Cap.ROUND);
-			dbMsg += "," + penWidth + "px";
-			paint.setStrokeWidth(penWidth);
+			dbMsg += "," + selectWidth + "px";
+			paint.setStrokeWidth(selectWidth);
 
 			eraserPaint = new Paint();                //消しゴム
 			dbMsg += ",消しゴム；" + eraserColor;
@@ -187,7 +178,7 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 	 * ペンの太さ変更
 	 */
 	public void setPenWidth(int _selectWidth) {
-		final String TAG = "setPenColor[CView]";
+		final String TAG = "setPenWidth[CView]";
 		String dbMsg = "";
 		try {
 			dbMsg = "selectWidth=" + selectWidth;
@@ -233,7 +224,7 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 		try {
 			dbMsg = "this.selectLineCap=" + this.selectLineCap;
 			dbMsg += "lineCap=" + lineCap;
-			if(! lineCap.equals( this.selectLineCap)) {
+			if ( !lineCap.equals(this.selectLineCap) ) {
 				this.selectLineCap = lineCap;
 				paint = new Paint();
 				paint.setColor(selectColor);                        //
@@ -333,8 +324,10 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 		}
 	}
 
-
-	public void drawPathLine(int action , float xPoint , float yPoint) {
+	/**
+	 * 受信/送信前のイベント処理
+	 */
+	public void drawPathLine(float xPoint , float yPoint , int addColor , float addWidth , String addCap , int action) {
 		final String TAG = "drawPathLine[CView]";
 		String dbMsg = "";
 		try {
@@ -346,8 +339,26 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 					Path path = new Path();
 					path.moveTo(xPoint , yPoint);
 					pathObject.path = path;
-					pathObject.paint = paint;
+
+					Paint addPaint = new Paint();
+					dbMsg += ",addColor=" + addColor;
+					addPaint.setColor(addColor);                        //
+					addPaint.setStyle(Paint.Style.STROKE);
+					addPaint.setStrokeJoin(Paint.Join.ROUND);
+					dbMsg += ",addCap=" + addCap;
+					if ( addCap.equals(lineCapList[0]) ) {     //round
+						addPaint.setStrokeCap(Paint.Cap.ROUND);
+					} else if ( addCap.equals(lineCapList[1]) ) {     //square
+						paint.setStrokeCap(Paint.Cap.SQUARE);
+					} else if ( addCap.equals(lineCapList[2]) ) {     //butt
+						addPaint.setStrokeCap(Paint.Cap.BUTT);
+					}
+					dbMsg += ",addWidth=" + addWidth + "px";
+					addPaint.setStrokeWidth(addWidth);
+					pathObject.paint = addPaint;
+
 					pathIist.add(pathObject);
+
 					invalidate();
 					break;
 				case MotionEvent.ACTION_MOVE:   //2
@@ -377,7 +388,7 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 				case REQUEST_CLEAR:                        //全消去
 					break;
 				case REQUEST_DROW_PATH:                        //フリーハンド
-					drawPathLine(event.getAction() , xPoint , yPoint);
+					drawPathLine(xPoint , yPoint , selectColor , selectWidth , selectLineCap , event.getAction());
 					break;
 				case REQUEST_ADD_BITMAP:                        //ビットマップ挿入
 					upX = xPoint;

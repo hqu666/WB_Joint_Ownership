@@ -96,6 +96,25 @@
 				android:layout_height="wrap_content"
 				android:layout_weight="1"/>
 
+			<!--<TextView-->
+				<!--android:id="@+id/wb_info_tv"-->
+				<!--android:layout_width="wrap_content"-->
+				<!--android:layout_height="match_parent"-->
+				<!--android:layout_weight="1"-->
+				<!--android:gravity="center_vertical"-->
+				<!--android:maxLines="2"-->
+				<!--android:singleLine="false"-->
+				<!--android:text="TextView"-->
+				<!--android:textAlignment="gravity"-->
+				<!--android:textSize="12sp"/>-->
+
+			<ImageButton
+				android:id="@+id/wb_all_clear_bt"
+				android:layout_width="42dp"
+				android:layout_height="42dp"
+				android:layout_gravity="right|end"
+				android:src="@android:drawable/ic_menu_delete"/>
+
 			<ImageButton
 				android:id="@+id/main_mode_change_bt"
 				android:layout_width="40dp"

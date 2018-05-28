@@ -89,6 +89,13 @@
 			android:layout_height="wrap_content"/>
 
 		<ImageButton
+			android:id="@+id/wb_all_clear_bt"
+			android:layout_width="42dp"
+			android:layout_height="42dp"
+			android:layout_gravity="right|end"
+			android:src="@android:drawable/ic_menu_delete"/>
+
+		<ImageButton
 			android:id="@+id/main_mode_change_bt"
 			android:layout_width="40dp"
 			android:layout_height="40dp"

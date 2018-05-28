@@ -30,30 +30,38 @@
 			android:layout_height="match_parent"
 			android:entries="@array/lineWidthSelectList"/>
 
+		<TextView
+			android:id="@+id/textView2"
+			android:layout_width="wrap_content"
+			android:layout_height="match_parent"
+			android:gravity="bottom"
+			android:paddingBottom="5px"
+			android:text="px"/>
+
 		<Spinner
 			android:id="@+id/wb_linecaps_sp"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
 			android:entries="@array/lineCapSelecttList"/>
 
-		<TextView
-			android:id="@+id/wb_info_tv"
-			android:layout_width="wrap_content"
-			android:layout_height="match_parent"
-			android:layout_weight="1"
-			android:gravity="center_vertical"
-			android:maxLines="2"
-			android:singleLine="false"
-			android:text="TextView"
-			android:textAlignment="gravity"
-			android:textSize="12sp"/>
+		<!--<TextView-->
+			<!--android:id="@+id/wb_info_tv"-->
+			<!--android:layout_width="wrap_content"-->
+			<!--android:layout_height="match_parent"-->
+			<!--android:layout_weight="1"-->
+			<!--android:gravity="center_vertical"-->
+			<!--android:maxLines="2"-->
+			<!--android:singleLine="false"-->
+			<!--android:text="TextView"-->
+			<!--android:textAlignment="gravity"-->
+			<!--android:textSize="12sp"/>-->
 
-		<ImageButton
-			android:id="@+id/wb_all_clear_bt"
-			android:layout_width="42dp"
-			android:layout_height="42dp"
-			android:layout_gravity="right|end"
-			android:src="@android:drawable/ic_menu_delete"/>
+		<!--<ImageButton-->
+			<!--android:id="@+id/wb_all_clear_bt"-->
+			<!--android:layout_width="42dp"-->
+			<!--android:layout_height="42dp"-->
+			<!--android:layout_gravity="right|end"-->
+			<!--android:src="@android:drawable/ic_menu_delete"/>-->
 
 	</LinearLayout>
 
