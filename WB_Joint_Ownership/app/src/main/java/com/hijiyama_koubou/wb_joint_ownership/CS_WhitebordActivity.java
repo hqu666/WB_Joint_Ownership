@@ -77,7 +77,7 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 	private Socket mSocket;
 	private Boolean isConnected = true;
 	private Boolean drawing;
-
+	private int reTyy=0;
 	////////////////////////////////////
 
 	@Override
@@ -162,6 +162,7 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 								drawing = true;
 								nowX = ( int ) eventX;
 								nowY = ( int ) eventY;
+								drawLine(nowX , nowY , nowX , nowX , action);
 								break;
 							case MotionEvent.ACTION_MOVE:     //2
 								if ( drawing ) {
@@ -586,6 +587,7 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 			} catch (JSONException er) {
 				myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 			}
+			
 			mSocket.emit("drawing" , sioData);     //共有webページに全消去命令送信           { x0,y0 ,x1,y1,color}
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
@@ -625,7 +627,9 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 							dbMsg += ",color(現在)=" + color;
 							Object rObl = data.get("color");
 							if(rObl!=null){
-								color = Color.parseColor(data.getString("color"));
+								String colorStr = data.getString("color");
+								dbMsg += ">colorStr>" + colorStr;
+								color = Color.parseColor(colorStr);
 								dbMsg += ">>" + color;
 							}
 							int width =(int)wb_whitebord.getPenWidth();
@@ -838,6 +842,7 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 								mSocket.emit("add user" , mUsername);
 							Toast.makeText(getApplicationContext() , R.string.connect , Toast.LENGTH_SHORT).show();
 							isConnected = true;
+							reTyy=0;
 						}
 						myLog(TAG , dbMsg);
 					} catch (Exception er) {
@@ -858,8 +863,12 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 					String dbMsg = "";
 					try {
 						isConnected = false;
-						Toast.makeText(getApplicationContext() , R.string.disconnect , Toast.LENGTH_SHORT).show();
-						leave();
+//						Toast.makeText(getApplicationContext() , R.string.disconnect , Toast.LENGTH_SHORT).show();
+						reTyy++;
+						if(reTyy<3){
+							dbMsg = "reTyy="+reTyy;
+							leave();
+						}
 						myLog(TAG , dbMsg);
 					} catch (Exception er) {
 						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
@@ -878,8 +887,12 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 					final String TAG = "onConnectError[WA]";
 					String dbMsg = "";
 					try {
-						Toast.makeText(getApplicationContext() , R.string.error_connect , Toast.LENGTH_SHORT).show();
-						leave();
+//						Toast.makeText(getApplicationContext() , R.string.error_connect , Toast.LENGTH_SHORT).show();
+						reTyy++;
+						if(reTyy<3){
+							dbMsg = "reTyy="+reTyy;
+							leave();
+						}
 						myLog(TAG , dbMsg);
 					} catch (Exception er) {
 						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);

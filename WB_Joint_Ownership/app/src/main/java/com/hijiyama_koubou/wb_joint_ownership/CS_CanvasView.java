@@ -33,7 +33,7 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 	// extends FrameLayout implements RendererEvents
 	//extends FrameLayout implements org.webrtc.RendererCommon.RendererEvents
 	private Context context;
-
+	private boolean isCall = false;                    //newで呼ばれた
 	private Paint paint;                        //ペン
 	//	public int penColor = 0xFF008800;        //蛍光グリーン
 	public int selectColor = 0xFF008800;        //蛍光グリーン
@@ -72,6 +72,7 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 		final String TAG = "CS_CanvasView[CView]";
 		String dbMsg = "xmlから";
 		try {
+			isCall = false;                    //newで呼ばれた
 			commonCon(context);
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
@@ -84,6 +85,7 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 		final String TAG = "CS_CanvasView[CView]";
 		String dbMsg = "メソッド内から";
 		try {
+			isCall = true;                    //newで呼ばれた
 			commonCon(context);
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
@@ -97,7 +99,7 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 		String dbMsg = "";
 		try {
 			this.context = context;
-           			lineCapList = context.getResources().getStringArray(R.array.lineCapSelecttValList);
+			lineCapList = context.getResources().getStringArray(R.array.lineCapSelecttValList);
 			selectLineCap = lineCapList[0];
 			InitCanva();
 			myLog(TAG , dbMsg);
@@ -336,9 +338,9 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 			switch ( action ) {
 				case MotionEvent.ACTION_DOWN:   //0
 					PathObject pathObject = new PathObject();
-					Path path = new Path();
-					path.moveTo(xPoint , yPoint);
-					pathObject.path = path;
+					Path addPath = new Path();
+					addPath.moveTo(xPoint , yPoint);
+					pathObject.path = addPath;
 
 					Paint addPaint = new Paint();
 					dbMsg += ",addColor=" + addColor;
@@ -359,7 +361,7 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 
 					pathIist.add(pathObject);
 
-					invalidate();
+//					invalidate();
 					break;
 				case MotionEvent.ACTION_MOVE:   //2
 					pathIist.get(pathIist.size() - 1).path.lineTo(xPoint , yPoint);
@@ -379,30 +381,35 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		final String TAG = "onTouchEvent[CView]";
-		String dbMsg = "";
+		String dbMsg = "isCall="+isCall;
 		try {
-			float xPoint = event.getX();
-			float yPoint = event.getY();
-			dbMsg += "myCanvas[" + xPoint + "×" + yPoint + "]";
-			switch ( REQUEST_CORD ) {
-				case REQUEST_CLEAR:                        //全消去
-					break;
-				case REQUEST_DROW_PATH:                        //フリーハンド
-					drawPathLine(xPoint , yPoint , selectColor , selectWidth , selectLineCap , event.getAction());
-					break;
-				case REQUEST_ADD_BITMAP:                        //ビットマップ挿入
-					upX = xPoint;
-					upY = yPoint;
-					invalidate();                        //onDrawを発生させて描画実行
-					REQUEST_CORD = 0;
-					break;
-				default:
-					upX = xPoint;
-					upY = yPoint;
-					invalidate();                        //onDrawを発生させて描画実行
-					break;
-			}
-//						myLog(TAG , dbMsg);
+//			if ( isCall ) {            //			 =true;  					//newで呼ばれた
+				float xPoint = event.getX();
+				float yPoint = event.getY();
+				int action = event.getAction();
+				dbMsg += "(" + xPoint + "×" + yPoint + ")action=" + action;
+				switch ( REQUEST_CORD ) {
+					case REQUEST_CLEAR:                        //全消去
+						break;
+					case REQUEST_DROW_PATH:                        //フリーハンド
+						dbMsg += ",selectColor=" + selectColor + "mselectWidth=" + selectWidth + ",selectLineCap=" + selectLineCap;
+						drawPathLine(xPoint , yPoint , selectColor , selectWidth , selectLineCap , action);
+//						invalidate();                        //onDrawを発生させて描画実行
+						break;
+					case REQUEST_ADD_BITMAP:                        //ビットマップ挿入
+						upX = xPoint;
+						upY = yPoint;
+//						invalidate();                        //onDrawを発生させて描画実行
+						REQUEST_CORD = 0;
+						break;
+					default:
+						upX = xPoint;
+						upY = yPoint;
+//						invalidate();                        //onDrawを発生させて描画実行
+						break;
+				}
+//			}
+			myLog(TAG , dbMsg);
 		} catch (Exception er) {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 		}
