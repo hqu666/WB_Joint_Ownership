@@ -248,7 +248,6 @@ public class MainActivity extends AppCompatActivity {        // AppCompatActivit
 			wb_linecaps_sp = ( Spinner ) findViewById(R.id.wb_linecaps_sp);                    //先端形状
 
 
-
 			_handler = new Handler(Looper.getMainLooper());
 
 //			try {
@@ -527,7 +526,7 @@ public class MainActivity extends AppCompatActivity {        // AppCompatActivit
 			dbMsg = "id=" + id;
 			switch ( id ) {
 				case R.id.show_str_chat:     //文字チャット
-					Intent cIntent = new Intent(this, SocketIOChat.class);
+					Intent cIntent = new Intent(this , SocketIOChat.class);
 					startActivity(cIntent);
 					break;
 				case R.id.show_white_bord:     //ホワイトボード
@@ -666,25 +665,25 @@ public class MainActivity extends AppCompatActivity {        // AppCompatActivit
 			});
 
 
-			main_mode_change_bt.setSelected(true);			//ビデオモード；鉛筆アイコン
+			main_mode_change_bt.setSelected(true);            //ビデオモード；鉛筆アイコン
 			main_mode_change_bt.setOnClickListener(new View.OnClickListener() {                    //page1で送信画面のモード切替
 				@Override
 				public void onClick(View v) {                //P1の書き込み/カメラ切り替えボタン
 					final String TAG = "main_mode_change_bt[MA.onCr]";
 					String dbMsg = "P1の書き込み/カメラ切り替え";
 					try {
-						ImageButton seleBt = (ImageButton) v;
+						ImageButton seleBt = ( ImageButton ) v;
 //						int[] ds = seleBt.getDrawableState();
 						boolean nowIs = seleBt.isSelected();
 						dbMsg += ",現在=" + nowIs;
-						if(	nowIs){
-							toWhiteBorrb();
+						if ( nowIs ) {
 							wb_all_clear_bt.setVisibility(View.VISIBLE);
-							main_mode_change_bt.setSelected(false);			//ホワイトボードモード；ビデオアイコン
-						}     else{
-							toVideoChat();
+							main_mode_change_bt.setSelected(false);            //ホワイトボードモード；ビデオアイコン
+							toWhiteBorrb();
+						} else {
 							wb_all_clear_bt.setVisibility(View.GONE);
-							main_mode_change_bt.setSelected(true);			//ビデオモード；鉛筆アイコン
+							main_mode_change_bt.setSelected(true);            //ビデオモード；鉛筆アイコン
+							toVideoChat();
 						}
 						myLog(TAG , dbMsg);
 					} catch (Exception er) {
@@ -708,8 +707,6 @@ public class MainActivity extends AppCompatActivity {        // AppCompatActivit
 					}
 				}
 			});
-
-
 
 
 			myLog(TAG , dbMsg);
@@ -1077,8 +1074,8 @@ public class MainActivity extends AppCompatActivity {        // AppCompatActivit
 							if ( CSCV != null ) {
 								CSCV.setPenWidth(selectWidth);
 //								int _width = ( int ) CSCV.getPenWidth();
-							}   else{
-								dbMsg += "CSCV=null" ;
+							} else {
+								dbMsg += "CSCV=null";
 							}
 						}
 						myLog(TAG , dbMsg);

@@ -12,7 +12,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * https://qiita.com/nakadoribooks/items/d046fb68d59c7fffbc42
+ *
  */
 
 public class WebRTC implements PeerConnection.Observer {
@@ -248,3 +248,8 @@ public class WebRTC implements PeerConnection.Observer {
 
 	}
 }
+
+
+/*
+* 2017年08月08日	[webRTC for android vol2] 繋げてみる	https://qiita.com/nakadoribooks/items/d046fb68d59c7fffbc42
+* */

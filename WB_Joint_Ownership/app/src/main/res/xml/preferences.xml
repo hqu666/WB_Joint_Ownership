@@ -44,5 +44,16 @@
 
 	</PreferenceScreen>
 
+	<PreferenceScreen
+		android:key="socketio_setting_key"
+		android:title="@string/socketio_setting">
+
+		<Preference
+			android:key="socketio_url_key"
+			android:summary=""
+			android:title="@string/socketio_url"/>
+
+
+	</PreferenceScreen>
 
 </PreferenceScreen>

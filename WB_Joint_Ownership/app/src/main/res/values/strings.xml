@@ -24,6 +24,7 @@
 	</string>
 	<string name="menu_setting">設定</string>
 	<string name="service_id_titol">サービスID</string>
+
 	<string name="skyway_setting_titol">SkyWay接続状況</string>
 	<string name="peer_id_titol">PeerID</string>
 	<string name="partner_id_titol">接続先ID</string>
@@ -51,6 +52,8 @@
 	<string name="message_user_joined">%s joined</string>
 	<string name="message_user_left">%s left</string>
 	<string name="user_action_typing">is typing</string>
+	<string name="socketio_setting">socket.IO設定状況</string>
+	<string name="socketio_url">接続先</string>
 
 	<string-array name="typeSelectList">
 		<item>フリーハンド</item>
