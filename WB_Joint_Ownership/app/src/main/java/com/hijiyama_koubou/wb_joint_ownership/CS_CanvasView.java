@@ -382,8 +382,9 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 	public boolean onTouchEvent(MotionEvent event) {
 		final String TAG = "onTouchEvent[CView]";
 		String dbMsg = "isCall="+isCall;
+		boolean retBool = false; //trueに設定すると「TouchEventを消化」したものとして他に送らない
 		try {
-//			if ( isCall ) {            //			 =true;  					//newで呼ばれた
+//			if ( isCall ) {            ////newで呼ばれた場合はこのクラス内でイベント取得
 				float xPoint = event.getX();
 				float yPoint = event.getY();
 				int action = event.getAction();
@@ -408,12 +409,13 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 //						invalidate();                        //onDrawを発生させて描画実行
 						break;
 				}
+				retBool = true;
 //			}
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 		}
-		return true;
+		return retBool;
 	}
 
 	public Bitmap aBmp;

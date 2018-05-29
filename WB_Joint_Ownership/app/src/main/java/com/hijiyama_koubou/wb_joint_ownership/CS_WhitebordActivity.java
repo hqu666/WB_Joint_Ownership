@@ -51,7 +51,7 @@ import static android.content.ContentValues.TAG;
 
 public class CS_WhitebordActivity extends Activity {             //AppCompatActivity
 
-//	private WhitBordCp WBC;       				//コントロールパネル
+	//	private WhitBordCp WBC;       				//コントロールパネル
 	private CS_CanvasView wb_whitebord;        //ホワイトボード        CS_CanvasView
 	private Spinner wb_mode_sp;                    //描画種別選択
 	private ImageButton wb_color_bt;            //色選択
@@ -77,7 +77,7 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 	private Socket mSocket;
 	private Boolean isConnected = true;
 	private Boolean drawing;
-	private int reTyy=0;
+	private int reTyy = 0;
 	////////////////////////////////////
 
 	@Override
@@ -146,47 +146,6 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 				}
 			});
 
-			wb_whitebord.setOnTouchListener(new View.OnTouchListener() {
-				@Override
-				public boolean onTouch(View v , MotionEvent event) {
-					final String TAG = "onTouch[WB]";
-					String dbMsg = "";
-					try {
-						int action = event.getAction();
-						dbMsg = "action=" + action;
-						float eventX = event.getX();
-						float eventY = event.getY();
-						dbMsg += "(" + eventX + " , " + eventY + ")";
-						switch ( action ) {
-							case MotionEvent.ACTION_DOWN:     //0
-								drawing = true;
-								nowX = ( int ) eventX;
-								nowY = ( int ) eventY;
-								drawLine(nowX , nowY , nowX , nowX , action);
-								break;
-							case MotionEvent.ACTION_MOVE:     //2
-								if ( drawing ) {
-									drawLine(nowX , nowY , eventX , eventY , action);
-									nowX = eventX;
-									nowY = eventY;
-								}
-								break;
-							case MotionEvent.ACTION_UP:    //1
-								if ( drawing ) {
-									drawing = false;
-									drawLine(nowX , nowY , eventX , eventY , action);
-								}
-								break;
-						}
-						myLog(TAG , dbMsg);
-					} catch (Exception er) {
-						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
-					}
-					return false;
-				}
-			});
-
-
 			wb_info_tv.setOnClickListener(new View.OnClickListener() {                    //編修
 				@Override
 				public void onClick(View v) {
@@ -219,7 +178,6 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 				}
 			});
 
-
 			dbMsg += ",selectColor=" + selectColor;
 			wb_whitebord.setPenColor(selectColor);
 			dbMsg += ",selectWidth=" + selectWidth;
@@ -234,7 +192,8 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 	}
 
 	/**
-	 * Spinnerは起動時に一度呼ばれてしまう
+	 * Spinnerは起動時に一度呼ばれて(勝手に動作)する
+	 * setOnTouchListenerもフォーカスが当たっていないと異常終了する
 	 */
 	@Override
 	public void onWindowFocusChanged(boolean hasFocus) {
@@ -295,8 +254,6 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 								}
 								if ( wb_whitebord != null ) {
 									wb_whitebord.setPenWidth(selectWidth);
-									int _width = ( int ) wb_whitebord.getPenWidth();
-									dbMsg += ">emit>" + _width;
 								}
 							}
 							myLog(TAG , dbMsg);
@@ -363,6 +320,46 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 				}
 				wb_linecaps_sp.setSelection(selP);
 
+				wb_whitebord.setOnTouchListener(new View.OnTouchListener() {
+					@Override
+					public boolean onTouch(View v , MotionEvent event) {
+						final String TAG = "onTouch[WB]";
+						String dbMsg = "";
+						try {
+							int action = event.getAction();
+							dbMsg = "action=" + action;
+							float eventX = event.getX();
+							float eventY = event.getY();
+							dbMsg += "(" + eventX + " , " + eventY + ")";
+							switch ( action ) {
+								case MotionEvent.ACTION_DOWN:     //0
+									drawing = true;
+									sendDrawLine(eventX , eventY , eventX , eventY , action);
+									nowX = ( int ) eventX;
+									nowY = ( int ) eventY;
+									break;
+								case MotionEvent.ACTION_MOVE:     //2
+									if ( drawing ) {
+										sendDrawLine(nowX , nowY , eventX , eventY , action);
+										nowX = eventX;
+										nowY = eventY;
+									}
+									break;
+								case MotionEvent.ACTION_UP:    //1
+									if ( drawing ) {
+										drawing = false;
+										sendDrawLine(nowX , nowY , eventX , eventY , action);
+									}
+									break;
+							}
+							myLog(TAG , dbMsg);
+						} catch (Exception er) {
+							myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+						}
+						return false;
+					}
+				});
+
 
 			}
 			myLog(TAG , dbMsg);
@@ -413,30 +410,6 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 		try {
 			dbMsg = "keyCode=" + keyCode;//+",getDisplayLabel="+String.valueOf(event.getDisplayLabel())+",getAction="+event.getAction();////////////////////////////////
 			switch ( keyCode ) {    //キーにデフォルト以外の動作を与えるもののみを記述★KEYCODE_MENUをここに書くとメニュー表示されない
-//				case KeyEvent.KEYCODE_DPAD_UP:        //マルチガイド上；19
-//					//	wZoomUp();						//ズームアップして上限に達すればfalse
-//					if ( !myNFV_S_Pref.getBoolean("prefKouseiD_PadUMU" , false) ) {        //キーの利用が無効になっていたら
-//						pNFVeditor.putBoolean("prefKouseiD_PadUMU" , true);            //キーの利用を有効にして
-//					}
-//				case KeyEvent.KEYCODE_DPAD_DOWN:    //マルチガイド下；20
-//					//	wZoomDown();					//ズームダウンして下限に達すればfalse
-//					if ( !myNFV_S_Pref.getBoolean("prefKouseiD_PadUMU" , false) ) {        //キーの利用が無効になっていたら
-//						pNFVeditor.putBoolean("prefKouseiD_PadUMU" , true);            //キーの利用を有効にして
-//					}
-//				case KeyEvent.KEYCODE_DPAD_LEFT:    //マルチガイド左；21
-//					wForward();                        //ページ履歴で1つ後のページに移動する					return true;
-//					if ( !myNFV_S_Pref.getBoolean("prefKouseiD_PadUMU" , false) ) {        //キーの利用が無効になっていたら
-//						pNFVeditor.putBoolean("prefKouseiD_PadUMU" , true);            //キーの利用を有効にして
-//					}
-//				case KeyEvent.KEYCODE_DPAD_RIGHT:    //マルチガイド右；22
-//					wGoBack();                    //ページ履歴で1つ前のページに移動する
-//					if ( !myNFV_S_Pref.getBoolean("prefKouseiD_PadUMU" , false) ) {        //キーの利用が無効になっていたら
-//						pNFVeditor.putBoolean("prefKouseiD_PadUMU" , true);            //キーの利用を有効にして
-//					}
-//				case KeyEvent.KEYCODE_VOLUME_UP:    //24
-//					wZoomUp();                        //ズームアップして上限に達すればfalse
-//				case KeyEvent.KEYCODE_VOLUME_DOWN:    //25
-//					wZoomDown();                    //ズームダウンして下限に達すればfalse
 				case KeyEvent.KEYCODE_BACK:            //4KEYCODE_BACK :keyCode；09SH: keyCode；4,event=KeyEvent{action=0 code=4 repeat=0 meta=0 scancode=158 mFlags=72}
 					callQuit();
 				default:
@@ -473,7 +446,6 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 	public void sioDisconnect() {
 		final String TAG = "sioDisconnect[WA]";
 		String dbMsg = "";
-		Socket _mSocket;
 		try {
 			if ( mSocket != null ) {
 				if ( mSocket.connected() ) {
@@ -541,7 +513,7 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 		String dbMsg = "";
 		try {
 			sioDisconnect();
-			dbMsg = "CHAT_SERVER_URL="+CHAT_SERVER_URL;
+			dbMsg = "CHAT_SERVER_URL=" + CHAT_SERVER_URL;
 			mSocket = getSocket(CHAT_SERVER_URL);
 //			mUsername = null;
 //			mSocket.disconnect();
@@ -552,17 +524,24 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 		}
 	}
-/**
- * 描画イベントの送信
- * */
-	public void drawLine(float x0 , float y0 , float x1 , float y1 , int action) {
+
+	/**
+	 * 描画イベントの送信
+	 */
+	public void sendDrawLine(float x0 , float y0 , float x1 , float y1 , int action) {
 		final String TAG = "drawLine[WA]";
-		String dbMsg = "";
+		String dbMsg = "送信";
 		try {
 			dbMsg += ",(" + x0 + " , " + y0 + ")～(" + x1 + " , " + y1 + ")";
+			if ( x0 != x1 ) {
+				dbMsg += "変位(" + (x0 - x1);
+			}
+			if ( y0 != y1 ) {
+				dbMsg += "," + (y0 - y1) + ")";
+			}
 			int cw = wb_whitebord.getWidth();
 			int ch = wb_whitebord.getHeight();
-			dbMsg += "whitebord[" + cw + " , " + ch + "]";
+			dbMsg += "canvas[" + cw + " , " + ch + "]";
 			x0 = x0 / cw;
 			y0 = y0 / ch;
 			x1 = x1 / cw;
@@ -572,7 +551,7 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 			dbMsg += ",color=" + color;
 			String int2string = Integer.toHexString(color); //to ARGB
 			dbMsg += ",int2string=" + int2string;
-			String HtmlColor = "#"+ int2string.substring(int2string.length() - 6, int2string.length()); // a stupid way to append your color
+			String HtmlColor = "#" + int2string.substring(int2string.length() - 6 , int2string.length()); // a stupid way to append your color
 			dbMsg += ",HtmlColor=" + HtmlColor;                   //JavaScriptCanvaseの#+16進数に直す
 
 			int width = ( int ) wb_whitebord.getPenWidth();
@@ -587,7 +566,7 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 			} catch (JSONException er) {
 				myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 			}
-			
+
 			mSocket.emit("drawing" , sioData);     //共有webページに全消去命令送信           { x0,y0 ,x1,y1,color}
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
@@ -595,9 +574,11 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 			throw new RuntimeException(er);
 		}
 	}
-    /**
+
+
+	/**
 	 * drawingイベントの受信
-	 * **/
+	 **/
 	private Emitter.Listener onDrawingEvent = new Emitter.Listener() {
 		@Override
 		public void call(final Object... args) {
@@ -605,7 +586,7 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 				@Override
 				public void run() {
 					final String TAG = "onDrawingEvent[WA]";
-					String dbMsg = "";
+					String dbMsg = "受信";
 					try {
 						JSONObject data = ( JSONObject ) args[0];
 						try {
@@ -615,9 +596,15 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 							float x1 = Float.parseFloat(data.getString("x1"));
 							float y1 = Float.parseFloat(data.getString("y1"));
 							dbMsg += "(" + x0 + " , " + y0 + ")～(" + x1 + " , " + y1 + ")";
+							if ( x0 != x1 ) {
+								dbMsg += "変位(" + (x0 - x1);
+							}
+							if ( y0 != y1 ) {
+								dbMsg += "," + (y0 - y1) + ")";
+							}
 							int cw = wb_whitebord.getWidth();
 							int ch = wb_whitebord.getHeight();
-							dbMsg += "whitebord[" + cw + " , " + ch + "]";
+							dbMsg += "canvasサイズ[" + cw + " , " + ch + "]";
 							x0 = x0 * cw;
 							y0 = y0 * ch;
 							x1 = x1 * cw;
@@ -626,23 +613,23 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 							int color = wb_whitebord.getPenColor();
 							dbMsg += ",color(現在)=" + color;
 							Object rObl = data.get("color");
-							if(rObl!=null){
+							if ( rObl != null ) {
 								String colorStr = data.getString("color");
 								dbMsg += ">colorStr>" + colorStr;
 								color = Color.parseColor(colorStr);
 								dbMsg += ">>" + color;
 							}
-							int width =(int)wb_whitebord.getPenWidth();
+							int width = ( int ) wb_whitebord.getPenWidth();
 							dbMsg += ",width(現在)=" + width;
-							 rObl = data.get("width");
-							if(rObl!=null){
+							rObl = data.get("width");
+							if ( rObl != null ) {
 								width = Integer.parseInt(data.getString("width"));
 								dbMsg += ">>" + width;
 							}
 							String lineCap = wb_whitebord.getPenCap();
 							dbMsg += ",lineCap(現在)=" + lineCap;
 							rObl = data.get("lineCap");
-							if(rObl!=null){
+							if ( rObl != null ) {
 								lineCap = data.getString("lineCap");
 								dbMsg += ">>" + lineCap;
 							}
@@ -663,8 +650,8 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 	};
 
 	/**
-	 *  allclearイベントの受信
-	 * */
+	 * allclearイベントの受信
+	 */
 	private Emitter.Listener onAllClear = new Emitter.Listener() {
 		@Override
 		public void call(final Object... args) {
@@ -816,7 +803,6 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 	}
 
 
-
 //	private void scrollToBottom() {
 //		final String TAG = "scrollToBottom[WA]";
 //		String dbMsg = "";
@@ -842,7 +828,7 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 								mSocket.emit("add user" , mUsername);
 							Toast.makeText(getApplicationContext() , R.string.connect , Toast.LENGTH_SHORT).show();
 							isConnected = true;
-							reTyy=0;
+							reTyy = 0;
 						}
 						myLog(TAG , dbMsg);
 					} catch (Exception er) {
@@ -865,8 +851,8 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 						isConnected = false;
 //						Toast.makeText(getApplicationContext() , R.string.disconnect , Toast.LENGTH_SHORT).show();
 						reTyy++;
-						if(reTyy<3){
-							dbMsg = "reTyy="+reTyy;
+						if ( reTyy < 3 ) {
+							dbMsg = "reTyy=" + reTyy;
 							leave();
 						}
 						myLog(TAG , dbMsg);
@@ -889,8 +875,8 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 					try {
 //						Toast.makeText(getApplicationContext() , R.string.error_connect , Toast.LENGTH_SHORT).show();
 						reTyy++;
-						if(reTyy<3){
-							dbMsg = "reTyy="+reTyy;
+						if ( reTyy < 3 ) {
+							dbMsg = "reTyy=" + reTyy;
 							leave();
 						}
 						myLog(TAG , dbMsg);
@@ -1068,143 +1054,6 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
 		}
 	};
 
-//	SocketIO mSocket;
-//	private class SocketThread extends Thread {
-//		@Override
-//		public void run() {
-//			final String TAG = "run[WA]";
-//			String dbMsg = "mSocket != null ";
-//			try {
-//				if ( mSocket == null ) {
-////					String urlStr = "http://ec2-52-197-173-40.ap-northeast-1.compute.amazonaws.com:3080/";
-////					String urlStr = "http://[socket.io.server.ip]:8080";
-//					dbMsg = "urlStr= " + CHAT_SERVER_URL;
-//					mSocket = new SocketIO(CHAT_SERVER_URL);
-//
-//					mSocket.connect(new IOCallback() {
-//						@Override
-//						public void onConnect() {                      //サーバとの接続が確立されたとき
-//							final String TAG = "onConnect[WA]";
-//							String dbMsg = "";
-//							try {
-//								mSocket.send("android");      								// connectしたらAndroidからsend
-//								myLog(TAG , dbMsg);
-//							} catch (Exception er) {
-//								myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
-//							}
-//						}
-//
-//						@Override
-//						public void onDisconnect() {                   			//サーバとの接続が切断されたとき
-//							final String TAG = "onDisconnect[WA]";
-//							String dbMsg = "";
-//							try {
-//								myLog(TAG , dbMsg);
-//							} catch (Exception er) {
-//								myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
-//							}
-//						}
-//
-//						@Override
-//						public void onError(SocketIOException e) {
-//							final String TAG = "onError[WA]";
-//							myErrorLog(TAG , "エラー発生；" + e.getMessage());
-//							//Error while handshaking
-//						}
-//
-//						@Override
-//						public void on(String eventName , IOAcknowledge ack , Object... args) {          		//イベントを受信したとき
-//							final String TAG = "on[WA]";
-//							String dbMsg = "";
-//							try {
-//								dbMsg += ".eventName=" + eventName;
-//								for ( Object arg : args ) {
-//									if ( !(arg instanceof JSONObject) )
-//										continue;
-//									JSONObject json = ( JSONObject ) arg;
-//									onMessage(json , null);
-//								}
-//								myLog(TAG , dbMsg);
-//							} catch (Exception er) {
-//								myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
-//							}
-//						}
-//
-//						@Override
-//						public void onMessage(String msg , IOAcknowledge ack) {
-//							final String TAG = "onMessage;String[WA]";
-//							String dbMsg = "";
-//							try {
-//								dbMsg += ".msg=" + msg;
-//								update(msg);
-//								myLog(TAG , dbMsg);
-//							} catch (Exception er) {
-//								myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
-//							}
-//						}
-//
-//						@Override
-//						public void onMessage(JSONObject data , IOAcknowledge ack) {     		//JSONを受信したとき
-//							final String TAG = "onMessage;JSONObject[WA]";
-//							String dbMsg = "";
-//							try {
-//								dbMsg = "onMessage(JSON)";
-//								if ( !data.has("msg") )
-//									return;
-//								try {
-//									String msg = ( String ) data.get("msg");
-//									dbMsg += ".msg=" + msg;
-//									update(msg);
-//								} catch (JSONException er) {
-//									myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
-//								}
-//								myLog(TAG , dbMsg);
-//							} catch (Exception er) {
-//								myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
-//							}
-//						}
-//
-//						private void update(final String data) {
-//							mHandler.post(new Thread() {
-//								@Override
-//								public void run() {
-//									final String TAG = "run[WA]";
-//									String dbMsg = "";
-//									try {
-//										dbMsg = "data~" + data;
-////										mAdapter.add(data);
-////										mAdapter.notifyDataSetChanged();
-//										myLog(TAG , dbMsg);
-//									} catch (Exception er) {
-//										myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
-//									}
-//								}
-//							});
-//						}
-//					});
-//				}
-//				myLog(TAG , dbMsg);
-//			} catch (MalformedURLException er) {
-//				myErrorLog(TAG , "エラー発生；" + er);
-//			}
-//		}
-//
-//		public void cancel() {
-//			final String TAG = "cancel[WA]";
-//			String dbMsg = "";
-//			try {
-//				if ( mSocket != null ) {
-//					mSocket.disconnect();
-//					mSocket = null;
-//				}
-//				myLog(TAG , dbMsg);
-//			} catch (Exception er) {
-//				myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
-//			}
-//		}
-//	}
-//
-
 	//UTIL/////////////////////////////////////////////////////////////////////////////SocketIO//
 	public static void myLog(String TAG , String dbMsg) {
 		CS_Util UTIL = new CS_Util();
@@ -1224,4 +1073,5 @@ public class CS_WhitebordActivity extends Activity {             //AppCompatActi
  * 2012年12月30日	リアルタイム通信へ挑戦 														http://blog.shonanshachu.com/2012/12/android.html
  * 2017年03月16日	Android とNode.js とsocket.io　簡単なチャットやり取り		 https://qiita.com/sirokitune999/items/5c058873e4f7bff2db1f
  * Native Socket.IO and Android		https://socket.io/blog/native-socket-io-and-android/
+ * 2014年06月22日	Socket.IOを使ったスマホ用のサイトを作る上での問題点と対応		  https://qiita.com/takeshy/items/44f90b845aa9fa373e57
  */
